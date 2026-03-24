@@ -845,3 +845,109 @@
   font-weight: bold;
   color: var(--pd6-accent);
 }
+
+/* ---------- Combat Chain ---------- */
+.pd6-combat-buttons {
+  margin-top: 6px;
+  display: flex;
+  gap: 4px;
+}
+
+.pd6-combat-btn {
+  background: var(--pd6-bg-input);
+  color: var(--pd6-text-bright);
+  border: 1px solid var(--pd6-border-light);
+  border-radius: var(--pd6-radius);
+  padding: 4px 12px;
+  cursor: pointer;
+  font-family: var(--pd6-font);
+  font-size: 0.82rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.pd6-combat-btn:hover {
+  background: var(--pd6-bg-light);
+  border-color: var(--pd6-accent);
+}
+
+.pd6-combat-btn i { margin-right: 4px; }
+
+.pd6-btn-defense { border-color: var(--pd6-blue); }
+.pd6-btn-defense:hover { background: rgba(74, 122, 181, 0.15); border-color: var(--pd6-blue); }
+
+.pd6-btn-damage { border-color: var(--pd6-red); }
+.pd6-btn-damage:hover { background: rgba(196, 64, 64, 0.15); border-color: var(--pd6-red-bright); }
+
+.pd6-btn-armor { border-color: var(--pd6-accent-dim); }
+.pd6-btn-armor:hover { background: rgba(201, 168, 76, 0.1); border-color: var(--pd6-accent); }
+
+.pd6-combat-note {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: var(--pd6-text-dim);
+}
+
+.pd6-target-info {
+  color: var(--pd6-text-dim);
+  font-size: 0.78rem;
+}
+
+.pd6-vs-info {
+  color: var(--pd6-text-dim);
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
+.pd6-formula-info {
+  color: var(--pd6-text-dim);
+  font-size: 0.72rem;
+}
+
+.pd6-ap-note {
+  font-size: 0.78rem;
+  color: var(--pd6-accent);
+  margin-top: 3px;
+}
+
+.pd6-result-neutral {
+  color: var(--pd6-blue);
+}
+
+.pd6-final-result {
+  font-size: 1rem;
+  padding: 4px 0;
+  border-top: 1px solid var(--pd6-border);
+  margin-top: 4px;
+}
+
+.pd6-grit-update {
+  font-size: 0.85rem;
+  color: var(--pd6-text);
+  margin-top: 4px;
+  padding: 3px 6px;
+  background: rgba(196, 64, 64, 0.1);
+  border-radius: var(--pd6-radius);
+  border-left: 3px solid var(--pd6-red);
+}
+
+.pd6-grit-update strong {
+  color: var(--pd6-red-bright);
+}
+
+/* Modifier dialog */
+.pd6-modifier-dialog .form-group {
+  margin-bottom: 6px;
+}
+
+.pd6-modifier-dialog label {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.85rem;
+  color: var(--pd6-text-dim);
+  text-transform: none;
+}
+
+.pd6-modifier-dialog label strong {
+  color: var(--pd6-accent);
+}
+

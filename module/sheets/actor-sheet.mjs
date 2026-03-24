@@ -260,57 +260,11 @@ export class PD6ActorSheet extends ActorSheet {
   }
 
   /**
-   * Handle armor roll.
+   * Handle armor roll (standalone, outside combat chain).
    */
   async _onArmorRoll(event) {
     event.preventDefault();
-    // Find equipped armor
-    const equippedArmor = this.actor.items.find(
-      (i) => i.type === "armor" && i.system.equipped
-    );
-
-    let armorValue = equippedArmor ? equippedArmor.system.armorValue : 0;
-    let armorColor = "white";
-
-    // Check for Reinforced trait
-    if (equippedArmor && equippedArmor.system.armorTraits) {
-      if (equippedArmor.system.armorTraits.toLowerCase().includes("reinforced")) {
-        armorColor = "red";
-      }
-    }
-
-    // Prompt for AP modifier
-    const dialogContent = `
-      <form>
-        <div class="form-group">
-          <label>Armor Value: ${armorValue}</label>
-        </div>
-        <div class="form-group">
-          <label>Armor Penetration (enemy weapon AP):</label>
-          <input type="number" name="ap" value="0" min="-10" max="0" />
-        </div>
-      </form>
-    `;
-
-    const result = await Dialog.prompt({
-      title: "Armor Roll",
-      content: dialogContent,
-      label: "Roll",
-      callback: (html) => {
-        const form = html[0].querySelector("form");
-        return { ap: parseInt(form.ap.value) || 0 };
-      },
-      rejectClose: false,
-    });
-
-    if (!result) return;
-
-    PD6Dice.rollArmor({
-      actor: this.actor,
-      armorValue,
-      armorColor,
-      armorPenalty: result.ap,
-    });
+    PD6Dice.rollArmorStandalone({ actor: this.actor });
   }
 
   /**

@@ -49,14 +49,23 @@ Hooks.once("ready", async function () {
   console.log("PD6 | System Ready");
 });
 
-// Register chat message listeners for inline rolls
+// Register chat message listeners for combat chain buttons
 Hooks.on("renderChatMessage", (message, html, data) => {
   const element = html instanceof HTMLElement ? html : html[0];
-  element.querySelectorAll(".pd6-roll-damage").forEach(btn => {
-    btn.addEventListener("click", (ev) => PD6Dice.onDamageRoll(ev, message));
+
+  // Step 2: Defense roll button (on attack card)
+  element.querySelectorAll(".pd6-btn-defense").forEach(btn => {
+    btn.addEventListener("click", (ev) => PD6Dice.onDefenseRoll(ev));
   });
-  element.querySelectorAll(".pd6-roll-armor").forEach(btn => {
-    btn.addEventListener("click", (ev) => PD6Dice.onArmorRoll(ev, message));
+
+  // Step 3: Damage roll button (on defense card, after a hit)
+  element.querySelectorAll(".pd6-btn-damage").forEach(btn => {
+    btn.addEventListener("click", (ev) => PD6Dice.onDamageRoll(ev));
+  });
+
+  // Step 4: Armor roll button (on damage card)
+  element.querySelectorAll(".pd6-btn-armor").forEach(btn => {
+    btn.addEventListener("click", (ev) => PD6Dice.onArmorRoll(ev));
   });
 });
 
