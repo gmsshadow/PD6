@@ -126,6 +126,23 @@ export class PD6Dice {
     return ChatMessage.create(chatData);
   }
 
+  /**
+   * Resolve an actor from a token ID first (respects linked/unlinked),
+   * falling back to base actor ID if the token isn't on the canvas.
+   * @param {string} tokenId  The token ID on the current scene
+   * @param {string} actorId  Fallback base actor ID
+   * @returns {Actor|null}
+   */
+  static _resolveActor(tokenId, actorId) {
+    // Try to get the token from the active scene canvas
+    if (tokenId && canvas.tokens?.placeables) {
+      const token = canvas.tokens.get(tokenId);
+      if (token?.actor) return token.actor;
+    }
+    // Fallback to base actor (handles linked tokens and edge cases)
+    return game.actors.get(actorId) || null;
+  }
+
   /* ==================================================================
      Shared modifier dialog
      ================================================================== */
@@ -271,8 +288,7 @@ export class PD6Dice {
   static async onDefenseRoll(event) {
     event.preventDefault();
     const btn = event.currentTarget;
-    const defenderId = btn.dataset.defenderId;
-    const defender = game.actors.get(defenderId);
+    const defender = this._resolveActor(btn.dataset.defenderTokenId, btn.dataset.defenderId);
     if (!defender) { ui.notifications.warn("Defender not found."); return; }
 
     const attackerSuccesses = parseInt(btn.dataset.attackerSuccesses) || 0;
@@ -425,8 +441,7 @@ export class PD6Dice {
   static async onArmorRoll(event) {
     event.preventDefault();
     const btn = event.currentTarget;
-    const defenderId = btn.dataset.defenderId;
-    const defender = game.actors.get(defenderId);
+    const defender = this._resolveActor(btn.dataset.defenderTokenId, btn.dataset.defenderId);
     if (!defender) { ui.notifications.warn("Defender not found."); return; }
 
     const damageSuccesses = parseInt(btn.dataset.damageSuccesses) || 0;
