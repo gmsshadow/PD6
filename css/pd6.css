@@ -951,3 +951,27 @@
   color: var(--pd6-accent);
 }
 
+/* ---------- Next Side Button ---------- */
+.pd6-next-side {
+  color: var(--pd6-accent);
+  font-size: 1rem;
+  padding: 2px 6px;
+  border-radius: var(--pd6-radius);
+  transition: color 0.15s, background 0.15s;
+}
+
+.pd6-next-side:hover {
+  color: var(--pd6-text-bright);
+  background: var(--pd6-accent-dim);
+}
+
+/* Side change chat announcement */
+.pd6-side-change {
+  text-align: center;
+  padding: 6px 8px;
+  border-color: var(--pd6-accent);
+  background: rgba(201, 168, 76, 0.08);
+  font-size: 0.9rem;
+  color: var(--pd6-accent);
+}
+

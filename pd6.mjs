@@ -69,6 +69,41 @@ Hooks.on("renderChatMessage", (message, html, data) => {
   });
 });
 
+// Inject "Next Side" button into the Combat Tracker
+Hooks.on("renderCombatTracker", (app, html, data) => {
+  const combat = game.combat;
+  if (!combat?.started) return;
+
+  const element = html instanceof HTMLElement ? html : html[0];
+
+  // Avoid duplicating the button on re-renders
+  if (element.querySelector(".pd6-next-side")) return;
+
+  // Find the encounter controls area (contains Next Turn, etc.)
+  // V13 AppV2 uses various selectors; try multiple approaches
+  const controls = element.querySelector(".encounter-controls")
+    || element.querySelector(".combat-tracker-controls")
+    || element.querySelector("[data-control='nextTurn']")?.parentElement;
+
+  if (!controls) return;
+
+  // Create the Next Side button
+  const btn = document.createElement("a");
+  btn.classList.add("combat-control", "pd6-next-side");
+  btn.setAttribute("title", "Next Side");
+  btn.setAttribute("data-tooltip", "Next Side");
+  btn.innerHTML = `<i class="fas fa-people-arrows"></i>`;
+  btn.style.cursor = "pointer";
+
+  btn.addEventListener("click", async (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (game.combat) await game.combat.nextSide();
+  });
+
+  controls.appendChild(btn);
+});
+
 /* -------------------------------------------- */
 /*  Handlebars Helpers                          */
 /* -------------------------------------------- */

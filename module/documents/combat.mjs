@@ -190,4 +190,54 @@ export class PD6Combat extends Combat {
     const v = n % 100;
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
   }
+
+  /* ----------------------------------------------------------
+     Next Side — skip to the first combatant of the next
+     initiative group (i.e. the opposing side).
+     ---------------------------------------------------------- */
+
+  /**
+   * Advance the combat turn to the first combatant of the next side.
+   * "Side" is determined by shared initiative value.
+   */
+  async nextSide() {
+    if (!this.started) return;
+
+    const turns = this.turns;          // already sorted by initiative desc
+    const currentTurn = this.turn;
+    if (!turns.length) return;
+
+    const currentInit = turns[currentTurn]?.initiative;
+
+    // Walk forward through the turn order to find the first combatant
+    // with a different initiative value (= different side).
+    let nextTurn = null;
+    for (let i = currentTurn + 1; i < turns.length; i++) {
+      if (turns[i].initiative !== currentInit) {
+        nextTurn = i;
+        break;
+      }
+    }
+
+    // If we didn't find a different side, wrap to the next round
+    // and start from the top (first combatant = winning side again).
+    if (nextTurn === null) {
+      return this.nextRound();
+    }
+
+    await this.update({ turn: nextTurn });
+
+    // Announce the side change in chat
+    const newCombatant = turns[nextTurn];
+    const disposition = newCombatant?.token?.disposition ?? 0;
+    const sideLabel = this._dispositionLabel(disposition);
+
+    await ChatMessage.create({
+      user: game.user.id,
+      speaker: { alias: "PD6 Combat" },
+      content: `<div class="pd6-chat-roll pd6-side-change">
+        <strong>${sideLabel} side's turn!</strong>
+      </div>`,
+    });
+  }
 }
