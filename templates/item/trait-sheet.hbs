@@ -44,95 +44,66 @@
         {{/unless}}
       </div>
 
-      {{!-- Effect Type --}}
-      <div class="pd6-item-fields">
-        <div class="pd6-field">
-          <label>Effect Type</label>
-          <select name="system.effectType">
-            <option value="none" {{#if (eq system.effectType "none")}}selected{{/if}}>None (descriptive only)</option>
-            <option value="diceColor" {{#if (eq system.effectType "diceColor")}}selected{{/if}}>Dice Colour Override</option>
-            <option value="bonusDice" {{#if (eq system.effectType "bonusDice")}}selected{{/if}}>Bonus / Penalty Dice</option>
-            <option value="attributeMod" {{#if (eq system.effectType "attributeMod")}}selected{{/if}}>Attribute Modifier</option>
-            <option value="skillMod" {{#if (eq system.effectType "skillMod")}}selected{{/if}}>Skill Rank Modifier</option>
-            <option value="criticalInjury" {{#if (eq system.effectType "criticalInjury")}}selected{{/if}}>Critical Injury (roll twice, choose)</option>
-          </select>
-        </div>
+      {{!-- Effect Slots --}}
+      {{#each effectSlots}}
+      <div class="pd6-effect-slot {{#if (eq type 'none')}}pd6-effect-inactive{{else}}pd6-effect-active{{/if}}">
+        <h4 class="pd6-effect-slot-header">{{label}}</h4>
 
-        {{!-- Dice Colour Override --}}
-        {{#if (eq system.effectType "diceColor")}}
-        <div class="pd6-field">
-          <label>Override Colour</label>
-          <select name="system.diceColorOverride">
-            <option value="red" {{#if (eq system.diceColorOverride "red")}}selected{{/if}}>Red (3+)</option>
-            <option value="black" {{#if (eq system.diceColorOverride "black")}}selected{{/if}}>Black (2+)</option>
-            <option value="white" {{#if (eq system.diceColorOverride "white")}}selected{{/if}}>White (4+)</option>
-          </select>
-        </div>
-        {{/if}}
+        <div class="pd6-item-fields">
+          <div class="pd6-field">
+            <label>Effect Type</label>
+            <select name="{{fType}}">
+              <option value="none" {{#if (eq type "none")}}selected{{/if}}>None</option>
+              <option value="diceColor" {{#if (eq type "diceColor")}}selected{{/if}}>Dice Colour Override</option>
+              <option value="bonusDice" {{#if (eq type "bonusDice")}}selected{{/if}}>Bonus / Penalty Dice</option>
+              <option value="attributeMod" {{#if (eq type "attributeMod")}}selected{{/if}}>Attribute Modifier</option>
+              <option value="skillMod" {{#if (eq type "skillMod")}}selected{{/if}}>Skill Rank Modifier</option>
+              {{#if (eq num 1)}}
+              <option value="criticalInjury" {{#if (eq type "criticalInjury")}}selected{{/if}}>Critical Injury (roll twice)</option>
+              {{/if}}
+            </select>
+          </div>
 
-        {{!-- Modifier Value (for bonusDice, attributeMod, skillMod) --}}
-        {{#if (or (eq system.effectType "bonusDice") (or (eq system.effectType "attributeMod") (eq system.effectType "skillMod")))}}
-        <div class="pd6-field">
-          <label>Modifier Value</label>
-          <input type="number" name="system.modifierValue" value="{{system.modifierValue}}" />
-        </div>
-        {{/if}}
+          {{!-- Dice Colour Override --}}
+          {{#if (eq type "diceColor")}}
+          <div class="pd6-field">
+            <label>Override Colour</label>
+            <select name="{{fColor}}">
+              <option value="red" {{#if (eq diceColorOverride "red")}}selected{{/if}}>Red (3+)</option>
+              <option value="black" {{#if (eq diceColorOverride "black")}}selected{{/if}}>Black (2+)</option>
+              <option value="white" {{#if (eq diceColorOverride "white")}}selected{{/if}}>White (4+)</option>
+            </select>
+          </div>
+          {{/if}}
 
-        {{!-- Target Skills --}}
-        {{#if (or (eq system.effectType "diceColor") (or (eq system.effectType "bonusDice") (eq system.effectType "skillMod")))}}
-        <div class="pd6-field pd6-full-width">
-          <label>Target Skills (comma-separated, or "all")</label>
-          <input type="text" name="system.targetSkills" value="{{system.targetSkills}}" 
-                 placeholder="e.g. discipline, leadership" />
-        </div>
-        {{/if}}
+          {{!-- Modifier Value --}}
+          {{#if (or (eq type "bonusDice") (or (eq type "attributeMod") (eq type "skillMod")))}}
+          <div class="pd6-field">
+            <label>Modifier Value</label>
+            <input type="number" name="{{fMod}}" value="{{modifierValue}}" />
+          </div>
+          {{/if}}
 
-        {{!-- Target Attributes --}}
-        {{#if (eq system.effectType "attributeMod")}}
-        <div class="pd6-field pd6-full-width">
-          <label>Target Attributes (comma-separated — also accepts "grit" and "luck" for max values)</label>
-          <input type="text" name="system.targetAttributes" value="{{system.targetAttributes}}" 
-                 placeholder="e.g. might, toughness, grit, luck" />
+          {{!-- Target Skills --}}
+          {{#if (or (eq type "diceColor") (or (eq type "bonusDice") (eq type "skillMod")))}}
+          <div class="pd6-field pd6-full-width">
+            <label>Target Skills (comma-separated, or "all")</label>
+            <input type="text" name="{{fSkills}}" value="{{targetSkills}}" 
+                   placeholder="e.g. discipline, leadership" />
+          </div>
+          {{/if}}
+
+          {{!-- Target Attributes --}}
+          {{#if (eq type "attributeMod")}}
+          <div class="pd6-field pd6-full-width">
+            <label>Target Attributes (comma-separated — also accepts "grit" and "luck")</label>
+            <input type="text" name="{{fAttrs}}" value="{{targetAttributes}}" 
+                   placeholder="e.g. might, toughness, grit, luck" />
+          </div>
+          {{/if}}
         </div>
-        {{/if}}
       </div>
-
-      {{!-- Effect Summary --}}
-      <div class="pd6-trait-summary">
-        <h4>Effect Summary</h4>
-        {{#if (eq system.effectType "none")}}
-          <p class="pd6-trait-summary-text">No mechanical effect — descriptive only.</p>
-        {{/if}}
-        {{#if (eq system.effectType "diceColor")}}
-          <p class="pd6-trait-summary-text">
-            {{#if system.passive}}<i class="fas fa-check-circle"></i> Always{{else}}<i class="fas fa-question-circle"></i> Conditionally{{/if}}
-            rolls <strong>{{system.diceColorOverride}}</strong> dice for: <strong>{{system.targetSkills}}</strong>
-          </p>
-        {{/if}}
-        {{#if (eq system.effectType "bonusDice")}}
-          <p class="pd6-trait-summary-text">
-            {{#if system.passive}}<i class="fas fa-check-circle"></i> Always{{else}}<i class="fas fa-question-circle"></i> Conditionally{{/if}}
-            <strong>{{#if (gt system.modifierValue 0)}}+{{/if}}{{system.modifierValue}}</strong> dice for: <strong>{{system.targetSkills}}</strong>
-          </p>
-        {{/if}}
-        {{#if (eq system.effectType "attributeMod")}}
-          <p class="pd6-trait-summary-text">
-            {{#if system.passive}}<i class="fas fa-check-circle"></i> Always{{else}}<i class="fas fa-question-circle"></i> Conditionally{{/if}}
-            <strong>{{#if (gt system.modifierValue 0)}}+{{/if}}{{system.modifierValue}}</strong> to: <strong>{{system.targetAttributes}}</strong>
-          </p>
-        {{/if}}
-        {{#if (eq system.effectType "skillMod")}}
-          <p class="pd6-trait-summary-text">
-            {{#if system.passive}}<i class="fas fa-check-circle"></i> Always{{else}}<i class="fas fa-question-circle"></i> Conditionally{{/if}}
-            <strong>{{#if (gt system.modifierValue 0)}}+{{/if}}{{system.modifierValue}}</strong> ranks to: <strong>{{system.targetSkills}}</strong>
-          </p>
-        {{/if}}
-        {{#if (eq system.effectType "criticalInjury")}}
-          <p class="pd6-trait-summary-text">
-            <i class="fas fa-check-circle"></i> When critically injured, roll twice and choose between results.
-          </p>
-        {{/if}}
-      </div>
+      {{/each}}
 
     </div>
   </section>

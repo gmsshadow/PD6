@@ -50,6 +50,52 @@ export class PD6ItemSheet extends ItemSheet {
       black: "Black (2+)",
     };
 
+    // Build effect slots array for trait sheets
+    if (this.item.type === "trait") {
+      const s = context.system;
+      context.effectSlots = [
+        {
+          num: 1, label: "Effect 1",
+          type: s.effectType || "none",
+          targetSkills: s.targetSkills || "",
+          targetAttributes: s.targetAttributes || "",
+          modifierValue: s.modifierValue || 0,
+          diceColorOverride: s.diceColorOverride || "",
+          fType: "system.effectType",
+          fSkills: "system.targetSkills",
+          fAttrs: "system.targetAttributes",
+          fMod: "system.modifierValue",
+          fColor: "system.diceColorOverride",
+        },
+        {
+          num: 2, label: "Effect 2",
+          type: s.effect2Type || "none",
+          targetSkills: s.effect2TargetSkills || "",
+          targetAttributes: s.effect2TargetAttributes || "",
+          modifierValue: s.effect2ModifierValue || 0,
+          diceColorOverride: s.effect2DiceColorOverride || "",
+          fType: "system.effect2Type",
+          fSkills: "system.effect2TargetSkills",
+          fAttrs: "system.effect2TargetAttributes",
+          fMod: "system.effect2ModifierValue",
+          fColor: "system.effect2DiceColorOverride",
+        },
+        {
+          num: 3, label: "Effect 3",
+          type: s.effect3Type || "none",
+          targetSkills: s.effect3TargetSkills || "",
+          targetAttributes: s.effect3TargetAttributes || "",
+          modifierValue: s.effect3ModifierValue || 0,
+          diceColorOverride: s.effect3DiceColorOverride || "",
+          fType: "system.effect3Type",
+          fSkills: "system.effect3TargetSkills",
+          fAttrs: "system.effect3TargetAttributes",
+          fMod: "system.effect3ModifierValue",
+          fColor: "system.effect3DiceColorOverride",
+        },
+      ];
+    }
+
     return context;
   }
 

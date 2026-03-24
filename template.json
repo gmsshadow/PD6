@@ -152,7 +152,17 @@
       "targetAttributes": "",
       "modifierValue": 0,
       "diceColorOverride": "",
-      "conditionNote": ""
+      "conditionNote": "",
+      "effect2Type": "none",
+      "effect2TargetSkills": "",
+      "effect2TargetAttributes": "",
+      "effect2ModifierValue": 0,
+      "effect2DiceColorOverride": "",
+      "effect3Type": "none",
+      "effect3TargetSkills": "",
+      "effect3TargetAttributes": "",
+      "effect3ModifierValue": 0,
+      "effect3DiceColorOverride": ""
     }
   }
 }

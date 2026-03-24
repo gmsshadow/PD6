@@ -1180,3 +1180,36 @@
   font-weight: bold;
   letter-spacing: 0.05em;
 }
+
+/* ---------- Effect Slots ---------- */
+.pd6-effect-slot {
+  margin-bottom: 6px;
+  padding: 6px;
+  border: 1px solid var(--pd6-border);
+  border-radius: var(--pd6-radius);
+  background: var(--pd6-bg-mid);
+}
+
+.pd6-effect-active {
+  border-color: var(--pd6-accent-dim);
+}
+
+.pd6-effect-inactive {
+  opacity: 0.6;
+}
+
+.pd6-effect-inactive:hover {
+  opacity: 0.85;
+}
+
+.pd6-effect-slot-header {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  color: var(--pd6-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pd6-effect-inactive .pd6-effect-slot-header {
+  color: var(--pd6-text-dim);
+}

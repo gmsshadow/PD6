@@ -164,13 +164,29 @@ export class PD6Dice {
       result.bonusDice = actor.system.traitBonusDice[skillKey];
     }
 
-    // Collect conditional trait reminders
+    // Collect conditional trait reminders (check all effect slots)
     for (const item of actor.items) {
       if (item.type !== "trait") continue;
       if (item.system.passive) continue;
-      if (item.system.effectType === "none") continue;
-      const targets = (item.system.targetSkills || "").split(",").map(s => s.trim().toLowerCase());
-      if (targets.includes(skillKey) || targets.includes("all")) {
+
+      // Check all 3 effect slots for matching skills
+      const slotConfigs = [
+        { type: item.system.effectType, skills: item.system.targetSkills },
+        { type: item.system.effect2Type, skills: item.system.effect2TargetSkills },
+        { type: item.system.effect3Type, skills: item.system.effect3TargetSkills },
+      ];
+
+      let matches = false;
+      for (const slot of slotConfigs) {
+        if (!slot.type || slot.type === "none") continue;
+        const targets = (slot.skills || "").split(",").map(s => s.trim().toLowerCase());
+        if (targets.includes(skillKey) || targets.includes("all")) {
+          matches = true;
+          break;
+        }
+      }
+
+      if (matches) {
         const note = item.system.conditionNote || "Check if applicable";
         result.remindersHtml += `<div class="pd6-trait-reminder"><i class="fas fa-exclamation-triangle"></i> <strong>${item.name}:</strong> ${note}</div>`;
       }

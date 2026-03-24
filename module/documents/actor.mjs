@@ -81,35 +81,77 @@ export class PD6Actor extends Actor {
     for (const item of this.items) {
       if (item.type !== "trait") continue;
       if (!item.system.passive) continue;
-      if (item.system.effectType !== effectType) continue;
 
-      const mod = Number(item.system.modifierValue) || 0;
-      if (mod === 0) continue;
+      const slots = PD6Actor._getEffectSlots(item);
+      for (const slot of slots) {
+        if (slot.effectType !== effectType) continue;
+        const mod = Number(slot.modifierValue) || 0;
+        if (mod === 0) continue;
 
-      if (effectType === "attributeMod" && item.system.targetAttributes) {
-        const targets = item.system.targetAttributes.split(",").map(s => s.trim().toLowerCase());
-        for (const attrKey of targets) {
-          if (systemData.attributes[attrKey]) {
-            systemData.attributes[attrKey].value += mod;
+        if (effectType === "attributeMod" && slot.targetAttributes) {
+          const targets = slot.targetAttributes.split(",").map(s => s.trim().toLowerCase());
+          for (const attrKey of targets) {
+            if (systemData.attributes[attrKey]) {
+              systemData.attributes[attrKey].value += mod;
+            }
           }
         }
-      }
 
-      if (effectType === "skillMod" && item.system.targetSkills) {
-        const targets = item.system.targetSkills.split(",").map(s => s.trim().toLowerCase());
-        for (const skillKey of targets) {
-          if (targets.includes("all")) {
-            for (const [k, skill] of Object.entries(systemData.skills)) {
-              skill.value += mod;
+        if (effectType === "skillMod" && slot.targetSkills) {
+          const targets = slot.targetSkills.split(",").map(s => s.trim().toLowerCase());
+          for (const skillKey of targets) {
+            if (targets.includes("all")) {
+              for (const [k, skill] of Object.entries(systemData.skills)) {
+                skill.value += mod;
+              }
+              break;
             }
-            break;
-          }
-          if (systemData.skills[skillKey]) {
-            systemData.skills[skillKey].value += mod;
+            if (systemData.skills[skillKey]) {
+              systemData.skills[skillKey].value += mod;
+            }
           }
         }
       }
     }
+  }
+
+  /**
+   * Extract all effect slots from a trait item as a flat array.
+   */
+  static _getEffectSlots(item) {
+    const s = item.system;
+    const slots = [];
+    // Slot 1 (original fields)
+    if (s.effectType && s.effectType !== "none") {
+      slots.push({
+        effectType: s.effectType,
+        targetSkills: s.targetSkills || "",
+        targetAttributes: s.targetAttributes || "",
+        modifierValue: s.modifierValue || 0,
+        diceColorOverride: s.diceColorOverride || "",
+      });
+    }
+    // Slot 2
+    if (s.effect2Type && s.effect2Type !== "none") {
+      slots.push({
+        effectType: s.effect2Type,
+        targetSkills: s.effect2TargetSkills || "",
+        targetAttributes: s.effect2TargetAttributes || "",
+        modifierValue: s.effect2ModifierValue || 0,
+        diceColorOverride: s.effect2DiceColorOverride || "",
+      });
+    }
+    // Slot 3
+    if (s.effect3Type && s.effect3Type !== "none") {
+      slots.push({
+        effectType: s.effect3Type,
+        targetSkills: s.effect3TargetSkills || "",
+        targetAttributes: s.effect3TargetAttributes || "",
+        modifierValue: s.effect3ModifierValue || 0,
+        diceColorOverride: s.effect3DiceColorOverride || "",
+      });
+    }
+    return slots;
   }
 
   /**
@@ -120,18 +162,21 @@ export class PD6Actor extends Actor {
     for (const item of this.items) {
       if (item.type !== "trait") continue;
       if (!item.system.passive) continue;
-      if (item.system.effectType !== "attributeMod") continue;
 
-      const mod = Number(item.system.modifierValue) || 0;
-      if (mod === 0) continue;
+      const slots = PD6Actor._getEffectSlots(item);
+      for (const slot of slots) {
+        if (slot.effectType !== "attributeMod") continue;
+        const mod = Number(slot.modifierValue) || 0;
+        if (mod === 0) continue;
 
-      const targets = (item.system.targetAttributes || "").split(",").map(s => s.trim().toLowerCase());
-      for (const target of targets) {
-        if (target === "gritpoints" || target === "grit") {
-          systemData.gritPoints.max += mod;
-        }
-        if (target === "luckpoints" || target === "luck") {
-          systemData.luckPoints.max += mod;
+        const targets = (slot.targetAttributes || "").split(",").map(s => s.trim().toLowerCase());
+        for (const target of targets) {
+          if (target === "gritpoints" || target === "grit") {
+            systemData.gritPoints.max += mod;
+          }
+          if (target === "luckpoints" || target === "luck") {
+            systemData.luckPoints.max += mod;
+          }
         }
       }
     }
@@ -146,32 +191,35 @@ export class PD6Actor extends Actor {
       if (item.type !== "trait") continue;
       if (!item.system.passive) continue;
 
-      const targets = (item.system.targetSkills || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+      const slots = PD6Actor._getEffectSlots(item);
+      for (const slot of slots) {
+        const targets = (slot.targetSkills || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
 
-      if (item.system.effectType === "bonusDice") {
-        const mod = Number(item.system.modifierValue) || 0;
-        if (mod === 0) continue;
-        for (const skillKey of targets) {
-          if (skillKey === "all") {
-            for (const k of Object.keys(systemData.skills)) {
-              systemData.traitBonusDice[k] = (systemData.traitBonusDice[k] || 0) + mod;
+        if (slot.effectType === "bonusDice") {
+          const mod = Number(slot.modifierValue) || 0;
+          if (mod === 0) continue;
+          for (const skillKey of targets) {
+            if (skillKey === "all") {
+              for (const k of Object.keys(systemData.skills)) {
+                systemData.traitBonusDice[k] = (systemData.traitBonusDice[k] || 0) + mod;
+              }
+              break;
             }
-            break;
+            systemData.traitBonusDice[skillKey] = (systemData.traitBonusDice[skillKey] || 0) + mod;
           }
-          systemData.traitBonusDice[skillKey] = (systemData.traitBonusDice[skillKey] || 0) + mod;
         }
-      }
 
-      if (item.system.effectType === "diceColor" && item.system.diceColorOverride) {
-        const color = item.system.diceColorOverride;
-        for (const skillKey of targets) {
-          if (skillKey === "all") {
-            for (const k of Object.keys(systemData.skills)) {
-              systemData.traitDiceColor[k] = color;
+        if (slot.effectType === "diceColor" && slot.diceColorOverride) {
+          const color = slot.diceColorOverride;
+          for (const skillKey of targets) {
+            if (skillKey === "all") {
+              for (const k of Object.keys(systemData.skills)) {
+                systemData.traitDiceColor[k] = color;
+              }
+              break;
             }
-            break;
+            systemData.traitDiceColor[skillKey] = color;
           }
-          systemData.traitDiceColor[skillKey] = color;
         }
       }
     }
