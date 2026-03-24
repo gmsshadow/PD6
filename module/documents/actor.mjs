@@ -36,6 +36,9 @@ export class PD6Actor extends Actor {
     const toughnessRanks = systemData.attributes.toughness.value || 0;
     systemData.gritPoints.max = resiliencyRanks + toughnessRanks;
 
+    // Clamp Grit Points: never below 0, never above max
+    systemData.gritPoints.value = Math.clamped(systemData.gritPoints.value, 0, systemData.gritPoints.max);
+
     // Calculate Luck Points max = Fate ranks
     systemData.luckPoints.max = systemData.attributes.fate.value || 0;
 
@@ -64,6 +67,9 @@ export class PD6Actor extends Actor {
   _prepareNpcData(actorData) {
     if (actorData.type !== 'npc') return;
     const systemData = actorData.system;
+
+    // Clamp Grit Points: never below 0, never above max
+    systemData.gritPoints.value = Math.clamped(systemData.gritPoints.value, 0, systemData.gritPoints.max);
 
     // Calculate dice pools for NPC skills
     for (let [key, skill] of Object.entries(systemData.skills)) {

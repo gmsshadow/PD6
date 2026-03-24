@@ -418,17 +418,25 @@ export class PD6Dice {
     const ap = parseInt(btn.dataset.weaponAp) || 0;
     const weaponName = btn.dataset.weaponName || "Unknown";
 
-    // --- Find equipped armor ---
-    const equippedArmor = defender.items.find(i => i.type === "armor" && i.system.equipped);
-    let baseArmor = equippedArmor ? equippedArmor.system.armorValue : 0;
+    // --- Determine armor value ---
+    let baseArmor = 0;
     let defaultColor = "white";
-    if (equippedArmor?.system.armorTraits?.toLowerCase().includes("reinforced")) {
-      defaultColor = "red";
-    }
+    let armorSource = "None";
 
-    // NPC armor dice fallback
-    if (!equippedArmor && defender.type === "npc" && defender.system.armorDice) {
-      baseArmor = defender.system.armorDice;
+    if (defender.type === "npc") {
+      // NPCs always use the armorDice field from their sheet
+      baseArmor = Number(defender.system.armorDice) || 0;
+      armorSource = `NPC Armor (${baseArmor} dice)`;
+    } else {
+      // Characters use equipped armor items
+      const equippedArmor = defender.items.find(i => i.type === "armor" && i.system.equipped);
+      if (equippedArmor) {
+        baseArmor = equippedArmor.system.armorValue || 0;
+        armorSource = equippedArmor.name;
+        if (equippedArmor.system.armorTraits?.toLowerCase().includes("reinforced")) {
+          defaultColor = "red";
+        }
+      }
     }
 
     const armorAfterAP = Math.max(baseArmor - ap, 0);
@@ -438,6 +446,9 @@ export class PD6Dice {
       `Armor: ${defender.name}`,
       defaultColor,
       `<div class="form-group">
+        <label>Armor: <strong>${armorSource}</strong></label>
+      </div>
+      <div class="form-group">
         <label>Base Armor: <strong>${baseArmor}</strong>${ap ? ` − AP ${ap} = <strong>${armorAfterAP}</strong>` : ""}</label>
       </div>
       <div class="form-group">
@@ -514,11 +525,18 @@ export class PD6Dice {
      ================================================================== */
 
   static async rollArmorStandalone({ actor }) {
-    const equippedArmor = actor.items.find(i => i.type === "armor" && i.system.equipped);
-    let baseArmor = equippedArmor ? equippedArmor.system.armorValue : 0;
+    let baseArmor = 0;
     let defaultColor = "white";
-    if (equippedArmor?.system.armorTraits?.toLowerCase().includes("reinforced")) defaultColor = "red";
-    if (!equippedArmor && actor.type === "npc" && actor.system.armorDice) baseArmor = actor.system.armorDice;
+
+    if (actor.type === "npc") {
+      baseArmor = Number(actor.system.armorDice) || 0;
+    } else {
+      const equippedArmor = actor.items.find(i => i.type === "armor" && i.system.equipped);
+      if (equippedArmor) {
+        baseArmor = equippedArmor.system.armorValue || 0;
+        if (equippedArmor.system.armorTraits?.toLowerCase().includes("reinforced")) defaultColor = "red";
+      }
+    }
 
     const mods = await this._modifierDialog(`Armor: ${actor.name}`, defaultColor, `
       <div class="form-group">
