@@ -1142,3 +1142,41 @@
   padding-left: 28px;
 }
 
+
+/* ---------- Resilient Critical Injury ---------- */
+.pd6-resilient-injury {
+  border-color: var(--pd6-accent);
+}
+
+.pd6-resilient-note {
+  font-size: 0.82rem;
+  color: var(--pd6-accent);
+  font-style: italic;
+  margin: 2px 0 6px;
+}
+
+.pd6-injury-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pd6-injury-option {
+  padding: 6px;
+  background: var(--pd6-bg-light);
+  border: 1px solid var(--pd6-border);
+  border-radius: var(--pd6-radius);
+}
+
+.pd6-injury-option:hover {
+  border-color: var(--pd6-accent-dim);
+}
+
+.pd6-injury-divider {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--pd6-text-dim);
+  padding: 2px 0;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}

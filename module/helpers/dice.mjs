@@ -144,6 +144,52 @@ export class PD6Dice {
   }
 
   /**
+   * Gather trait effects for a given skill on any actor.
+   * Returns { defaultColor, bonusDice, remindersHtml, infoHtml }
+   */
+  static _getTraitInfo(actor, skillKey) {
+    const result = {
+      defaultColor: "white",
+      bonusDice: 0,
+      remindersHtml: "",
+      infoHtml: "",
+    };
+    if (!actor?.items) return result;
+
+    // Check prepared data first (characters have traitDiceColor/traitBonusDice)
+    if (actor.system.traitDiceColor?.[skillKey]) {
+      result.defaultColor = actor.system.traitDiceColor[skillKey];
+    }
+    if (actor.system.traitBonusDice?.[skillKey]) {
+      result.bonusDice = actor.system.traitBonusDice[skillKey];
+    }
+
+    // Collect conditional trait reminders
+    for (const item of actor.items) {
+      if (item.type !== "trait") continue;
+      if (item.system.passive) continue;
+      if (item.system.effectType === "none") continue;
+      const targets = (item.system.targetSkills || "").split(",").map(s => s.trim().toLowerCase());
+      if (targets.includes(skillKey) || targets.includes("all")) {
+        const note = item.system.conditionNote || "Check if applicable";
+        result.remindersHtml += `<div class="pd6-trait-reminder"><i class="fas fa-exclamation-triangle"></i> <strong>${item.name}:</strong> ${note}</div>`;
+      }
+    }
+
+    // Build passive info line
+    let info = "";
+    if (actor.system.traitDiceColor?.[skillKey]) {
+      info += `<span class="pd6-trait-passive-note">Trait: ${result.defaultColor} dice</span> `;
+    }
+    if (result.bonusDice) {
+      info += `<span class="pd6-trait-passive-note">Trait: ${result.bonusDice > 0 ? "+" : ""}${result.bonusDice} dice</span>`;
+    }
+    result.infoHtml = info;
+
+    return result;
+  }
+
+  /**
    * Build a "Spend Luck" button for post-roll use. Only shown for PCs with Luck remaining.
    * @param {object} opts  Data to encode on the button for the handler
    * @returns {string}     HTML string (empty if not applicable)
@@ -767,16 +813,21 @@ export class PD6Dice {
     const defensePool = defender.system.skills?.defense?.pool
       || defender.system.skills?.defense?.value || 1;
 
+    // Gather trait effects for the defense skill
+    const traitInfo = this._getTraitInfo(defender, "defense");
+
     const mods = await this._modifierDialog(
       `Defense: ${defender.name}`,
-      "white",
-      `<div class="form-group">
+      traitInfo.defaultColor,
+      `${traitInfo.remindersHtml ? `<div class="pd6-trait-reminders">${traitInfo.remindersHtml}</div>` : ""}
+      ${traitInfo.infoHtml ? `<div class="pd6-trait-info-line">${traitInfo.infoHtml}</div>` : ""}
+      <div class="form-group">
         <label>Base Defense Pool: <strong>${defensePool}</strong></label>
       </div>`
     );
     if (!mods) return;
 
-    const finalPool = defensePool + mods.modifier;
+    const finalPool = defensePool + traitInfo.bonusDice + mods.modifier;
     const rollData = await this.rollPool(finalPool, mods.diceColor);
     const colorLabel = this.COLORS[mods.diceColor]?.label || "White";
 
@@ -1115,20 +1166,10 @@ export class PD6Dice {
      ================================================================== */
 
   static async rollCriticalInjury(actor) {
-    // Use Foundry Roll for the d66 too
-    const tensRoll = new Roll("1d6");
-    const unitsRoll = new Roll("1d6");
-    await tensRoll.evaluate();
-    await unitsRoll.evaluate();
-    const tens = tensRoll.total;
-    const units = unitsRoll.total;
-    const result = tens * 10 + units;
-
-    // Show DSN for both dice
-    if (game.dice3d) {
-      await game.dice3d.showForRoll(tensRoll, game.user, true);
-      await game.dice3d.showForRoll(unitsRoll, game.user, true);
-    }
+    // Check if actor has Resilient trait (criticalInjury effect type)
+    const isResilient = actor.items?.some(
+      i => i.type === "trait" && i.system.effectType === "criticalInjury"
+    );
 
     const injuries = {
       11: { range: "11-13", name: "Multiple Injuries", effect: "Roll twice on this chart." },
@@ -1145,24 +1186,87 @@ export class PD6Dice {
       64: { range: "64-66", name: "Bumps and Bruises", effect: "You receive a bruise or minor cut." },
     };
 
-    let injury = injuries[result];
-    if (!injury) {
-      const tens2 = Math.floor(result / 10) * 10;
-      const onesGroup = (result % 10) <= 3 ? 1 : 4;
-      injury = injuries[tens2 + onesGroup] || { range: "??", name: "Unknown", effect: "Consult your GM." };
+    const _lookupInjury = (val) => {
+      let injury = injuries[val];
+      if (!injury) {
+        const t = Math.floor(val / 10) * 10;
+        const g = (val % 10) <= 3 ? 1 : 4;
+        injury = injuries[t + g] || { range: "??", name: "Unknown", effect: "Consult your GM." };
+      }
+      return injury;
+    };
+
+    const _rollD66 = async () => {
+      const tensRoll = new Roll("1d6");
+      const unitsRoll = new Roll("1d6");
+      await tensRoll.evaluate();
+      await unitsRoll.evaluate();
+      if (game.dice3d) {
+        await game.dice3d.showForRoll(tensRoll, game.user, true);
+        await game.dice3d.showForRoll(unitsRoll, game.user, true);
+      }
+      const tens = tensRoll.total;
+      const units = unitsRoll.total;
+      const result = tens * 10 + units;
+      return { tens, units, result, injury: _lookupInjury(result) };
+    };
+
+    // --- Resilient: roll twice, let player choose ---
+    if (isResilient) {
+      const roll1 = await _rollD66();
+      const roll2 = await _rollD66();
+
+      const content = `
+        <div class="pd6-chat-roll pd6-critical-injury pd6-resilient-injury">
+          <h3 class="pd6-roll-header">Critical Injury! <span class="pd6-luck-tag">RESILIENT</span></h3>
+          <p class="pd6-resilient-note">Roll twice and choose between results:</p>
+          <div class="pd6-injury-choice">
+            <div class="pd6-injury-option">
+              <div class="pd6-injury-dice">
+                <span class="pd6-die pd6-die-tens">${roll1.tens}</span>
+                <span class="pd6-die pd6-die-units">${roll1.units}</span>
+                <span class="pd6-injury-value">= ${roll1.result}</span>
+              </div>
+              <div class="pd6-injury-result">
+                <h4>${roll1.injury.range}: ${roll1.injury.name}</h4>
+                <p>${roll1.injury.effect}</p>
+              </div>
+            </div>
+            <div class="pd6-injury-divider">— OR —</div>
+            <div class="pd6-injury-option">
+              <div class="pd6-injury-dice">
+                <span class="pd6-die pd6-die-tens">${roll2.tens}</span>
+                <span class="pd6-die pd6-die-units">${roll2.units}</span>
+                <span class="pd6-injury-value">= ${roll2.result}</span>
+              </div>
+              <div class="pd6-injury-result">
+                <h4>${roll2.injury.range}: ${roll2.injury.name}</h4>
+                <p>${roll2.injury.effect}</p>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      return ChatMessage.create({
+        user: game.user.id, speaker: ChatMessage.getSpeaker({ actor }), content,
+        style: CONST.CHAT_MESSAGE_STYLES.ROLL,
+      });
     }
+
+    // --- Normal: single roll ---
+    const roll = await _rollD66();
 
     const content = `
       <div class="pd6-chat-roll pd6-critical-injury">
         <h3 class="pd6-roll-header">Critical Injury!</h3>
         <div class="pd6-injury-dice">
-          <span class="pd6-die pd6-die-tens">${tens}</span>
-          <span class="pd6-die pd6-die-units">${units}</span>
-          <span class="pd6-injury-value">= ${result}</span>
+          <span class="pd6-die pd6-die-tens">${roll.tens}</span>
+          <span class="pd6-die pd6-die-units">${roll.units}</span>
+          <span class="pd6-injury-value">= ${roll.result}</span>
         </div>
         <div class="pd6-injury-result">
-          <h4>${injury.range}: ${injury.name}</h4>
-          <p>${injury.effect}</p>
+          <h4>${roll.injury.range}: ${roll.injury.name}</h4>
+          <p>${roll.injury.effect}</p>
         </div>
       </div>`;
 

@@ -54,6 +54,7 @@
             <option value="bonusDice" {{#if (eq system.effectType "bonusDice")}}selected{{/if}}>Bonus / Penalty Dice</option>
             <option value="attributeMod" {{#if (eq system.effectType "attributeMod")}}selected{{/if}}>Attribute Modifier</option>
             <option value="skillMod" {{#if (eq system.effectType "skillMod")}}selected{{/if}}>Skill Rank Modifier</option>
+            <option value="criticalInjury" {{#if (eq system.effectType "criticalInjury")}}selected{{/if}}>Critical Injury (roll twice, choose)</option>
           </select>
         </div>
 
@@ -124,6 +125,11 @@
           <p class="pd6-trait-summary-text">
             {{#if system.passive}}<i class="fas fa-check-circle"></i> Always{{else}}<i class="fas fa-question-circle"></i> Conditionally{{/if}}
             <strong>{{#if (gt system.modifierValue 0)}}+{{/if}}{{system.modifierValue}}</strong> ranks to: <strong>{{system.targetSkills}}</strong>
+          </p>
+        {{/if}}
+        {{#if (eq system.effectType "criticalInjury")}}
+          <p class="pd6-trait-summary-text">
+            <i class="fas fa-check-circle"></i> When critically injured, roll twice and choose between results.
           </p>
         {{/if}}
       </div>
