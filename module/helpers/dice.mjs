@@ -646,6 +646,13 @@ export class PD6Dice {
     }
 
     const colorLabel = this.COLORS[result.diceColor]?.label || "White";
+    const chainLuckBtn = this._buildPostRollLuckButton(actor, {
+      "roll-type": "skill",
+      "dice-color": result.diceColor,
+      "original-successes": rollData.successes,
+      "skill-label": skillLabel,
+      "dv": result.dv ?? "",
+    });
     const content = `
       <div class="pd6-chat-roll pd6-skill-check pd6-luck-roll">
         <h3 class="pd6-roll-header"><i class="fas fa-dice"></i> ${skillLabel} Check <span class="pd6-luck-tag">LUCK</span></h3>
@@ -660,6 +667,7 @@ export class PD6Dice {
         </div>
         ${resultText ? `<div class="pd6-result">${resultText}</div>` : ""}
         <div class="pd6-luck-spent">Luck Point spent (${actor.system.luckPoints.value} remaining)</div>
+        ${chainLuckBtn}
       </div>`;
 
     return this._postRollMessage(content, actor, rollData);
