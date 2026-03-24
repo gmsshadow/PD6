@@ -323,6 +323,7 @@ export class PD6Dice {
               data-weapon-damage="${btn.dataset.weaponDamage || ""}"
               data-weapon-ap="${btn.dataset.weaponAp || 0}"
               data-weapon-traits="${btn.dataset.weaponTraits || ""}"
+              data-weapon-brutal="${btn.dataset.weaponBrutal || ""}"
               data-weapon-type="${btn.dataset.weaponType || "common"}"
               data-weapon-dice-color="${btn.dataset.weaponDiceColor || "white"}">
               <i class="fas fa-shield-alt"></i> Roll Defense vs ${newTotal} (${defenderName})
@@ -341,7 +342,7 @@ export class PD6Dice {
         "item-id": btn.dataset.itemId || "",
         "weapon-damage": btn.dataset.weaponDamage || "",
         "weapon-ap": btn.dataset.weaponAp || 0,
-        "weapon-traits": btn.dataset.weaponTraits || "",
+        "weapon-traits": btn.dataset.weaponTraits || "", "weapon-brutal": btn.dataset.weaponBrutal || "",
         "weapon-type": btn.dataset.weaponType || "common",
         "weapon-dice-color": btn.dataset.weaponDiceColor || "white",
       });
@@ -388,6 +389,7 @@ export class PD6Dice {
               data-weapon-damage="${btn.dataset.weaponDamage || ""}"
               data-weapon-ap="${btn.dataset.weaponAp || 0}"
               data-weapon-traits="${btn.dataset.weaponTraits || ""}"
+              data-weapon-brutal="${btn.dataset.weaponBrutal || ""}"
               data-weapon-type="${btn.dataset.weaponType || "common"}"
               data-weapon-dice-color="${btn.dataset.weaponDiceColor || "white"}"
               data-sv="${sv}">
@@ -406,7 +408,7 @@ export class PD6Dice {
         "defender-token-id": btn.dataset.defenderTokenId, "defender-name": btn.dataset.defenderName || "",
         "attacker-id": btn.dataset.attackerId, "item-id": btn.dataset.itemId || "",
         "weapon-name": btn.dataset.weaponName || "", "weapon-damage": btn.dataset.weaponDamage || "",
-        "weapon-ap": btn.dataset.weaponAp || 0, "weapon-traits": btn.dataset.weaponTraits || "",
+        "weapon-ap": btn.dataset.weaponAp || 0, "weapon-traits": btn.dataset.weaponTraits || "", "weapon-brutal": btn.dataset.weaponBrutal || "",
         "weapon-type": btn.dataset.weaponType || "common", "weapon-dice-color": btn.dataset.weaponDiceColor || "white",
       });
       const content = `
@@ -771,6 +773,7 @@ export class PD6Dice {
           data-weapon-damage="${item.system.damage || ""}"
           data-weapon-ap="${item.system.armorPenetration || 0}"
           data-weapon-traits="${item.system.traits || ""}"
+          data-weapon-brutal="${item.system.traitBrutal ? "true" : ""}"
           data-weapon-type="${item.system.weaponType || "common"}"
           data-weapon-dice-color="${item.system.diceColor || "white"}">
           <i class="fas fa-shield-alt"></i> Roll Defense (${defenderName})
@@ -865,6 +868,7 @@ export class PD6Dice {
             data-weapon-damage="${btn.dataset.weaponDamage}"
             data-weapon-ap="${btn.dataset.weaponAp}"
             data-weapon-traits="${btn.dataset.weaponTraits}"
+              data-weapon-brutal="${btn.dataset.weaponBrutal || ""}"
             data-weapon-type="${btn.dataset.weaponType}"
             data-weapon-dice-color="${btn.dataset.weaponDiceColor}"
             data-sv="${sv}">
@@ -890,7 +894,7 @@ export class PD6Dice {
       "weapon-name": btn.dataset.weaponName || "",
       "weapon-damage": btn.dataset.weaponDamage || "",
       "weapon-ap": btn.dataset.weaponAp || 0,
-      "weapon-traits": btn.dataset.weaponTraits || "",
+      "weapon-traits": btn.dataset.weaponTraits || "", "weapon-brutal": btn.dataset.weaponBrutal || "",
       "weapon-type": btn.dataset.weaponType || "common",
       "weapon-dice-color": btn.dataset.weaponDiceColor || "white",
     });
@@ -946,7 +950,7 @@ export class PD6Dice {
     }
 
     let defaultColor = "white";
-    if (weaponTraits.toLowerCase().includes("brutal")) defaultColor = "red";
+    if (btn.dataset.weaponBrutal === "true") defaultColor = "red";
 
     const mods = await this._modifierDialog(
       `Damage: ${weaponName}`,
@@ -1030,7 +1034,7 @@ export class PD6Dice {
       if (equippedArmor) {
         baseArmor = equippedArmor.system.armorValue || 0;
         armorSource = equippedArmor.name;
-        if (equippedArmor.system.armorTraits?.toLowerCase().includes("reinforced")) {
+        if (equippedArmor.system.traitReinforced) {
           defaultColor = "red";
         }
       }
@@ -1136,7 +1140,7 @@ export class PD6Dice {
       const equippedArmor = actor.items.find(i => i.type === "armor" && i.system.equipped);
       if (equippedArmor) {
         baseArmor = equippedArmor.system.armorValue || 0;
-        if (equippedArmor.system.armorTraits?.toLowerCase().includes("reinforced")) defaultColor = "red";
+        if (equippedArmor.system.traitReinforced) defaultColor = "red";
       }
     }
 

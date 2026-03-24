@@ -115,14 +115,22 @@
       "rangeReach": "5",
       "rangeLong": "",
       "traits": "",
-      "diceColor": "white"
+      "diceColor": "white",
+      "traitBrutal": false,
+      "traitTwoHanded": false,
+      "traitVersatile": false,
+      "traitReach": false,
+      "traitThrown": false
     },
     "armor": {
       "templates": ["physicalItem"],
       "armorType": "light",
       "armorValue": 0,
       "penalty": 0,
-      "armorTraits": ""
+      "armorTraits": "",
+      "traitReinforced": false,
+      "traitClanging": false,
+      "traitCumbersome": false
     },
     "equipment": {
       "templates": ["physicalItem"]

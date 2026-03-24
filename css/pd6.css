@@ -1213,3 +1213,50 @@
 .pd6-effect-inactive .pd6-effect-slot-header {
   color: var(--pd6-text-dim);
 }
+
+/* ---------- Weapon / Armour Trait Checkboxes ---------- */
+.pd6-weapon-traits-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.pd6-weapon-trait-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border-radius: var(--pd6-radius);
+  cursor: pointer;
+  transition: background 0.1s;
+  text-transform: none;
+  color: var(--pd6-text);
+  font-size: 0.85rem;
+}
+
+.pd6-weapon-trait-checkbox:hover {
+  background: var(--pd6-bg-light);
+}
+
+.pd6-weapon-trait-checkbox .pd6-trait-name {
+  font-weight: bold;
+  color: var(--pd6-text-bright);
+  min-width: 90px;
+}
+
+.pd6-weapon-trait-checkbox .pd6-trait-effect {
+  font-size: 0.75rem;
+  color: var(--pd6-text-dim);
+  font-style: italic;
+}
+
+.pd6-custom-traits {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--pd6-border);
+}
+
+.pd6-custom-traits input {
+  width: 100%;
+}

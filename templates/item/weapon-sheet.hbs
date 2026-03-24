@@ -7,11 +7,14 @@
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item" data-tab="description">Description</a>
     <a class="item" data-tab="details">Details</a>
+    <a class="item" data-tab="traits">Traits</a>
   </nav>
 
   <section class="sheet-body">
     <div class="tab" data-group="primary" data-tab="description">
-      {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+      <div class="pd6-editor-container">
+        {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+      </div>
     </div>
 
     <div class="tab" data-group="primary" data-tab="details">
@@ -29,7 +32,7 @@
           <input type="text" name="system.damage" value="{{system.damage}}" placeholder="M+0 or 3" />
         </div>
         <div class="pd6-field">
-          <label>Armor Penetration</label>
+          <label>Armour Penetration</label>
           <input type="number" name="system.armorPenetration" value="{{system.armorPenetration}}" />
         </div>
         <div class="pd6-field">
@@ -41,11 +44,7 @@
           <input type="text" name="system.rangeLong" value="{{system.rangeLong}}" placeholder="—" />
         </div>
         <div class="pd6-field">
-          <label>Weapon Traits</label>
-          <input type="text" name="system.traits" value="{{system.traits}}" placeholder="Brutal, Two-handed" />
-        </div>
-        <div class="pd6-field">
-          <label>Dice Color</label>
+          <label>Dice Colour</label>
           <select name="system.diceColor">
             {{#each diceColors}}
               <option value="{{@key}}" {{#if (eq @key ../system.diceColor)}}selected{{/if}}>{{this}}</option>
@@ -68,6 +67,40 @@
           <label>Equipped</label>
           <input type="checkbox" name="system.equipped" {{#if system.equipped}}checked{{/if}} />
         </div>
+      </div>
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="traits">
+      <div class="pd6-weapon-traits-grid">
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitBrutal" {{#if system.traitBrutal}}checked{{/if}} />
+          <span class="pd6-trait-name">Brutal</span>
+          <span class="pd6-trait-effect">Damage dice → Red (3+)</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitTwoHanded" {{#if system.traitTwoHanded}}checked{{/if}} />
+          <span class="pd6-trait-name">Two-Handed</span>
+          <span class="pd6-trait-effect">Requires both hands to wield</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitVersatile" {{#if system.traitVersatile}}checked{{/if}} />
+          <span class="pd6-trait-name">Versatile</span>
+          <span class="pd6-trait-effect">Can be used one or two-handed</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitReach" {{#if system.traitReach}}checked{{/if}} />
+          <span class="pd6-trait-name">Reach</span>
+          <span class="pd6-trait-effect">+5 ft melee range (10 ft total)</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitThrown" {{#if system.traitThrown}}checked{{/if}} />
+          <span class="pd6-trait-name">Thrown</span>
+          <span class="pd6-trait-effect">Uses Shooting skill instead of Fighting</span>
+        </label>
+      </div>
+      <div class="pd6-field pd6-custom-traits">
+        <label>Custom / Other Traits</label>
+        <input type="text" name="system.traits" value="{{system.traits}}" placeholder="Additional traits not listed above" />
       </div>
     </div>
   </section>

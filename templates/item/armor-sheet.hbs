@@ -1,17 +1,20 @@
 <form class="pd6 sheet item armor" autocomplete="off">
   <header class="pd6-item-header">
     <img src="{{item.img}}" data-edit="img" width="48" height="48" />
-    <h1><input name="name" type="text" value="{{item.name}}" placeholder="Armor Name" /></h1>
+    <h1><input name="name" type="text" value="{{item.name}}" placeholder="Armour Name" /></h1>
   </header>
 
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item" data-tab="description">Description</a>
     <a class="item" data-tab="details">Details</a>
+    <a class="item" data-tab="traits">Traits</a>
   </nav>
 
   <section class="sheet-body">
     <div class="tab" data-group="primary" data-tab="description">
-      {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+      <div class="pd6-editor-container">
+        {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+      </div>
     </div>
 
     <div class="tab" data-group="primary" data-tab="details">
@@ -25,16 +28,12 @@
           </select>
         </div>
         <div class="pd6-field">
-          <label>Armor Value (AV)</label>
+          <label>Armour Value (AV)</label>
           <input type="number" name="system.armorValue" value="{{system.armorValue}}" min="0" />
         </div>
         <div class="pd6-field">
           <label>Penalty</label>
           <input type="number" name="system.penalty" value="{{system.penalty}}" max="0" />
-        </div>
-        <div class="pd6-field">
-          <label>Armor Traits</label>
-          <input type="text" name="system.armorTraits" value="{{system.armorTraits}}" placeholder="Clanging, Reinforced" />
         </div>
         <div class="pd6-field">
           <label>Cost</label>
@@ -52,6 +51,30 @@
           <label>Equipped</label>
           <input type="checkbox" name="system.equipped" {{#if system.equipped}}checked{{/if}} />
         </div>
+      </div>
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="traits">
+      <div class="pd6-weapon-traits-grid">
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitReinforced" {{#if system.traitReinforced}}checked{{/if}} />
+          <span class="pd6-trait-name">Reinforced</span>
+          <span class="pd6-trait-effect">Armour dice → Red (3+)</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitClanging" {{#if system.traitClanging}}checked{{/if}} />
+          <span class="pd6-trait-name">Clanging</span>
+          <span class="pd6-trait-effect">Penalty to Stealth rolls</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitCumbersome" {{#if system.traitCumbersome}}checked{{/if}} />
+          <span class="pd6-trait-name">Cumbersome</span>
+          <span class="pd6-trait-effect">Movement penalty when worn</span>
+        </label>
+      </div>
+      <div class="pd6-field pd6-custom-traits">
+        <label>Custom / Other Traits</label>
+        <input type="text" name="system.armorTraits" value="{{system.armorTraits}}" placeholder="Additional traits not listed above" />
       </div>
     </div>
   </section>

@@ -288,7 +288,7 @@ export class PD6Actor extends Actor {
     const weaponData = item.system;
     let skillKey, pool;
 
-    if (item.system.weaponType === "bow" || item.system.weaponType === "throwing") {
+    if (item.system.weaponType === "bow" || item.system.weaponType === "throwing" || item.system.traitThrown) {
       skillKey = "shooting";
     } else {
       skillKey = "fighting";
