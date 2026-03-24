@@ -211,6 +211,14 @@ export class PD6Dice {
         }
       }
 
+      const chainLuckBtn = this._buildPostRollLuckButton(actor, {
+        "roll-type": "skill",
+        "dice-color": diceColor,
+        "original-successes": newTotal,
+        "skill-label": skillLabel,
+        "dv": dv ?? "",
+      });
+
       const content = `
         <div class="pd6-chat-roll pd6-skill-check pd6-luck-roll">
           <h3 class="pd6-roll-header"><i class="fas fa-dice"></i> ${skillLabel} — Luck Bonus <span class="pd6-luck-tag">LUCK</span></h3>
@@ -225,6 +233,7 @@ export class PD6Dice {
           </div>
           ${resultText ? `<div class="pd6-result">${resultText}</div>` : ""}
           <div class="pd6-luck-spent">Luck Point spent (${actor.system.luckPoints.value} remaining)</div>
+          ${chainLuckBtn}
         </div>`;
 
       return this._postRollMessage(content, actor, bonusRoll);
@@ -259,6 +268,22 @@ export class PD6Dice {
           </div>`;
       }
 
+      const chainLuckBtn = this._buildPostRollLuckButton(actor, {
+        "roll-type": "attack",
+        "dice-color": diceColor,
+        "original-successes": newTotal,
+        "weapon-name": weaponName,
+        "defender-id": defenderId,
+        "defender-token-id": defenderTokenId,
+        "defender-name": defenderName,
+        "item-id": btn.dataset.itemId || "",
+        "weapon-damage": btn.dataset.weaponDamage || "",
+        "weapon-ap": btn.dataset.weaponAp || 0,
+        "weapon-traits": btn.dataset.weaponTraits || "",
+        "weapon-type": btn.dataset.weaponType || "common",
+        "weapon-dice-color": btn.dataset.weaponDiceColor || "white",
+      });
+
       const content = `
         <div class="pd6-chat-roll pd6-attack-roll pd6-luck-roll">
           <h3 class="pd6-roll-header"><i class="fas fa-dice"></i> ${weaponName} — Luck Bonus <span class="pd6-luck-tag">LUCK</span></h3>
@@ -271,6 +296,7 @@ export class PD6Dice {
             <span class="pd6-luck-original">(was ${originalSuccesses})</span>
           </div>
           <div class="pd6-luck-spent">Luck Point spent (${actor.system.luckPoints.value} remaining)</div>
+          ${chainLuckBtn}
           ${defenseButton}
         </div>`;
 
@@ -312,6 +338,15 @@ export class PD6Dice {
         resultHtml = `<span class="pd6-result-success">Now a MISS — Defender wins!</span>`;
       }
 
+      const chainLuckBtn = this._buildPostRollLuckButton(actor, {
+        "roll-type": "defense", "dice-color": diceColor, "original-successes": newTotal,
+        "attacker-successes": attackerSuccesses, "defender-id": btn.dataset.defenderId,
+        "defender-token-id": btn.dataset.defenderTokenId, "defender-name": btn.dataset.defenderName || "",
+        "attacker-id": btn.dataset.attackerId, "item-id": btn.dataset.itemId || "",
+        "weapon-name": btn.dataset.weaponName || "", "weapon-damage": btn.dataset.weaponDamage || "",
+        "weapon-ap": btn.dataset.weaponAp || 0, "weapon-traits": btn.dataset.weaponTraits || "",
+        "weapon-type": btn.dataset.weaponType || "common", "weapon-dice-color": btn.dataset.weaponDiceColor || "white",
+      });
       const content = `
         <div class="pd6-chat-roll pd6-defense-roll pd6-luck-roll">
           <h3 class="pd6-roll-header"><i class="fas fa-dice"></i> Defense — Luck Bonus <span class="pd6-luck-tag">LUCK</span></h3>
@@ -326,6 +361,7 @@ export class PD6Dice {
           </div>
           <div class="pd6-result">${resultHtml}</div>
           <div class="pd6-luck-spent">Luck Point spent (${actor.system.luckPoints.value} remaining)</div>
+          ${chainLuckBtn}
           ${damageButton}
         </div>`;
 
@@ -350,6 +386,11 @@ export class PD6Dice {
           </button>
         </div>`;
 
+      const chainLuckBtn = this._buildPostRollLuckButton(actor, {
+        "roll-type": "damage", "dice-color": diceColor, "original-successes": newTotal,
+        "defender-id": btn.dataset.defenderId, "defender-token-id": btn.dataset.defenderTokenId,
+        "weapon-ap": ap, "weapon-name": weaponName,
+      });
       const content = `
         <div class="pd6-chat-roll pd6-damage-roll pd6-luck-roll">
           <h3 class="pd6-roll-header"><i class="fas fa-dice"></i> ${weaponName} Damage — Luck Bonus <span class="pd6-luck-tag">LUCK</span></h3>
@@ -362,6 +403,7 @@ export class PD6Dice {
             <span class="pd6-luck-original">(was ${originalSuccesses})</span>
           </div>
           <div class="pd6-luck-spent">Luck Point spent (${actor.system.luckPoints.value} remaining)</div>
+          ${chainLuckBtn}
           ${armorButton}
         </div>`;
 
@@ -400,6 +442,11 @@ export class PD6Dice {
         resultHtml = `<span class="pd6-result-success">All damage now absorbed!</span>`;
       }
 
+      const chainLuckBtn = this._buildPostRollLuckButton(actor, {
+        "roll-type": "armor", "dice-color": diceColor, "original-successes": newArmorTotal,
+        "damage-successes": damageSuccesses, "net-damage-applied": newNetDamage,
+        "defender-id": btn.dataset.defenderId, "defender-token-id": btn.dataset.defenderTokenId,
+      });
       const content = `
         <div class="pd6-chat-roll pd6-armor-roll pd6-luck-roll">
           <h3 class="pd6-roll-header"><i class="fas fa-dice"></i> Armor — Luck Bonus <span class="pd6-luck-tag">LUCK</span></h3>
@@ -415,151 +462,7 @@ export class PD6Dice {
           <div class="pd6-result pd6-final-result">${resultHtml}</div>
           ${healHtml}
           <div class="pd6-luck-spent">Luck Point spent (${actor.system.luckPoints.value} remaining)</div>
-        </div>`;
-
-      return this._postRollMessage(content, actor, bonusRoll);
-    }
-
-    // --- Defense roll post-roll luck ---
-    if (rollType === "defense") {
-      const attackerSuccesses = parseInt(btn.dataset.attackerSuccesses) || 0;
-      const defenderName = btn.dataset.defenderName || actor.name;
-
-      const isHit = attackerSuccesses > newTotal;
-      const isTie = attackerSuccesses === newTotal;
-      const sv = isHit ? attackerSuccesses - newTotal : 0;
-
-      let resultHtml;
-      let damageButton = "";
-      if (isHit) {
-        resultHtml = `<span class="pd6-result-failure">Still a HIT (SV ${sv}, was SV ${attackerSuccesses - originalSuccesses})</span>`;
-        damageButton = `
-          <div class="pd6-combat-buttons">
-            <button class="pd6-combat-btn pd6-btn-damage"
-              data-attacker-id="${btn.dataset.attackerId}"
-              data-defender-id="${btn.dataset.defenderId}"
-              data-defender-token-id="${btn.dataset.defenderTokenId}"
-              data-item-id="${btn.dataset.itemId || ""}"
-              data-weapon-name="${btn.dataset.weaponName || ""}"
-              data-weapon-damage="${btn.dataset.weaponDamage || ""}"
-              data-weapon-ap="${btn.dataset.weaponAp || 0}"
-              data-weapon-traits="${btn.dataset.weaponTraits || ""}"
-              data-weapon-type="${btn.dataset.weaponType || "common"}"
-              data-weapon-dice-color="${btn.dataset.weaponDiceColor || "white"}"
-              data-sv="${sv}">
-              <i class="fas fa-burst"></i> Roll Damage (SV ${sv})
-            </button>
-          </div>`;
-      } else if (isTie) {
-        resultHtml = `<span class="pd6-result-neutral">Now a TIE — Attack parried!</span>`;
-      } else {
-        resultHtml = `<span class="pd6-result-success">Now a MISS — Defender wins by ${newTotal - attackerSuccesses}!</span>`;
-      }
-
-      const content = `
-        <div class="pd6-chat-roll pd6-defense-roll pd6-luck-roll">
-          <h3 class="pd6-roll-header"><i class="fas fa-dice"></i> Defense — Luck Bonus <span class="pd6-luck-tag">LUCK</span></h3>
-          <div class="pd6-roll-info">
-            <span class="pd6-pool-info">2 bonus ${colorLabel} dice</span>
-            <span class="pd6-vs-info">vs ${attackerSuccesses} attack successes</span>
-          </div>
-          ${this.renderDice(bonusRoll)}
-          <div class="pd6-roll-summary">
-            <span class="pd6-successes">+${bonusRoll.successes} → <strong>${newTotal} Total Defense</strong></span>
-            <span class="pd6-luck-original">(was ${originalSuccesses})</span>
-          </div>
-          <div class="pd6-result">${resultHtml}</div>
-          <div class="pd6-luck-spent">Luck Point spent (${actor.system.luckPoints.value} remaining)</div>
-          ${damageButton}
-        </div>`;
-
-      return this._postRollMessage(content, actor, bonusRoll);
-    }
-
-    // --- Damage roll post-roll luck ---
-    if (rollType === "damage") {
-      const weaponName = btn.dataset.weaponName || "Weapon";
-      const ap = parseInt(btn.dataset.weaponAp) || 0;
-
-      const armorButton = `
-        <div class="pd6-combat-buttons">
-          <button class="pd6-combat-btn pd6-btn-armor"
-            data-defender-id="${btn.dataset.defenderId}"
-            data-defender-token-id="${btn.dataset.defenderTokenId}"
-            data-damage-successes="${newTotal}"
-            data-weapon-ap="${ap}"
-            data-weapon-name="${weaponName}">
-            <i class="fas fa-shield"></i> Roll Armor vs ${newTotal} damage (AP ${ap})
-          </button>
-        </div>`;
-
-      const content = `
-        <div class="pd6-chat-roll pd6-damage-roll pd6-luck-roll">
-          <h3 class="pd6-roll-header"><i class="fas fa-dice"></i> ${weaponName} Damage — Luck Bonus <span class="pd6-luck-tag">LUCK</span></h3>
-          <div class="pd6-roll-info">
-            <span class="pd6-pool-info">2 bonus ${colorLabel} dice</span>
-          </div>
-          ${this.renderDice(bonusRoll)}
-          <div class="pd6-roll-summary">
-            <span class="pd6-successes">+${bonusRoll.successes} → <strong>${newTotal} Total Damage</strong></span>
-            <span class="pd6-luck-original">(was ${originalSuccesses})</span>
-          </div>
-          <div class="pd6-luck-spent">Luck Point spent (${actor.system.luckPoints.value} remaining)</div>
-          ${armorButton}
-        </div>`;
-
-      return this._postRollMessage(content, actor, bonusRoll);
-    }
-
-    // --- Armor roll post-roll luck ---
-    if (rollType === "armor") {
-      const damageSuccesses = parseInt(btn.dataset.damageSuccesses) || 0;
-      const originalNetDamage = parseInt(btn.dataset.netDamage) || 0;
-
-      const newArmorTotal = originalSuccesses + bonusRoll.successes;
-      const newNetDamage = Math.max(damageSuccesses - newArmorTotal, 0);
-      const damageReversed = originalNetDamage - newNetDamage;
-
-      // Heal back the difference if luck reduced net damage
-      if (damageReversed > 0) {
-        const defender = this._resolveActor(btn.dataset.defenderTokenId, btn.dataset.defenderId);
-        if (defender) {
-          const currentGrit = defender.system.gritPoints.value;
-          const maxGrit = defender.system.gritPoints.max;
-          const healedGrit = Math.min(currentGrit + damageReversed, maxGrit);
-          await defender.update({ "system.gritPoints.value": healedGrit });
-        }
-      }
-
-      let resultHtml;
-      if (newNetDamage > 0) {
-        resultHtml = `<span class="pd6-result-failure">${newNetDamage} damage gets through (was ${originalNetDamage})</span>`;
-      } else {
-        resultHtml = `<span class="pd6-result-success">All damage now absorbed!</span>`;
-      }
-
-      const defender = this._resolveActor(btn.dataset.defenderTokenId, btn.dataset.defenderId);
-      const gritNote = damageReversed > 0 && defender
-        ? `<div class="pd6-grit-update" style="border-left-color: var(--pd6-green);">
-            ${defender.name}: +${damageReversed} Grit restored → <strong>${defender.system.gritPoints.value}</strong>
-          </div>`
-        : "";
-
-      const content = `
-        <div class="pd6-chat-roll pd6-armor-roll pd6-luck-roll">
-          <h3 class="pd6-roll-header"><i class="fas fa-dice"></i> Armor — Luck Bonus <span class="pd6-luck-tag">LUCK</span></h3>
-          <div class="pd6-roll-info">
-            <span class="pd6-pool-info">2 bonus ${colorLabel} dice</span>
-            <span class="pd6-vs-info">vs ${damageSuccesses} damage</span>
-          </div>
-          ${this.renderDice(bonusRoll)}
-          <div class="pd6-roll-summary">
-            <span class="pd6-successes">+${bonusRoll.successes} → <strong>${newArmorTotal} Total Armor</strong></span>
-            <span class="pd6-luck-original">(was ${originalSuccesses})</span>
-          </div>
-          <div class="pd6-result pd6-final-result">${resultHtml}</div>
-          ${gritNote}
-          <div class="pd6-luck-spent">Luck Point spent (${actor.system.luckPoints.value} remaining)</div>
+          ${chainLuckBtn}
         </div>`;
 
       return this._postRollMessage(content, actor, bonusRoll);
