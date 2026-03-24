@@ -14,6 +14,7 @@
  *   4. Armor Roll     → opposed by defender armor dice
  *   5. Final Result   → net damage, optionally applied to Grit Points
  *
+ * Uses Foundry Roll API for Dice So Nice compatibility.
  * Every step pops a modifier dialog for manual overrides.
  */
 export class PD6Dice {
@@ -23,9 +24,12 @@ export class PD6Dice {
      ================================================================== */
 
   static COLORS = {
-    white: { threshold: 4, label: "White", css: "pd6-die-white" },
-    red:   { threshold: 3, label: "Red",   css: "pd6-die-red" },
-    black: { threshold: 2, label: "Black", css: "pd6-die-black" },
+    white: { threshold: 4, label: "White", css: "pd6-die-white",
+      dsn: { colorset: "custom", foreground: "#222222", background: "#e8e4dc", outline: "#b0aca4", texture: "none" } },
+    red:   { threshold: 3, label: "Red",   css: "pd6-die-red",
+      dsn: { colorset: "custom", foreground: "#f0d0d0", background: "#8a2020", outline: "#c44040", texture: "none" } },
+    black: { threshold: 2, label: "Black", css: "pd6-die-black",
+      dsn: { colorset: "custom", foreground: "#c0c0c0", background: "#1a1a1e", outline: "#555555", texture: "none" } },
   };
 
   /* ==================================================================
@@ -33,31 +37,50 @@ export class PD6Dice {
      ================================================================== */
 
   /**
-   * Roll a pool of PD6 dice.
+   * Roll a pool of PD6 dice using Foundry's Roll API.
+   * This enables Dice So Nice integration automatically.
+   *
    * @param {number} pool   Base number of dice
    * @param {string} color  "white" | "red" | "black"
    * @param {number} bonus  Flat modifier to pool size
-   * @returns {object}      { results[], successes, explosions, pool, color, threshold }
+   * @returns {Promise<object>}  { results[], successes, explosions, pool, color, threshold, roll }
    */
-  static rollPool(pool, color = "white", bonus = 0) {
+  static async rollPool(pool, color = "white", bonus = 0) {
     const threshold = this.COLORS[color]?.threshold || 4;
     const totalDice = Math.max(pool + bonus, 1);
+
+    // Build and evaluate a Foundry Roll with exploding 6s
+    const roll = new Roll(`${totalDice}d6x=6`);
+    await roll.evaluate();
+
+    // Apply DSN appearance to the dice term
+    const dsnAppearance = this.COLORS[color]?.dsn;
+    if (dsnAppearance && roll.dice.length > 0) {
+      for (const term of roll.dice) {
+        term.options.appearance = { ...dsnAppearance };
+      }
+    }
+
+    // Extract individual die results
     const results = [];
     let successes = 0;
     let explosions = 0;
 
-    for (let i = 0; i < totalDice; i++) {
-      let die = Math.ceil(Math.random() * 6);
-      results.push({ value: die, exploded: false, success: die >= threshold });
-      if (die >= threshold) successes++;
-      while (die === 6) {
-        explosions++;
-        die = Math.ceil(Math.random() * 6);
-        results.push({ value: die, exploded: true, success: die >= threshold });
-        if (die >= threshold) successes++;
+    if (roll.dice.length > 0) {
+      for (const r of roll.dice[0].results) {
+        const isExploded = r.exploded ?? false;
+        const isSuccess = r.result >= threshold;
+        results.push({
+          value: r.result,
+          exploded: isExploded,
+          success: isSuccess,
+        });
+        if (isSuccess) successes++;
+        if (isExploded) explosions++;
       }
     }
-    return { results, successes, explosions, pool: totalDice, color, threshold };
+
+    return { results, successes, explosions, pool: totalDice, color, threshold, roll };
   }
 
   /** Render dice results as styled HTML spans. */
@@ -77,17 +100,36 @@ export class PD6Dice {
     return html;
   }
 
+  /**
+   * Show dice via Dice So Nice if available, then create the chat message.
+   * DSN is triggered from the Roll object; we suppress the default sound
+   * when DSN is active since it plays its own.
+   */
+  static async _postRollMessage(content, actor, rollData) {
+    const hasDSN = !!game.dice3d;
+    const chatData = {
+      user: game.user.id,
+      speaker: ChatMessage.getSpeaker({ actor }),
+      content,
+      style: CONST.CHAT_MESSAGE_STYLES.ROLL,
+    };
+
+    // If DSN is present, show the 3D dice first, then post silently.
+    // If not, play the normal dice sound.
+    if (hasDSN && rollData?.roll) {
+      await game.dice3d.showForRoll(rollData.roll, game.user, true);
+      chatData.sound = null;
+    } else {
+      chatData.sound = CONFIG.sounds.dice;
+    }
+
+    return ChatMessage.create(chatData);
+  }
+
   /* ==================================================================
      Shared modifier dialog
      ================================================================== */
 
-  /**
-   * Pop a dialog that lets the user tweak pool size and dice color.
-   * @param {string} title        Dialog title
-   * @param {string} defaultColor Default dice color
-   * @param {string} extraFields  Additional HTML to inject into the form
-   * @returns {Promise<object|null>}  { modifier, diceColor, ...extras } or null if cancelled
-   */
   static async _modifierDialog(title, defaultColor = "white", extraFields = "") {
     return Dialog.prompt({
       title,
@@ -112,7 +154,6 @@ export class PD6Dice {
       callback: (html) => {
         const form = html[0]?.querySelector?.("form") ?? html.querySelector("form");
         const data = { modifier: parseInt(form.modifier.value) || 0, diceColor: form.diceColor.value };
-        // Collect any extra named inputs
         for (const input of form.querySelectorAll("[name]")) {
           if (!(input.name in data)) {
             data[input.name] = input.type === "number" ? (parseInt(input.value) || 0)
@@ -127,12 +168,12 @@ export class PD6Dice {
   }
 
   /* ==================================================================
-     1. SKILL CHECK  (non-combat, unchanged)
+     1. SKILL CHECK  (non-combat)
      ================================================================== */
 
   static async rollSkillCheck({ actor, skillKey, skillLabel, pool, diceColor = "white",
     difficultyValue = null, isOpposed = false, bonus = 0 }) {
-    const rollData = this.rollPool(pool, diceColor, bonus);
+    const rollData = await this.rollPool(pool, diceColor, bonus);
     let resultText = "";
     if (difficultyValue !== null && !isOpposed) {
       if (rollData.successes >= difficultyValue) {
@@ -157,22 +198,14 @@ export class PD6Dice {
         </div>
         ${resultText ? `<div class="pd6-result">${resultText}</div>` : ""}
       </div>`;
-    return ChatMessage.create({
-      user: game.user.id, speaker: ChatMessage.getSpeaker({ actor }), content,
-      style: CONST.CHAT_MESSAGE_STYLES.ROLL, sound: CONFIG.sounds.dice,
-    });
+    return this._postRollMessage(content, actor, rollData);
   }
 
   /* ==================================================================
      2. ATTACK ROLL  (Step 1 of combat chain)
      ================================================================== */
 
-  /**
-   * Initiate an attack. Reads the current user target for the defender.
-   * Posts a chat card with a "Roll Defense" button.
-   */
   static async rollAttack({ actor, item, skillKey, pool, diceColor = "white" }) {
-    // --- Identify defender from targets ---
     const targets = game.user.targets;
     let defenderId = "";
     let defenderTokenId = "";
@@ -184,16 +217,14 @@ export class PD6Dice {
       defenderName = targetToken.name;
     }
 
-    // --- Modifier dialog ---
     const mods = await this._modifierDialog(`Attack: ${item.name}`, diceColor);
     if (!mods) return;
 
     const finalPool = pool + mods.modifier;
-    const rollData = this.rollPool(finalPool, mods.diceColor);
+    const rollData = await this.rollPool(finalPool, mods.diceColor);
     const skillLabel = skillKey === "fighting" ? "Fighting" : "Shooting";
     const colorLabel = this.COLORS[mods.diceColor]?.label || "White";
 
-    // --- Build chat card ---
     const defenseButton = defenderId ? `
       <div class="pd6-combat-buttons">
         <button class="pd6-combat-btn pd6-btn-defense"
@@ -230,10 +261,7 @@ export class PD6Dice {
         ${defenseButton}
       </div>`;
 
-    return ChatMessage.create({
-      user: game.user.id, speaker: ChatMessage.getSpeaker({ actor }), content,
-      style: CONST.CHAT_MESSAGE_STYLES.ROLL, sound: CONFIG.sounds.dice,
-    });
+    return this._postRollMessage(content, actor, rollData);
   }
 
   /* ==================================================================
@@ -251,7 +279,6 @@ export class PD6Dice {
     const defensePool = defender.system.skills?.defense?.pool
       || defender.system.skills?.defense?.value || 1;
 
-    // --- Modifier dialog ---
     const mods = await this._modifierDialog(
       `Defense: ${defender.name}`,
       "white",
@@ -262,10 +289,9 @@ export class PD6Dice {
     if (!mods) return;
 
     const finalPool = defensePool + mods.modifier;
-    const rollData = this.rollPool(finalPool, mods.diceColor);
+    const rollData = await this.rollPool(finalPool, mods.diceColor);
     const colorLabel = this.COLORS[mods.diceColor]?.label || "White";
 
-    // --- Opposed comparison ---
     const isHit = attackerSuccesses > rollData.successes;
     const sv = isHit ? attackerSuccesses - rollData.successes : 0;
 
@@ -312,10 +338,7 @@ export class PD6Dice {
         ${damageButton}
       </div>`;
 
-    return ChatMessage.create({
-      user: game.user.id, speaker: ChatMessage.getSpeaker({ actor: defender }), content,
-      style: CONST.CHAT_MESSAGE_STYLES.ROLL, sound: CONFIG.sounds.dice,
-    });
+    return this._postRollMessage(content, defender, rollData);
   }
 
   /* ==================================================================
@@ -334,9 +357,7 @@ export class PD6Dice {
     const damageStr = btn.dataset.weaponDamage || "M+0";
     const ap = parseInt(btn.dataset.weaponAp) || 0;
     const weaponTraits = btn.dataset.weaponTraits || "";
-    const weaponType = btn.dataset.weaponType || "common";
 
-    // --- Calculate base damage pool ---
     let baseDamage = 0;
     let formula = "";
     if (damageStr.startsWith("M")) {
@@ -350,11 +371,9 @@ export class PD6Dice {
       formula = `Base(${fixedDmg}) + SV(${sv})`;
     }
 
-    // Default color; Brutal trait upgrades to red
     let defaultColor = "white";
     if (weaponTraits.toLowerCase().includes("brutal")) defaultColor = "red";
 
-    // --- Modifier dialog ---
     const mods = await this._modifierDialog(
       `Damage: ${weaponName}`,
       defaultColor,
@@ -365,10 +384,9 @@ export class PD6Dice {
     if (!mods) return;
 
     const finalPool = baseDamage + mods.modifier;
-    const rollData = this.rollPool(finalPool, mods.diceColor);
+    const rollData = await this.rollPool(finalPool, mods.diceColor);
     const colorLabel = this.COLORS[mods.diceColor]?.label || "White";
 
-    // --- Armor button ---
     const armorButton = `
       <div class="pd6-combat-buttons">
         <button class="pd6-combat-btn pd6-btn-armor"
@@ -397,10 +415,7 @@ export class PD6Dice {
         ${armorButton}
       </div>`;
 
-    return ChatMessage.create({
-      user: game.user.id, speaker: ChatMessage.getSpeaker({ actor: attacker }), content,
-      style: CONST.CHAT_MESSAGE_STYLES.ROLL, sound: CONFIG.sounds.dice,
-    });
+    return this._postRollMessage(content, attacker, rollData);
   }
 
   /* ==================================================================
@@ -424,11 +439,9 @@ export class PD6Dice {
     let armorSource = "None";
 
     if (defender.type === "npc") {
-      // NPCs always use the armorDice field from their sheet
       baseArmor = Number(defender.system.armorDice) || 0;
       armorSource = `NPC Armor (${baseArmor} dice)`;
     } else {
-      // Characters use equipped armor items
       const equippedArmor = defender.items.find(i => i.type === "armor" && i.system.equipped);
       if (equippedArmor) {
         baseArmor = equippedArmor.system.armorValue || 0;
@@ -441,7 +454,6 @@ export class PD6Dice {
 
     const armorAfterAP = Math.max(baseArmor - ap, 0);
 
-    // --- Modifier dialog ---
     const mods = await this._modifierDialog(
       `Armor: ${defender.name}`,
       defaultColor,
@@ -464,14 +476,13 @@ export class PD6Dice {
     let diceHtml = "";
 
     if (finalPool > 0) {
-      rollData = this.rollPool(finalPool, mods.diceColor);
+      rollData = await this.rollPool(finalPool, mods.diceColor);
       armorSuccesses = rollData.successes;
       diceHtml = this.renderDice(rollData);
     } else {
       diceHtml = `<div class="pd6-combat-note"><em>No armor dice to roll!</em></div>`;
     }
 
-    // --- Calculate net damage ---
     const netDamage = Math.max(damageSuccesses - armorSuccesses, 0);
     const colorLabel = this.COLORS[mods.diceColor]?.label || "White";
 
@@ -482,7 +493,6 @@ export class PD6Dice {
       resultHtml = `<span class="pd6-result-success">All damage absorbed!</span>`;
     }
 
-    // --- Auto-apply damage to Grit Points ---
     let applyHtml = "";
     if (netDamage > 0) {
       const currentGrit = defender.system.gritPoints.value;
@@ -514,10 +524,7 @@ export class PD6Dice {
         ${applyHtml}
       </div>`;
 
-    return ChatMessage.create({
-      user: game.user.id, speaker: ChatMessage.getSpeaker({ actor: defender }), content,
-      style: CONST.CHAT_MESSAGE_STYLES.ROLL, sound: CONFIG.sounds.dice,
-    });
+    return this._postRollMessage(content, defender, rollData);
   }
 
   /* ==================================================================
@@ -559,7 +566,7 @@ export class PD6Dice {
       });
     }
 
-    const rollData = this.rollPool(finalPool, mods.diceColor);
+    const rollData = await this.rollPool(finalPool, mods.diceColor);
     const colorLabel = this.COLORS[mods.diceColor]?.label || "White";
     const content = `
       <div class="pd6-chat-roll pd6-armor-roll">
@@ -572,10 +579,7 @@ export class PD6Dice {
           <span class="pd6-successes">${rollData.successes} Damage Negated</span>
         </div>
       </div>`;
-    return ChatMessage.create({
-      user: game.user.id, speaker: ChatMessage.getSpeaker({ actor }), content,
-      style: CONST.CHAT_MESSAGE_STYLES.ROLL, sound: CONFIG.sounds.dice,
-    });
+    return this._postRollMessage(content, actor, rollData);
   }
 
   /* ==================================================================
@@ -583,9 +587,20 @@ export class PD6Dice {
      ================================================================== */
 
   static async rollCriticalInjury(actor) {
-    const tens = Math.ceil(Math.random() * 6);
-    const units = Math.ceil(Math.random() * 6);
+    // Use Foundry Roll for the d66 too
+    const tensRoll = new Roll("1d6");
+    const unitsRoll = new Roll("1d6");
+    await tensRoll.evaluate();
+    await unitsRoll.evaluate();
+    const tens = tensRoll.total;
+    const units = unitsRoll.total;
     const result = tens * 10 + units;
+
+    // Show DSN for both dice
+    if (game.dice3d) {
+      await game.dice3d.showForRoll(tensRoll, game.user, true);
+      await game.dice3d.showForRoll(unitsRoll, game.user, true);
+    }
 
     const injuries = {
       11: { range: "11-13", name: "Multiple Injuries", effect: "Roll twice on this chart." },
@@ -602,9 +617,6 @@ export class PD6Dice {
       64: { range: "64-66", name: "Bumps and Bruises", effect: "You receive a bruise or minor cut." },
     };
 
-    // Map any d66 result to its range bracket
-    const bracket = Math.floor(result / 10) * 10 + (Math.ceil((result % 10) / 3) === 1 ? 1 : 4);
-    // Simple lookup: try exact, then nearest bracket start
     let injury = injuries[result];
     if (!injury) {
       const tens2 = Math.floor(result / 10) * 10;
@@ -628,7 +640,7 @@ export class PD6Dice {
 
     return ChatMessage.create({
       user: game.user.id, speaker: ChatMessage.getSpeaker({ actor }), content,
-      style: CONST.CHAT_MESSAGE_STYLES.ROLL, sound: CONFIG.sounds.dice,
+      style: CONST.CHAT_MESSAGE_STYLES.ROLL,
     });
   }
 

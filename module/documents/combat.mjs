@@ -22,7 +22,7 @@ export class PD6Combat extends Combat {
     for (const [disposition, members] of Object.entries(sides)) {
       const leader = this._pickLeader(members);
       const pool = this._getLeadershipPool(leader);
-      const rollData = PD6Dice.rollPool(pool, "white");
+      const rollData = await PD6Dice.rollPool(pool, "white");
 
       sideResults.push({
         disposition: Number(disposition),
