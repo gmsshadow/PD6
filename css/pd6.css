@@ -1029,3 +1029,116 @@
   margin-bottom: 2px;
 }
 
+/* ---------- Editor Container Fix ---------- */
+.pd6-editor-container {
+  min-height: 200px;
+  margin-top: 4px;
+}
+
+.pd6-editor-container .editor {
+  min-height: 180px;
+  height: 100%;
+}
+
+/* ---------- Trait Sheet ---------- */
+.pd6-trait-mode {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--pd6-border);
+  margin-bottom: 6px;
+}
+
+.pd6-trait-mode label {
+  text-transform: none;
+  color: var(--pd6-text);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pd6-condition-note-field {
+  margin-top: 4px;
+}
+
+.pd6-condition-note-field input {
+  width: 100%;
+}
+
+.pd6-full-width {
+  grid-column: 1 / -1;
+}
+
+.pd6-full-width input {
+  width: 100%;
+}
+
+.pd6-trait-summary {
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: var(--pd6-bg-light);
+  border: 1px solid var(--pd6-border);
+  border-radius: var(--pd6-radius);
+}
+
+.pd6-trait-summary h4 {
+  margin: 0 0 3px;
+  font-size: 0.78rem;
+  color: var(--pd6-text-dim);
+  text-transform: uppercase;
+}
+
+.pd6-trait-summary-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--pd6-text);
+}
+
+.pd6-trait-summary-text i {
+  margin-right: 3px;
+}
+
+.pd6-trait-summary-text .fa-check-circle { color: var(--pd6-green); }
+.pd6-trait-summary-text .fa-question-circle { color: var(--pd6-accent); }
+
+/* ---------- Trait Reminders in Roll Dialog ---------- */
+.pd6-trait-reminders {
+  margin-bottom: 8px;
+}
+
+.pd6-trait-reminder {
+  background: rgba(201, 168, 76, 0.1);
+  border-left: 3px solid var(--pd6-accent);
+  padding: 4px 8px;
+  margin-bottom: 3px;
+  font-size: 0.82rem;
+  border-radius: 0 var(--pd6-radius) var(--pd6-radius) 0;
+}
+
+.pd6-trait-reminder i {
+  color: var(--pd6-accent);
+  margin-right: 3px;
+}
+
+.pd6-trait-info-line {
+  margin-bottom: 6px;
+}
+
+.pd6-trait-passive-note {
+  display: inline-block;
+  background: var(--pd6-bg-light);
+  border: 1px solid var(--pd6-accent-dim);
+  color: var(--pd6-accent);
+  padding: 1px 6px;
+  border-radius: var(--pd6-radius);
+  font-size: 0.75rem;
+  margin-right: 4px;
+}
+
+/* Trait description on character sheet */
+.pd6-trait-desc {
+  font-size: 0.78rem;
+  color: var(--pd6-text-dim);
+  font-style: italic;
+  padding-left: 28px;
+}
+

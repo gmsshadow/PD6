@@ -145,7 +145,14 @@
     },
     "trait": {
       "description": "",
-      "source": ""
+      "source": "",
+      "passive": true,
+      "effectType": "none",
+      "targetSkills": "",
+      "targetAttributes": "",
+      "modifierValue": 0,
+      "diceColorOverride": "",
+      "conditionNote": ""
     }
   }
 }

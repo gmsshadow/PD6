@@ -4,16 +4,130 @@
     <h1><input name="name" type="text" value="{{item.name}}" placeholder="Trait Name" /></h1>
   </header>
 
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="effects">Effects</a>
+  </nav>
+
   <section class="sheet-body">
-    <div class="pd6-item-fields">
-      <div class="pd6-field">
-        <label>Source</label>
-        <input type="text" name="system.source" value="{{system.source}}" placeholder="Class, Special Trait, etc." />
+
+    {{!-- DESCRIPTION TAB --}}
+    <div class="tab" data-group="primary" data-tab="description">
+      <div class="pd6-item-fields">
+        <div class="pd6-field">
+          <label>Source</label>
+          <input type="text" name="system.source" value="{{system.source}}" placeholder="Class, Race, Special, etc." />
+        </div>
+      </div>
+      <div class="pd6-editor-container">
+        {{editor system.description target="system.description" button=true owner=owner editable=editable}}
       </div>
     </div>
-    <div class="pd6-trait-description">
-      <label>Description</label>
-      {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+
+    {{!-- EFFECTS TAB --}}
+    <div class="tab" data-group="primary" data-tab="effects">
+
+      {{!-- Passive vs Conditional --}}
+      <div class="pd6-trait-mode">
+        <div class="pd6-field">
+          <label>
+            <input type="checkbox" name="system.passive" {{#if system.passive}}checked{{/if}} />
+            Passive (always active)
+          </label>
+        </div>
+        {{#unless system.passive}}
+        <div class="pd6-field pd6-condition-note-field">
+          <label>Condition Reminder (shown in roll dialogs)</label>
+          <input type="text" name="system.conditionNote" value="{{system.conditionNote}}" 
+                 placeholder="e.g. Only when defending against ranged attacks" />
+        </div>
+        {{/unless}}
+      </div>
+
+      {{!-- Effect Type --}}
+      <div class="pd6-item-fields">
+        <div class="pd6-field">
+          <label>Effect Type</label>
+          <select name="system.effectType">
+            <option value="none" {{#if (eq system.effectType "none")}}selected{{/if}}>None (descriptive only)</option>
+            <option value="diceColor" {{#if (eq system.effectType "diceColor")}}selected{{/if}}>Dice Colour Override</option>
+            <option value="bonusDice" {{#if (eq system.effectType "bonusDice")}}selected{{/if}}>Bonus / Penalty Dice</option>
+            <option value="attributeMod" {{#if (eq system.effectType "attributeMod")}}selected{{/if}}>Attribute Modifier</option>
+            <option value="skillMod" {{#if (eq system.effectType "skillMod")}}selected{{/if}}>Skill Rank Modifier</option>
+          </select>
+        </div>
+
+        {{!-- Dice Colour Override --}}
+        {{#if (eq system.effectType "diceColor")}}
+        <div class="pd6-field">
+          <label>Override Colour</label>
+          <select name="system.diceColorOverride">
+            <option value="red" {{#if (eq system.diceColorOverride "red")}}selected{{/if}}>Red (3+)</option>
+            <option value="black" {{#if (eq system.diceColorOverride "black")}}selected{{/if}}>Black (2+)</option>
+            <option value="white" {{#if (eq system.diceColorOverride "white")}}selected{{/if}}>White (4+)</option>
+          </select>
+        </div>
+        {{/if}}
+
+        {{!-- Modifier Value (for bonusDice, attributeMod, skillMod) --}}
+        {{#if (or (eq system.effectType "bonusDice") (or (eq system.effectType "attributeMod") (eq system.effectType "skillMod")))}}
+        <div class="pd6-field">
+          <label>Modifier Value</label>
+          <input type="number" name="system.modifierValue" value="{{system.modifierValue}}" />
+        </div>
+        {{/if}}
+
+        {{!-- Target Skills --}}
+        {{#if (or (eq system.effectType "diceColor") (or (eq system.effectType "bonusDice") (eq system.effectType "skillMod")))}}
+        <div class="pd6-field pd6-full-width">
+          <label>Target Skills (comma-separated, or "all")</label>
+          <input type="text" name="system.targetSkills" value="{{system.targetSkills}}" 
+                 placeholder="e.g. discipline, leadership" />
+        </div>
+        {{/if}}
+
+        {{!-- Target Attributes --}}
+        {{#if (eq system.effectType "attributeMod")}}
+        <div class="pd6-field pd6-full-width">
+          <label>Target Attributes (comma-separated — also accepts "grit" and "luck" for max values)</label>
+          <input type="text" name="system.targetAttributes" value="{{system.targetAttributes}}" 
+                 placeholder="e.g. might, toughness, grit, luck" />
+        </div>
+        {{/if}}
+      </div>
+
+      {{!-- Effect Summary --}}
+      <div class="pd6-trait-summary">
+        <h4>Effect Summary</h4>
+        {{#if (eq system.effectType "none")}}
+          <p class="pd6-trait-summary-text">No mechanical effect — descriptive only.</p>
+        {{/if}}
+        {{#if (eq system.effectType "diceColor")}}
+          <p class="pd6-trait-summary-text">
+            {{#if system.passive}}<i class="fas fa-check-circle"></i> Always{{else}}<i class="fas fa-question-circle"></i> Conditionally{{/if}}
+            rolls <strong>{{system.diceColorOverride}}</strong> dice for: <strong>{{system.targetSkills}}</strong>
+          </p>
+        {{/if}}
+        {{#if (eq system.effectType "bonusDice")}}
+          <p class="pd6-trait-summary-text">
+            {{#if system.passive}}<i class="fas fa-check-circle"></i> Always{{else}}<i class="fas fa-question-circle"></i> Conditionally{{/if}}
+            <strong>{{#if (gt system.modifierValue 0)}}+{{/if}}{{system.modifierValue}}</strong> dice for: <strong>{{system.targetSkills}}</strong>
+          </p>
+        {{/if}}
+        {{#if (eq system.effectType "attributeMod")}}
+          <p class="pd6-trait-summary-text">
+            {{#if system.passive}}<i class="fas fa-check-circle"></i> Always{{else}}<i class="fas fa-question-circle"></i> Conditionally{{/if}}
+            <strong>{{#if (gt system.modifierValue 0)}}+{{/if}}{{system.modifierValue}}</strong> to: <strong>{{system.targetAttributes}}</strong>
+          </p>
+        {{/if}}
+        {{#if (eq system.effectType "skillMod")}}
+          <p class="pd6-trait-summary-text">
+            {{#if system.passive}}<i class="fas fa-check-circle"></i> Always{{else}}<i class="fas fa-question-circle"></i> Conditionally{{/if}}
+            <strong>{{#if (gt system.modifierValue 0)}}+{{/if}}{{system.modifierValue}}</strong> ranks to: <strong>{{system.targetSkills}}</strong>
+          </p>
+        {{/if}}
+      </div>
+
     </div>
   </section>
 </form>

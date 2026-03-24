@@ -203,9 +203,33 @@ export class PD6ActorSheet extends ActorSheet {
     const skill = this.actor.system.skills[skillKey];
     if (!skill) return;
 
-    // Show dialog for DV and dice color
+    // --- Gather trait effects for this skill ---
+    const traitColorOverride = this.actor.system.traitDiceColor?.[skillKey] || "";
+    const traitBonusDice = this.actor.system.traitBonusDice?.[skillKey] || 0;
+    const defaultColor = traitColorOverride || "white";
+
+    // Collect conditional trait reminders
+    let traitReminders = "";
+    for (const item of this.actor.items) {
+      if (item.type !== "trait") continue;
+      if (item.system.passive) continue; // only conditional
+      if (item.system.effectType === "none") continue;
+      const targets = (item.system.targetSkills || "").split(",").map(s => s.trim().toLowerCase());
+      if (targets.includes(skillKey) || targets.includes("all")) {
+        const note = item.system.conditionNote || "Check if applicable";
+        traitReminders += `<div class="pd6-trait-reminder"><i class="fas fa-exclamation-triangle"></i> <strong>${item.name}:</strong> ${note}</div>`;
+      }
+    }
+
+    // Passive trait info line
+    let traitInfo = "";
+    if (traitColorOverride) traitInfo += `<span class="pd6-trait-passive-note">Trait: ${traitColorOverride} dice</span> `;
+    if (traitBonusDice) traitInfo += `<span class="pd6-trait-passive-note">Trait: ${traitBonusDice > 0 ? "+" : ""}${traitBonusDice} dice</span>`;
+
     const dialogContent = `
       <form>
+        ${traitReminders ? `<div class="pd6-trait-reminders">${traitReminders}</div>` : ""}
+        ${traitInfo ? `<div class="pd6-trait-info-line">${traitInfo}</div>` : ""}
         <div class="form-group">
           <label>Difficulty Value (leave blank for opposed/no target):</label>
           <input type="number" name="dv" min="1" max="10" placeholder="—" />
@@ -213,14 +237,14 @@ export class PD6ActorSheet extends ActorSheet {
         <div class="form-group">
           <label>Dice Color:</label>
           <select name="diceColor">
-            <option value="white">White (4+)</option>
-            <option value="red">Red (3+)</option>
-            <option value="black">Black (2+)</option>
+            <option value="white" ${defaultColor === "white" ? "selected" : ""}>White (4+)</option>
+            <option value="red" ${defaultColor === "red" ? "selected" : ""}>Red (3+)</option>
+            <option value="black" ${defaultColor === "black" ? "selected" : ""}>Black (2+)</option>
           </select>
         </div>
         <div class="form-group">
           <label>Bonus/Penalty Dice:</label>
-          <input type="number" name="modifier" value="0" />
+          <input type="number" name="modifier" value="${traitBonusDice}" />
         </div>
       </form>
     `;
@@ -230,7 +254,7 @@ export class PD6ActorSheet extends ActorSheet {
       content: dialogContent,
       label: "Roll",
       callback: (html) => {
-        const form = html[0].querySelector("form");
+        const form = html[0]?.querySelector?.("form") ?? html.querySelector("form");
         return {
           dv: form.dv.value ? parseInt(form.dv.value) : null,
           diceColor: form.diceColor.value,

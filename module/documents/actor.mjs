@@ -31,19 +31,23 @@ export class PD6Actor extends Actor {
     if (actorData.type !== 'character') return;
     const systemData = actorData.system;
 
-    // Calculate Grit Points max = Resiliency ranks + Toughness ranks
+    // ---- 1. Apply passive ATTRIBUTE modifiers from traits ----
+    this._applyPassiveTraits(systemData, "attributeMod");
+
+    // ---- 2. Derived stats from (modified) attributes ----
     const resiliencyRanks = systemData.skills.resiliency.value || 0;
     const toughnessRanks = systemData.attributes.toughness.value || 0;
     systemData.gritPoints.max = resiliencyRanks + toughnessRanks;
 
-    // Clamp Grit Points: never below 0, never above max
-    systemData.gritPoints.value = Math.clamped(systemData.gritPoints.value, 0, systemData.gritPoints.max);
-
-    // Calculate Luck Points max = Fate ranks
     systemData.luckPoints.max = systemData.attributes.fate.value || 0;
-
-    // Calculate Encumbrance Limit = Might * 4
     systemData.encumbrance.max = (systemData.attributes.might.value || 0) * 4;
+
+    // ---- 2b. Apply passive DERIVED STAT modifiers (Grit, Luck) from traits ----
+    this._applyDerivedStatTraits(systemData);
+
+    // Clamp after trait modifications
+    systemData.gritPoints.value = Math.clamped(systemData.gritPoints.value, 0, systemData.gritPoints.max);
+    systemData.luckPoints.value = Math.clamped(systemData.luckPoints.value ?? 0, 0, systemData.luckPoints.max);
 
     // Calculate current encumbrance from equipped items
     let totalEnc = 0;
@@ -54,10 +58,122 @@ export class PD6Actor extends Actor {
     }
     systemData.encumbrance.value = totalEnc;
 
-    // Calculate dice pools for each skill
+    // ---- 3. Apply passive SKILL RANK modifiers from traits ----
+    this._applyPassiveTraits(systemData, "skillMod");
+
+    // ---- 4. Calculate dice pools (skill + attribute) ----
     for (let [key, skill] of Object.entries(systemData.skills)) {
       const attr = systemData.attributes[skill.attribute];
       skill.pool = (skill.value || 0) + (attr ? attr.value : 0);
+    }
+
+    // ---- 5. Apply passive BONUS DICE from traits (stored separately) ----
+    // These are added at roll time, not baked into the pool display
+    systemData.traitBonusDice = {};
+    systemData.traitDiceColor = {};
+    this._collectRollTimeTraits(systemData);
+  }
+
+  /**
+   * Apply passive attribute or skill rank modifiers from trait items.
+   */
+  _applyPassiveTraits(systemData, effectType) {
+    for (const item of this.items) {
+      if (item.type !== "trait") continue;
+      if (!item.system.passive) continue;
+      if (item.system.effectType !== effectType) continue;
+
+      const mod = Number(item.system.modifierValue) || 0;
+      if (mod === 0) continue;
+
+      if (effectType === "attributeMod" && item.system.targetAttributes) {
+        const targets = item.system.targetAttributes.split(",").map(s => s.trim().toLowerCase());
+        for (const attrKey of targets) {
+          if (systemData.attributes[attrKey]) {
+            systemData.attributes[attrKey].value += mod;
+          }
+        }
+      }
+
+      if (effectType === "skillMod" && item.system.targetSkills) {
+        const targets = item.system.targetSkills.split(",").map(s => s.trim().toLowerCase());
+        for (const skillKey of targets) {
+          if (targets.includes("all")) {
+            for (const [k, skill] of Object.entries(systemData.skills)) {
+              skill.value += mod;
+            }
+            break;
+          }
+          if (systemData.skills[skillKey]) {
+            systemData.skills[skillKey].value += mod;
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Apply passive trait modifiers to derived stats (Grit Points, Luck Points).
+   * Traits targeting "gritPoints" or "luckPoints" in targetAttributes add to their max.
+   */
+  _applyDerivedStatTraits(systemData) {
+    for (const item of this.items) {
+      if (item.type !== "trait") continue;
+      if (!item.system.passive) continue;
+      if (item.system.effectType !== "attributeMod") continue;
+
+      const mod = Number(item.system.modifierValue) || 0;
+      if (mod === 0) continue;
+
+      const targets = (item.system.targetAttributes || "").split(",").map(s => s.trim().toLowerCase());
+      for (const target of targets) {
+        if (target === "gritpoints" || target === "grit") {
+          systemData.gritPoints.max += mod;
+        }
+        if (target === "luckpoints" || target === "luck") {
+          systemData.luckPoints.max += mod;
+        }
+      }
+    }
+  }
+
+  /**
+   * Collect passive bonus dice and dice colour overrides for use at roll time.
+   * Stored on systemData.traitBonusDice and systemData.traitDiceColor.
+   */
+  _collectRollTimeTraits(systemData) {
+    for (const item of this.items) {
+      if (item.type !== "trait") continue;
+      if (!item.system.passive) continue;
+
+      const targets = (item.system.targetSkills || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+
+      if (item.system.effectType === "bonusDice") {
+        const mod = Number(item.system.modifierValue) || 0;
+        if (mod === 0) continue;
+        for (const skillKey of targets) {
+          if (skillKey === "all") {
+            for (const k of Object.keys(systemData.skills)) {
+              systemData.traitBonusDice[k] = (systemData.traitBonusDice[k] || 0) + mod;
+            }
+            break;
+          }
+          systemData.traitBonusDice[skillKey] = (systemData.traitBonusDice[skillKey] || 0) + mod;
+        }
+      }
+
+      if (item.system.effectType === "diceColor" && item.system.diceColorOverride) {
+        const color = item.system.diceColorOverride;
+        for (const skillKey of targets) {
+          if (skillKey === "all") {
+            for (const k of Object.keys(systemData.skills)) {
+              systemData.traitDiceColor[k] = color;
+            }
+            break;
+          }
+          systemData.traitDiceColor[skillKey] = color;
+        }
+      }
     }
   }
 
