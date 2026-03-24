@@ -30,7 +30,7 @@
   },
   "primaryTokenAttribute": "gritPoints",
   "secondaryTokenAttribute": "luckPoints",
-  "url": "",
-  "manifest": "",
-  "download": ""
+  "url": "https://github.com/gmsshadow/PD6",
+  "manifest": "https://raw.githubusercontent.com/gmsshadow/PD6/refs/heads/main/system.json",
+  "download": "https://github.com/gmsshadow/PD6/archive/refs/heads/main.zip"
 }
