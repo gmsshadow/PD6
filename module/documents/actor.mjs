@@ -148,7 +148,8 @@ export class PD6Actor extends Actor {
   }
 
   /**
-   * Spend a Luck Point for +2 bonus.
+   * Spend a Luck Point and roll with +2 bonus.
+   * Opens a dialog to pick skill, DV, color, and modifiers.
    */
   async spendLuckPoint() {
     if (this.type !== 'character') return;
@@ -156,8 +157,8 @@ export class PD6Actor extends Actor {
       ui.notifications.warn("No Luck Points remaining!");
       return false;
     }
-    await this.update({ "system.luckPoints.value": this.system.luckPoints.value - 1 });
-    ui.notifications.info("Spent 1 Luck Point for +2 bonus.");
-    return true;
+
+    const { PD6Dice } = await import("../helpers/dice.mjs");
+    return PD6Dice.rollWithLuck(this);
   }
 }

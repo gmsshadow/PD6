@@ -975,3 +975,35 @@
   color: var(--pd6-accent);
 }
 
+/* ---------- Luck Roll ---------- */
+.pd6-luck-roll {
+  border-color: var(--pd6-accent);
+  background: rgba(201, 168, 76, 0.05);
+}
+
+.pd6-luck-tag {
+  display: inline-block;
+  background: var(--pd6-accent);
+  color: var(--pd6-bg-dark);
+  font-size: 0.6rem;
+  font-weight: bold;
+  padding: 1px 5px;
+  border-radius: 2px;
+  vertical-align: middle;
+  margin-left: 6px;
+  letter-spacing: 0.06em;
+}
+
+.pd6-luck-spent {
+  font-size: 0.75rem;
+  color: var(--pd6-accent-dim);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.pd6-luck-banner label {
+  color: var(--pd6-accent) !important;
+  font-size: 0.9rem !important;
+  text-transform: none !important;
+}
+

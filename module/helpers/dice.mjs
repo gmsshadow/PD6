@@ -219,6 +219,119 @@ export class PD6Dice {
   }
 
   /* ==================================================================
+     LUCK ROLL  (Spend 1 Luck Point for +2 bonus dice)
+     ================================================================== */
+
+  /**
+   * Open a dialog to pick a skill, DV, dice color, and modifiers,
+   * then roll with +2 Luck bonus. Deducts the Luck Point on confirm.
+   */
+  static async rollWithLuck(actor) {
+    const skills = actor.system.skills;
+    if (!skills) return;
+
+    // Build skill options sorted alphabetically
+    const skillOptions = Object.entries(skills)
+      .map(([key, skill]) => ({
+        key,
+        label: this.getSkillLabel(key),
+        pool: skill.pool || skill.value || 0,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+
+    const skillSelect = skillOptions
+      .map(s => `<option value="${s.key}">${s.label} (${s.pool}d)</option>`)
+      .join("");
+
+    const result = await Dialog.prompt({
+      title: `Luck Roll — ${actor.name}`,
+      content: `
+        <form class="pd6-modifier-dialog">
+          <div class="form-group pd6-luck-banner">
+            <label><i class="fas fa-dice"></i> Spending 1 Luck Point — <strong>+2 bonus dice</strong></label>
+          </div>
+          <div class="form-group">
+            <label>Skill:</label>
+            <select name="skillKey">${skillSelect}</select>
+          </div>
+          <div class="form-group">
+            <label>Difficulty Value (leave blank for opposed/no target):</label>
+            <input type="number" name="dv" min="1" max="10" placeholder="—" />
+          </div>
+          <div class="form-group">
+            <label>Dice Color:</label>
+            <select name="diceColor">
+              <option value="white">White (4+)</option>
+              <option value="red">Red (3+)</option>
+              <option value="black">Black (2+)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Additional Bonus / Penalty Dice:</label>
+            <input type="number" name="modifier" value="0" />
+          </div>
+        </form>
+      `,
+      label: "Spend Luck & Roll",
+      callback: (html) => {
+        const form = html[0]?.querySelector?.("form") ?? html.querySelector("form");
+        return {
+          skillKey: form.skillKey.value,
+          dv: form.dv.value ? parseInt(form.dv.value) : null,
+          diceColor: form.diceColor.value,
+          modifier: parseInt(form.modifier.value) || 0,
+        };
+      },
+      rejectClose: false,
+    });
+
+    if (!result) return; // Cancelled
+
+    // Deduct the Luck Point
+    await actor.update({ "system.luckPoints.value": actor.system.luckPoints.value - 1 });
+
+    // Calculate pool: skill pool + 2 (luck) + modifier
+    const skill = skills[result.skillKey];
+    const basePool = skill.pool || skill.value || 0;
+    const luckBonus = 2;
+    const totalPool = basePool + luckBonus + result.modifier;
+    const skillLabel = this.getSkillLabel(result.skillKey);
+
+    // Roll
+    const rollData = await this.rollPool(totalPool, result.diceColor);
+
+    // Determine success/failure against DV
+    let resultText = "";
+    if (result.dv !== null) {
+      if (rollData.successes >= result.dv) {
+        const sv = rollData.successes - result.dv;
+        resultText = `<span class="pd6-result-success">Success! (SV ${sv})</span>`;
+      } else {
+        resultText = `<span class="pd6-result-failure">Failure (${rollData.successes}/${result.dv})</span>`;
+      }
+    }
+
+    const colorLabel = this.COLORS[result.diceColor]?.label || "White";
+    const content = `
+      <div class="pd6-chat-roll pd6-skill-check pd6-luck-roll">
+        <h3 class="pd6-roll-header"><i class="fas fa-dice"></i> ${skillLabel} Check <span class="pd6-luck-tag">LUCK</span></h3>
+        <div class="pd6-roll-info">
+          <span class="pd6-pool-info">${rollData.pool} ${colorLabel} dice (${basePool} + 2 Luck${result.modifier ? ` + ${result.modifier}` : ""})</span>
+          ${result.dv !== null ? `<span class="pd6-dv-info">DV ${result.dv}</span>` : ""}
+        </div>
+        ${this.renderDice(rollData)}
+        <div class="pd6-roll-summary">
+          <span class="pd6-successes">${rollData.successes} Success${rollData.successes !== 1 ? "es" : ""}</span>
+          ${rollData.explosions > 0 ? `<span class="pd6-explosions">(${rollData.explosions} exploded)</span>` : ""}
+        </div>
+        ${resultText ? `<div class="pd6-result">${resultText}</div>` : ""}
+        <div class="pd6-luck-spent">Luck Point spent (${actor.system.luckPoints.value} remaining)</div>
+      </div>`;
+
+    return this._postRollMessage(content, actor, rollData);
+  }
+
+  /* ==================================================================
      2. ATTACK ROLL  (Step 1 of combat chain)
      ================================================================== */
 
