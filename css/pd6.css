@@ -1007,3 +1007,25 @@
   text-transform: none !important;
 }
 
+/* Post-roll luck button */
+.pd6-btn-post-luck {
+  border-color: var(--pd6-accent) !important;
+  font-size: 0.78rem !important;
+}
+
+.pd6-btn-post-luck:hover {
+  background: rgba(201, 168, 76, 0.15) !important;
+  border-color: var(--pd6-accent) !important;
+}
+
+.pd6-luck-original {
+  font-size: 0.75rem;
+  color: var(--pd6-text-dim);
+  margin-left: 4px;
+}
+
+.pd6-luck-post-buttons {
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+

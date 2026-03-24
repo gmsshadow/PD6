@@ -67,6 +67,11 @@ Hooks.on("renderChatMessage", (message, html, data) => {
   element.querySelectorAll(".pd6-btn-armor").forEach(btn => {
     btn.addEventListener("click", (ev) => PD6Dice.onArmorRoll(ev));
   });
+
+  // Post-roll Luck spend button (on skill check and attack cards)
+  element.querySelectorAll(".pd6-btn-post-luck").forEach(btn => {
+    btn.addEventListener("click", (ev) => PD6Dice.onPostRollLuck(ev));
+  });
 });
 
 // Inject "Next Side" button into the Combat Tracker
