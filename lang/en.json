@@ -1,0 +1,48 @@
+{
+  "PD6": {
+    "SheetLabels": {
+      "Actor": "PD6 Actor Sheet",
+      "Item": "PD6 Item Sheet"
+    },
+    "Attributes": {
+      "might": "Might",
+      "toughness": "Toughness",
+      "agility": "Agility",
+      "willpower": "Willpower",
+      "intelligence": "Intelligence",
+      "fate": "Fate"
+    },
+    "Skills": {
+      "academics": "Academics",
+      "acrobatics": "Acrobatics",
+      "athletics": "Athletics",
+      "defense": "Defense",
+      "dexterity": "Dexterity",
+      "diplomacy": "Diplomacy",
+      "discipline": "Discipline",
+      "fighting": "Fighting",
+      "fortune": "Fortune",
+      "heal": "Heal",
+      "investigate": "Investigate",
+      "leadership": "Leadership",
+      "magic": "Magic",
+      "perception": "Perception",
+      "resiliency": "Resiliency",
+      "shooting": "Shooting",
+      "stealth": "Stealth"
+    },
+    "DiceColors": {
+      "white": "White (4+)",
+      "red": "Red (3+)",
+      "black": "Black (2+)"
+    },
+    "ItemTypes": {
+      "weapon": "Weapon",
+      "armor": "Armor",
+      "equipment": "Equipment",
+      "spell": "Spell",
+      "miracle": "Miracle",
+      "trait": "Trait"
+    }
+  }
+}

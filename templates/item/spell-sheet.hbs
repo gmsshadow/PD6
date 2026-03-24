@@ -1,0 +1,45 @@
+<form class="pd6 sheet item spell" autocomplete="off">
+  <header class="pd6-item-header">
+    <img src="{{item.img}}" data-edit="img" width="48" height="48" />
+    <h1><input name="name" type="text" value="{{item.name}}" placeholder="Spell Name" /></h1>
+  </header>
+
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="details">Details</a>
+  </nav>
+
+  <section class="sheet-body">
+    <div class="tab" data-group="primary" data-tab="description">
+      {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+    </div>
+    <div class="tab" data-group="primary" data-tab="details">
+      <div class="pd6-item-fields">
+        <div class="pd6-field">
+          <label>Difficulty Value</label>
+          <input type="number" name="system.difficultyValue" value="{{system.difficultyValue}}" min="1" />
+        </div>
+        <div class="pd6-field">
+          <label>Duration</label>
+          <input type="text" name="system.duration" value="{{system.duration}}" placeholder="1 hour, Encounter, etc." />
+        </div>
+        <div class="pd6-field">
+          <label>Range</label>
+          <input type="text" name="system.range" value="{{system.range}}" placeholder="Self, Touch, 100 ft" />
+        </div>
+        <div class="pd6-field">
+          <label>Spell Save</label>
+          <input type="text" name="system.spellSave" value="{{system.spellSave}}" placeholder="DV3 Acrobatics" />
+        </div>
+        <div class="pd6-field">
+          <label>Element</label>
+          <input type="text" name="system.element" value="{{system.element}}" placeholder="Fire, Water, etc." />
+        </div>
+        <div class="pd6-field">
+          <label>Failed Today</label>
+          <input type="checkbox" name="system.failed" {{#if system.failed}}checked{{/if}} />
+        </div>
+      </div>
+    </div>
+  </section>
+</form>

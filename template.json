@@ -1,0 +1,151 @@
+{
+  "Actor": {
+    "types": ["character", "npc"],
+    "templates": {
+      "common": {
+        "gritPoints": {
+          "value": 5,
+          "max": 5
+        },
+        "attributes": {
+          "might": { "value": 2, "abbr": "M" },
+          "toughness": { "value": 2, "abbr": "T" },
+          "agility": { "value": 2, "abbr": "A" },
+          "willpower": { "value": 2, "abbr": "WP" },
+          "intelligence": { "value": 2, "abbr": "I" },
+          "fate": { "value": 2, "abbr": "F" }
+        },
+        "skills": {
+          "academics": { "value": 0, "attribute": "intelligence" },
+          "acrobatics": { "value": 0, "attribute": "agility" },
+          "athletics": { "value": 0, "attribute": "might" },
+          "defense": { "value": 0, "attribute": "agility" },
+          "dexterity": { "value": 0, "attribute": "agility" },
+          "diplomacy": { "value": 0, "attribute": "willpower" },
+          "discipline": { "value": 0, "attribute": "willpower" },
+          "fighting": { "value": 0, "attribute": "might" },
+          "fortune": { "value": 0, "attribute": "fate" },
+          "heal": { "value": 0, "attribute": "intelligence" },
+          "investigate": { "value": 0, "attribute": "intelligence" },
+          "leadership": { "value": 0, "attribute": "willpower" },
+          "magic": { "value": 0, "attribute": "intelligence" },
+          "perception": { "value": 0, "attribute": "willpower" },
+          "resiliency": { "value": 0, "attribute": "toughness" },
+          "shooting": { "value": 0, "attribute": "agility" },
+          "stealth": { "value": 0, "attribute": "agility" }
+        },
+        "movement": {
+          "value": 25
+        },
+        "conditions": {
+          "blinded": false,
+          "confused": false,
+          "dazed": false,
+          "deafened": false,
+          "demoralized": false,
+          "diseased": false,
+          "enfeebled": false,
+          "fatigued": false,
+          "frightened": false,
+          "ignited": false,
+          "inspired": false,
+          "invisible": false,
+          "poisoned": false,
+          "restrained": false,
+          "stunned": false
+        }
+      }
+    },
+    "character": {
+      "templates": ["common"],
+      "biography": "",
+      "class": "",
+      "luckPoints": {
+        "value": 2,
+        "max": 2
+      },
+      "experience": {
+        "value": 0,
+        "spent": 0
+      },
+      "encumbrance": {
+        "value": 0,
+        "max": 8
+      },
+      "currency": {
+        "gc": 0,
+        "sp": 0,
+        "cp": 0
+      },
+      "equipmentProficiencies": {
+        "armorLight": false,
+        "armorMedium": false,
+        "armorHeavy": false,
+        "meleeCommon": false,
+        "meleeHeavy": false,
+        "rangedBows": false,
+        "rangedThrowing": false
+      }
+    },
+    "npc": {
+      "templates": ["common"],
+      "description": "",
+      "armorDice": 0,
+      "naturalWeaponDamage": 0,
+      "specialAbilities": ""
+    }
+  },
+  "Item": {
+    "types": ["weapon", "armor", "equipment", "spell", "miracle", "trait"],
+    "templates": {
+      "physicalItem": {
+        "description": "",
+        "cost": "",
+        "encumbrance": 0,
+        "rarity": 0,
+        "quantity": 1,
+        "equipped": false
+      }
+    },
+    "weapon": {
+      "templates": ["physicalItem"],
+      "weaponType": "common",
+      "damage": "",
+      "armorPenetration": 0,
+      "rangeReach": "5",
+      "rangeLong": "",
+      "traits": "",
+      "diceColor": "white"
+    },
+    "armor": {
+      "templates": ["physicalItem"],
+      "armorType": "light",
+      "armorValue": 0,
+      "penalty": 0,
+      "armorTraits": ""
+    },
+    "equipment": {
+      "templates": ["physicalItem"]
+    },
+    "spell": {
+      "description": "",
+      "difficultyValue": 1,
+      "duration": "",
+      "range": "",
+      "spellSave": "",
+      "element": "",
+      "failed": false
+    },
+    "miracle": {
+      "description": "",
+      "range": "",
+      "duration": "",
+      "spellSave": "",
+      "used": false
+    },
+    "trait": {
+      "description": "",
+      "source": ""
+    }
+  }
+}

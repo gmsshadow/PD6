@@ -1,0 +1,146 @@
+<form class="pd6 sheet actor npc" autocomplete="off">
+
+  <header class="pd6-header pd6-header-npc">
+    <div class="pd6-portrait">
+      <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+    </div>
+    <div class="pd6-header-info">
+      <h1 class="pd6-charname">
+        <input name="name" type="text" value="{{actor.name}}" placeholder="Creature Name" />
+      </h1>
+      <div class="pd6-header-details">
+        <div class="pd6-field">
+          <label>Grit Points</label>
+          <div class="pd6-resource-bar">
+            <input type="number" name="system.gritPoints.value" value="{{system.gritPoints.value}}" min="0" />
+            <span class="pd6-separator">/</span>
+            <input type="number" name="system.gritPoints.max" value="{{system.gritPoints.max}}" min="0" class="pd6-max-input" />
+          </div>
+        </div>
+        <div class="pd6-field">
+          <label>Armor Dice</label>
+          <input type="number" name="system.armorDice" value="{{system.armorDice}}" min="0" />
+        </div>
+        <div class="pd6-field">
+          <label>Natural Weapon DD</label>
+          <input type="number" name="system.naturalWeaponDamage" value="{{system.naturalWeaponDamage}}" min="0" />
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="stats"><i class="fas fa-dice-d6"></i> Stats</a>
+    <a class="item" data-tab="items"><i class="fas fa-swords"></i> Items</a>
+    <a class="item" data-tab="description"><i class="fas fa-book"></i> Description</a>
+  </nav>
+
+  <section class="sheet-body">
+
+    <div class="tab" data-group="primary" data-tab="stats">
+      <div class="pd6-npc-skills">
+        {{#each skillsList}}
+        <div class="pd6-skill-row">
+          <a class="pd6-skill-roll" data-skill="{{key}}" title="Roll {{label}}">
+            <i class="fas fa-dice-d6"></i>
+          </a>
+          <span class="pd6-skill-name">{{label}}</span>
+          <input type="number" name="system.skills.{{key}}.value" value="{{value}}" 
+                 min="0" max="20" class="pd6-skill-input" />
+        </div>
+        {{/each}}
+      </div>
+
+      <div class="pd6-conditions-section">
+        <h3>Conditions</h3>
+        <div class="pd6-conditions-grid">
+          {{#each conditionsList}}
+          <label class="pd6-condition {{#if active}}pd6-condition-active{{/if}}">
+            <a class="pd6-condition-toggle" data-condition="{{key}}">
+              <i class="fas {{#if active}}fa-check-square{{else}}fa-square{{/if}}"></i>
+              {{label}}
+            </a>
+          </label>
+          {{/each}}
+        </div>
+      </div>
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="items">
+      <div class="pd6-item-list">
+        <div class="pd6-item-header">
+          <h3>Weapons</h3>
+          <a class="pd6-item-create" data-type="weapon"><i class="fas fa-plus"></i></a>
+        </div>
+        {{#each weapons}}
+        <div class="pd6-item" data-item-id="{{this.id}}">
+          <div class="pd6-item-name">
+            <img src="{{this.img}}" width="24" height="24" />
+            <span>{{this.name}}</span>
+          </div>
+          <span class="pd6-item-detail">{{this.system.damage}}</span>
+          <div class="pd6-item-controls">
+            <a class="pd6-attack-roll"><i class="fas fa-dice-d6"></i></a>
+            <a class="pd6-item-edit"><i class="fas fa-edit"></i></a>
+            <a class="pd6-item-delete"><i class="fas fa-trash"></i></a>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+
+      <div class="pd6-item-list">
+        <div class="pd6-item-header">
+          <h3>Spells</h3>
+          <a class="pd6-item-create" data-type="spell"><i class="fas fa-plus"></i></a>
+        </div>
+        {{#each spells}}
+        <div class="pd6-item" data-item-id="{{this.id}}">
+          <div class="pd6-item-name">
+            <img src="{{this.img}}" width="24" height="24" />
+            <span>{{this.name}}</span>
+          </div>
+          <span class="pd6-item-detail">DV {{this.system.difficultyValue}}</span>
+          <div class="pd6-item-controls">
+            <a class="pd6-item-chat"><i class="fas fa-comment"></i></a>
+            <a class="pd6-item-edit"><i class="fas fa-edit"></i></a>
+            <a class="pd6-item-delete"><i class="fas fa-trash"></i></a>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+
+      <div class="pd6-item-list">
+        <div class="pd6-item-header">
+          <h3>Traits</h3>
+          <a class="pd6-item-create" data-type="trait"><i class="fas fa-plus"></i></a>
+        </div>
+        {{#each traits}}
+        <div class="pd6-item" data-item-id="{{this.id}}">
+          <div class="pd6-item-name">
+            <img src="{{this.img}}" width="24" height="24" />
+            <span>{{this.name}}</span>
+          </div>
+          <div class="pd6-trait-desc">{{this.system.description}}</div>
+          <div class="pd6-item-controls">
+            <a class="pd6-item-edit"><i class="fas fa-edit"></i></a>
+            <a class="pd6-item-delete"><i class="fas fa-trash"></i></a>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="description">
+      <div class="pd6-npc-abilities">
+        <h3>Special Abilities</h3>
+        {{editor system.specialAbilities target="system.specialAbilities" button=true owner=owner editable=editable}}
+      </div>
+      <div class="pd6-biography">
+        <h3>Description</h3>
+        {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+      </div>
+    </div>
+
+  </section>
+
+</form>

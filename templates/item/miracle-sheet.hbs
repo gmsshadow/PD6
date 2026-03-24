@@ -1,0 +1,33 @@
+<form class="pd6 sheet item miracle" autocomplete="off">
+  <header class="pd6-item-header">
+    <img src="{{item.img}}" data-edit="img" width="48" height="48" />
+    <h1><input name="name" type="text" value="{{item.name}}" placeholder="Miracle Name" /></h1>
+  </header>
+
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="details">Details</a>
+  </nav>
+
+  <section class="sheet-body">
+    <div class="tab" data-group="primary" data-tab="description">
+      {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+    </div>
+    <div class="tab" data-group="primary" data-tab="details">
+      <div class="pd6-item-fields">
+        <div class="pd6-field">
+          <label>Range</label>
+          <input type="text" name="system.range" value="{{system.range}}" placeholder="Touch, 25 ft, 50 ft" />
+        </div>
+        <div class="pd6-field">
+          <label>Duration</label>
+          <input type="text" name="system.duration" value="{{system.duration}}" placeholder="Encounter, 1 hour" />
+        </div>
+        <div class="pd6-field">
+          <label>Spell Save</label>
+          <input type="text" name="system.spellSave" value="{{system.spellSave}}" placeholder="DV3 Discipline" />
+        </div>
+      </div>
+    </div>
+  </section>
+</form>

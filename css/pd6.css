@@ -1,0 +1,785 @@
+/* ========================================
+   PERILOUS D6 - Foundry VTT System Styles
+   ======================================== */
+
+/* ---------- CSS Variables ---------- */
+:root {
+  --pd6-bg-dark: #1a1a1e;
+  --pd6-bg-mid: #252528;
+  --pd6-bg-light: #2e2e33;
+  --pd6-bg-input: #1e1e22;
+  --pd6-border: #3a3a40;
+  --pd6-border-light: #4a4a52;
+  --pd6-text: #d4d0c8;
+  --pd6-text-dim: #8a8880;
+  --pd6-text-bright: #f0ece4;
+  --pd6-accent: #c9a84c;
+  --pd6-accent-dim: #8a7433;
+  --pd6-red: #c44040;
+  --pd6-red-bright: #e05555;
+  --pd6-green: #4a9e4a;
+  --pd6-blue: #4a7ab5;
+  --pd6-white-die: #d4d0c8;
+  --pd6-red-die: #c44040;
+  --pd6-black-die: #2a2a2e;
+  --pd6-success: #5ab55a;
+  --pd6-failure: #8a4040;
+  --pd6-radius: 3px;
+  --pd6-font: "Signika", "Palatino Linotype", serif;
+}
+
+/* ---------- Base Sheet ---------- */
+.pd6.sheet {
+  font-family: var(--pd6-font);
+  color: var(--pd6-text);
+  background: var(--pd6-bg-dark);
+}
+
+.pd6.sheet input,
+.pd6.sheet select,
+.pd6.sheet textarea {
+  color: var(--pd6-text-bright);
+  background: var(--pd6-bg-input);
+  border: 1px solid var(--pd6-border);
+  border-radius: var(--pd6-radius);
+  padding: 2px 4px;
+  font-family: var(--pd6-font);
+}
+
+.pd6.sheet input:focus,
+.pd6.sheet select:focus {
+  border-color: var(--pd6-accent);
+  box-shadow: 0 0 3px var(--pd6-accent-dim);
+  outline: none;
+}
+
+.pd6.sheet input[type="number"] {
+  width: 40px;
+  text-align: center;
+}
+
+.pd6.sheet input[type="checkbox"] {
+  width: auto;
+}
+
+.pd6.sheet label {
+  font-size: 0.8rem;
+  color: var(--pd6-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pd6.sheet h3 {
+  color: var(--pd6-accent);
+  border-bottom: 1px solid var(--pd6-border);
+  padding-bottom: 2px;
+  margin: 8px 0 4px;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ---------- Header ---------- */
+.pd6-header {
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  background: var(--pd6-bg-mid);
+  border-bottom: 2px solid var(--pd6-accent-dim);
+}
+
+.pd6-portrait img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border: 2px solid var(--pd6-accent-dim);
+  border-radius: var(--pd6-radius);
+}
+
+.pd6-header-info {
+  flex: 1;
+}
+
+.pd6-charname input {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--pd6-text-bright);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--pd6-border);
+  width: 100%;
+  padding: 0 0 2px;
+}
+
+.pd6-charname input:focus {
+  border-bottom-color: var(--pd6-accent);
+}
+
+.pd6-header-details {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.pd6-field {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pd6-resource-bar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.pd6-resource-bar input[type="number"] {
+  width: 36px;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.pd6-separator {
+  color: var(--pd6-text-dim);
+}
+
+.pd6-max,
+.pd6-max-input {
+  color: var(--pd6-text-dim);
+  font-size: 0.9rem;
+}
+
+.pd6-max-input {
+  width: 36px;
+}
+
+.pd6-grit-display .pd6-resource-bar input { color: var(--pd6-red-bright); }
+.pd6-luck-display .pd6-resource-bar input { color: var(--pd6-accent); }
+
+.pd6-spend-luck {
+  background: var(--pd6-accent-dim);
+  color: var(--pd6-text-bright);
+  border: none;
+  border-radius: var(--pd6-radius);
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+.pd6-spend-luck:hover { background: var(--pd6-accent); color: var(--pd6-bg-dark); }
+
+/* ---------- Attributes ---------- */
+.pd6-attributes {
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--pd6-bg-mid);
+  border-bottom: 1px solid var(--pd6-border);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pd6-attribute {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3px 8px;
+  min-width: 70px;
+}
+
+.pd6-attr-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--pd6-text-dim);
+  letter-spacing: 0.05em;
+}
+
+.pd6-attr-abbr {
+  font-size: 0.6rem;
+  color: var(--pd6-accent-dim);
+}
+
+.pd6-attr-pips {
+  display: flex;
+  gap: 2px;
+  margin: 2px 0;
+  cursor: pointer;
+}
+
+.pd6-attr-pip {
+  font-size: 0.9rem;
+  color: var(--pd6-border-light);
+  transition: color 0.15s;
+}
+
+.pd6-attr-pip.pd6-pip-filled {
+  color: var(--pd6-accent);
+}
+
+.pd6-attr-pip:hover {
+  color: var(--pd6-accent);
+}
+
+.pd6-attr-input {
+  width: 28px !important;
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 0 !important;
+}
+
+/* ---------- Tabs ---------- */
+.pd6.sheet .tabs {
+  display: flex;
+  gap: 0;
+  background: var(--pd6-bg-light);
+  border-bottom: 2px solid var(--pd6-accent-dim);
+}
+
+.pd6.sheet .tabs .item {
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--pd6-text-dim);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.pd6.sheet .tabs .item:hover { color: var(--pd6-text); }
+.pd6.sheet .tabs .item.active {
+  color: var(--pd6-accent);
+  border-bottom-color: var(--pd6-accent);
+}
+
+/* ---------- Sheet Body ---------- */
+.pd6.sheet .sheet-body {
+  padding: 6px 8px;
+  overflow-y: auto;
+}
+
+.pd6.sheet .tab { display: none; }
+.pd6.sheet .tab.active { display: block; }
+
+/* ---------- Skills ---------- */
+.pd6-skills-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+}
+
+.pd6-skill-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px;
+  border-radius: var(--pd6-radius);
+  transition: background 0.1s;
+}
+
+.pd6-skill-row:hover { background: var(--pd6-bg-light); }
+
+.pd6-skill-roll {
+  color: var(--pd6-accent-dim);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.pd6-skill-roll:hover { color: var(--pd6-accent); }
+
+.pd6-skill-name {
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--pd6-text);
+}
+
+.pd6-skill-attr {
+  font-size: 0.65rem;
+  color: var(--pd6-text-dim);
+  min-width: 24px;
+}
+
+.pd6-skill-input {
+  width: 28px !important;
+  font-size: 0.8rem;
+}
+
+.pd6-skill-pool {
+  font-size: 0.75rem;
+  color: var(--pd6-accent);
+  min-width: 24px;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* ---------- Item Lists ---------- */
+.pd6-item-list {
+  margin-bottom: 8px;
+}
+
+.pd6-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pd6-item-header h3 { flex: 1; margin-bottom: 2px; }
+
+.pd6-item-create {
+  color: var(--pd6-accent-dim);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.pd6-item-create:hover { color: var(--pd6-accent); }
+
+.pd6-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px;
+  border-bottom: 1px solid var(--pd6-bg-light);
+  transition: background 0.1s;
+}
+
+.pd6-item:hover { background: var(--pd6-bg-light); }
+
+.pd6-item-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.pd6-item-name img {
+  border: none;
+  border-radius: 2px;
+}
+
+.pd6-item-detail {
+  font-size: 0.75rem;
+  color: var(--pd6-text-dim);
+  min-width: 40px;
+  text-align: center;
+}
+
+.pd6-item-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.pd6-item-controls a {
+  color: var(--pd6-text-dim);
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.pd6-item-controls a:hover { color: var(--pd6-text-bright); }
+
+.pd6-equipped { color: var(--pd6-green) !important; }
+.pd6-item-equip.pd6-equipped { color: var(--pd6-green) !important; }
+
+/* ---------- Conditions ---------- */
+.pd6-conditions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.pd6-condition a {
+  font-size: 0.78rem;
+  color: var(--pd6-text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 2px;
+  border-radius: var(--pd6-radius);
+}
+
+.pd6-condition a:hover { color: var(--pd6-text); background: var(--pd6-bg-light); }
+
+.pd6-condition-active a {
+  color: var(--pd6-red-bright) !important;
+}
+
+/* ---------- Inventory ---------- */
+.pd6-inventory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.pd6-currency {
+  display: flex;
+  gap: 8px;
+}
+
+.pd6-currency input { width: 50px !important; }
+
+.pd6-encumbrance { flex: 1; }
+
+.pd6-enc-bar {
+  height: 8px;
+  background: var(--pd6-bg-input);
+  border: 1px solid var(--pd6-border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 2px 0;
+}
+
+.pd6-enc-fill {
+  height: 100%;
+  background: var(--pd6-accent-dim);
+  transition: width 0.3s;
+}
+
+.pd6-enc-fill.pd6-enc-over { background: var(--pd6-red); }
+
+.pd6-enc-text {
+  font-size: 0.7rem;
+  color: var(--pd6-text-dim);
+}
+
+/* ---------- Proficiencies ---------- */
+.pd6-prof-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+}
+
+.pd6-prof-grid label {
+  font-size: 0.8rem;
+  color: var(--pd6-text);
+  text-transform: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---------- Experience ---------- */
+.pd6-exp-fields {
+  display: flex;
+  gap: 12px;
+}
+
+.pd6-exp-available {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--pd6-accent);
+}
+
+/* ---------- Biography ---------- */
+.pd6-biography {
+  min-height: 200px;
+}
+
+.pd6-biography .editor {
+  min-height: 180px;
+}
+
+/* ---------- Critical Injury ---------- */
+.pd6-critical-section {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.pd6-roll-critical {
+  background: var(--pd6-red);
+  color: var(--pd6-text-bright);
+  border: none;
+  border-radius: var(--pd6-radius);
+  padding: 5px 14px;
+  cursor: pointer;
+  font-family: var(--pd6-font);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pd6-roll-critical:hover { background: var(--pd6-red-bright); }
+
+/* ---------- Movement ---------- */
+.pd6-movement-section {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pd6-movement-section input { width: 50px !important; }
+
+/* ---------- Item Sheet ---------- */
+.pd6.sheet.item .pd6-item-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  background: var(--pd6-bg-mid);
+  border-bottom: 2px solid var(--pd6-accent-dim);
+}
+
+.pd6.sheet.item .pd6-item-header img {
+  border: 2px solid var(--pd6-accent-dim);
+  border-radius: var(--pd6-radius);
+}
+
+.pd6.sheet.item .pd6-item-header h1 {
+  flex: 1;
+  margin: 0;
+}
+
+.pd6.sheet.item .pd6-item-header h1 input {
+  font-size: 1.2rem;
+  font-weight: bold;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--pd6-border);
+  color: var(--pd6-text-bright);
+}
+
+.pd6-item-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.pd6-item-fields .pd6-field {
+  padding: 2px 0;
+}
+
+.pd6-item-fields input[type="text"],
+.pd6-item-fields select {
+  width: 100%;
+}
+
+.pd6-item-fields input[type="number"] {
+  width: 60px !important;
+}
+
+/* ---------- NPC Styles ---------- */
+.pd6-npc-skills {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+}
+
+.pd6-npc-skills .pd6-skill-input {
+  width: 36px !important;
+}
+
+/* ---------- Chat Message Styles ---------- */
+.pd6-chat-roll {
+  background: var(--pd6-bg-mid);
+  border: 1px solid var(--pd6-border);
+  border-radius: var(--pd6-radius);
+  padding: 6px 8px;
+  margin: 2px 0;
+}
+
+.pd6-roll-header {
+  color: var(--pd6-accent);
+  font-size: 0.95rem;
+  margin: 0 0 4px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--pd6-border);
+}
+
+.pd6-roll-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--pd6-text-dim);
+  margin-bottom: 4px;
+}
+
+.pd6-dice-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin: 4px 0;
+}
+
+.pd6-die {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 3px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  border: 1px solid;
+}
+
+/* White dice */
+.pd6-die-white .pd6-die {
+  background: #e8e4dc;
+  color: #2a2a2e;
+  border-color: #b0aca4;
+}
+
+/* Red dice */
+.pd6-die-red .pd6-die {
+  background: #7a2020;
+  color: #f0d0d0;
+  border-color: #c44040;
+}
+
+/* Black dice */
+.pd6-die-black .pd6-die {
+  background: #1a1a1e;
+  color: #c0c0c0;
+  border-color: #555;
+}
+
+.pd6-die.pd6-success {
+  box-shadow: 0 0 3px var(--pd6-success);
+}
+
+.pd6-die.pd6-failure {
+  opacity: 0.6;
+}
+
+.pd6-die.pd6-exploded {
+  border-style: dashed;
+}
+
+.pd6-die.pd6-exploding {
+  animation: pd6-pulse 0.4s ease;
+}
+
+@keyframes pd6-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.pd6-roll-summary {
+  margin-top: 4px;
+  font-size: 0.85rem;
+}
+
+.pd6-successes {
+  font-weight: bold;
+  color: var(--pd6-accent);
+}
+
+.pd6-explosions {
+  font-size: 0.75rem;
+  color: var(--pd6-text-dim);
+  margin-left: 4px;
+}
+
+.pd6-result {
+  margin-top: 4px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.pd6-result-success { color: var(--pd6-success); }
+.pd6-result-failure { color: var(--pd6-red-bright); }
+
+.pd6-attack-buttons {
+  margin-top: 6px;
+}
+
+.pd6-attack-buttons button,
+.pd6-roll-damage {
+  background: var(--pd6-red);
+  color: var(--pd6-text-bright);
+  border: none;
+  border-radius: var(--pd6-radius);
+  padding: 3px 10px;
+  cursor: pointer;
+  font-family: var(--pd6-font);
+  font-size: 0.8rem;
+}
+
+.pd6-attack-buttons button:hover,
+.pd6-roll-damage:hover {
+  background: var(--pd6-red-bright);
+}
+
+.pd6-dv-info {
+  font-weight: bold;
+  color: var(--pd6-accent);
+}
+
+/* ---------- Critical Injury Chat ---------- */
+.pd6-critical-injury {
+  border-color: var(--pd6-red);
+}
+
+.pd6-critical-injury .pd6-roll-header {
+  color: var(--pd6-red-bright);
+}
+
+.pd6-injury-dice {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 4px 0;
+}
+
+.pd6-die-tens,
+.pd6-die-units {
+  background: var(--pd6-red);
+  color: var(--pd6-text-bright);
+  border-color: var(--pd6-red-bright);
+}
+
+.pd6-injury-value {
+  font-weight: bold;
+  color: var(--pd6-text-bright);
+  margin-left: 4px;
+}
+
+.pd6-injury-result h4 {
+  color: var(--pd6-red-bright);
+  margin: 4px 0 2px;
+}
+
+.pd6-injury-result p {
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+/* ---------- Item Card Chat ---------- */
+.pd6-item-card {
+  background: var(--pd6-bg-mid);
+  border: 1px solid var(--pd6-border);
+  border-radius: var(--pd6-radius);
+  padding: 6px 8px;
+}
+
+.pd6-item-card h3 {
+  color: var(--pd6-accent);
+  margin: 0 0 4px;
+}
+
+.pd6-item-description {
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+  font-style: italic;
+  color: var(--pd6-text-dim);
+}
+
+/* ---------- Spell Styles ---------- */
+.pd6-spell-failed {
+  color: var(--pd6-red);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+/* ---------- Scrollbar ---------- */
+.pd6.sheet ::-webkit-scrollbar { width: 6px; }
+.pd6.sheet ::-webkit-scrollbar-track { background: var(--pd6-bg-dark); }
+.pd6.sheet ::-webkit-scrollbar-thumb { background: var(--pd6-border); border-radius: 3px; }
+.pd6.sheet ::-webkit-scrollbar-thumb:hover { background: var(--pd6-accent-dim); }

@@ -1,0 +1,19 @@
+<form class="pd6 sheet item trait" autocomplete="off">
+  <header class="pd6-item-header">
+    <img src="{{item.img}}" data-edit="img" width="48" height="48" />
+    <h1><input name="name" type="text" value="{{item.name}}" placeholder="Trait Name" /></h1>
+  </header>
+
+  <section class="sheet-body">
+    <div class="pd6-item-fields">
+      <div class="pd6-field">
+        <label>Source</label>
+        <input type="text" name="system.source" value="{{system.source}}" placeholder="Class, Special Trait, etc." />
+      </div>
+    </div>
+    <div class="pd6-trait-description">
+      <label>Description</label>
+      {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+    </div>
+  </section>
+</form>

@@ -1,0 +1,74 @@
+<form class="pd6 sheet item weapon" autocomplete="off">
+  <header class="pd6-item-header">
+    <img src="{{item.img}}" data-edit="img" width="48" height="48" />
+    <h1><input name="name" type="text" value="{{item.name}}" placeholder="Weapon Name" /></h1>
+  </header>
+
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="details">Details</a>
+  </nav>
+
+  <section class="sheet-body">
+    <div class="tab" data-group="primary" data-tab="description">
+      {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="details">
+      <div class="pd6-item-fields">
+        <div class="pd6-field">
+          <label>Type</label>
+          <select name="system.weaponType">
+            {{#each weaponTypes}}
+              <option value="{{@key}}" {{#if (eq @key ../system.weaponType)}}selected{{/if}}>{{this}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="pd6-field">
+          <label>Damage</label>
+          <input type="text" name="system.damage" value="{{system.damage}}" placeholder="M+0 or 3" />
+        </div>
+        <div class="pd6-field">
+          <label>Armor Penetration</label>
+          <input type="number" name="system.armorPenetration" value="{{system.armorPenetration}}" />
+        </div>
+        <div class="pd6-field">
+          <label>Range/Reach</label>
+          <input type="text" name="system.rangeReach" value="{{system.rangeReach}}" placeholder="5 ft" />
+        </div>
+        <div class="pd6-field">
+          <label>Long Range</label>
+          <input type="text" name="system.rangeLong" value="{{system.rangeLong}}" placeholder="—" />
+        </div>
+        <div class="pd6-field">
+          <label>Weapon Traits</label>
+          <input type="text" name="system.traits" value="{{system.traits}}" placeholder="Brutal, Two-handed" />
+        </div>
+        <div class="pd6-field">
+          <label>Dice Color</label>
+          <select name="system.diceColor">
+            {{#each diceColors}}
+              <option value="{{@key}}" {{#if (eq @key ../system.diceColor)}}selected{{/if}}>{{this}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="pd6-field">
+          <label>Cost</label>
+          <input type="text" name="system.cost" value="{{system.cost}}" />
+        </div>
+        <div class="pd6-field">
+          <label>Encumbrance</label>
+          <input type="number" name="system.encumbrance" value="{{system.encumbrance}}" min="0" />
+        </div>
+        <div class="pd6-field">
+          <label>Rarity</label>
+          <input type="number" name="system.rarity" value="{{system.rarity}}" min="0" />
+        </div>
+        <div class="pd6-field">
+          <label>Equipped</label>
+          <input type="checkbox" name="system.equipped" {{#if system.equipped}}checked{{/if}} />
+        </div>
+      </div>
+    </div>
+  </section>
+</form>
