@@ -783,3 +783,65 @@
 .pd6.sheet ::-webkit-scrollbar-track { background: var(--pd6-bg-dark); }
 .pd6.sheet ::-webkit-scrollbar-thumb { background: var(--pd6-border); border-radius: 3px; }
 .pd6.sheet ::-webkit-scrollbar-thumb:hover { background: var(--pd6-accent-dim); }
+
+/* ---------- Group Initiative ---------- */
+.pd6-initiative-roll .pd6-init-side {
+  padding: 6px;
+  margin: 4px 0;
+  border: 1px solid var(--pd6-border);
+  border-radius: var(--pd6-radius);
+  background: var(--pd6-bg-light);
+}
+
+.pd6-init-winner {
+  border-color: var(--pd6-accent) !important;
+  background: rgba(201, 168, 76, 0.08) !important;
+}
+
+.pd6-init-loser {
+  opacity: 0.75;
+}
+
+.pd6-init-side-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+}
+
+.pd6-init-side-header strong {
+  font-size: 0.9rem;
+  color: var(--pd6-text-bright);
+}
+
+.pd6-init-rank {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: bold;
+}
+
+.pd6-init-winner .pd6-init-rank {
+  color: var(--pd6-accent);
+}
+
+.pd6-init-loser .pd6-init-rank {
+  color: var(--pd6-text-dim);
+}
+
+.pd6-init-leader {
+  font-size: 0.78rem;
+  color: var(--pd6-text-dim);
+  margin-bottom: 3px;
+}
+
+.pd6-init-leader strong {
+  color: var(--pd6-text);
+}
+
+.pd6-init-successes {
+  margin-top: 3px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--pd6-accent);
+}
