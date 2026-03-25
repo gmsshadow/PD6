@@ -87,9 +87,9 @@
           {{!-- Target Skills --}}
           {{#if (or (eq type "diceColor") (or (eq type "bonusDice") (eq type "skillMod")))}}
           <div class="pd6-field pd6-full-width">
-            <label>Target Skills (comma-separated, or "all")</label>
+            <label>Target Skills (comma-separated, or "all". Special: armor, damage, melee-damage, ranged-damage, defense)</label>
             <input type="text" name="{{fSkills}}" value="{{targetSkills}}" 
-                   placeholder="e.g. discipline, leadership" />
+                   placeholder="e.g. discipline, leadership, armor, melee-damage" />
           </div>
           {{/if}}
 

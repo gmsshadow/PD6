@@ -91,7 +91,7 @@
         },
         traitsData: JSON.stringify([
           { name: "Tactics", description: "As an auxiliary action, you can issue orders to one ally who can see and hear you. Your target gains a +1 bonus to attack and defense rolls until the beginning of your next turn. You may use this feature a number of times per encounter equal to your ranks in Willpower.", passive: false, effectType: "none", conditionNote: "Auxiliary action, WP times per encounter" },
-          { name: "Hardened", description: "You gain a +1 bonus to armor rolls and Willpower checks.", passive: true, effectType: "bonusDice", targetSkills: "discipline", modifierValue: 1 },
+          { name: "Hardened", description: "You gain a +1 bonus to armor rolls and Willpower checks.", passive: true, effectType: "bonusDice", targetSkills: "armor", modifierValue: 1, effect2Type: "bonusDice", effect2TargetSkills: "discipline", effect2ModifierValue: 1 },
         ]),
       },
     },
@@ -144,8 +144,10 @@
     }},
     { name: "Bulging Thews", type: "trait", img: "icons/svg/anchor.svg", system: {
       description: "You perform melee damage rolls on red dice. You gain a +1 bonus to damage rolls while wielding brutal weapons.",
-      source: "Special Trait", passive: true, effectType: "none",
-      conditionNote: "Red melee damage dice; +1 damage with brutal weapons. Apply manually.",
+      source: "Special Trait", passive: true,
+      effectType: "diceColor", targetSkills: "melee-damage", diceColorOverride: "red",
+      effect2Type: "bonusDice", effect2TargetSkills: "melee-damage", effect2ModifierValue: 1,
+      conditionNote: "+1 bonus damage only applies when wielding brutal weapons",
     }},
     { name: "Devilish Charm", type: "trait", img: "icons/svg/wing.svg", system: {
       description: "You roll red dice for Diplomacy checks.",

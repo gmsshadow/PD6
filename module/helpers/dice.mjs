@@ -952,16 +952,30 @@ export class PD6Dice {
     let defaultColor = "white";
     if (btn.dataset.weaponBrutal === "true") defaultColor = "red";
 
+    // Check for damage-targeting traits (general + melee/ranged specific)
+    const isMelee = damageStr.startsWith("M");
+    const traitInfo = this._getTraitInfo(attacker, "damage");
+    const specificTraitInfo = isMelee
+      ? this._getTraitInfo(attacker, "melee-damage")
+      : this._getTraitInfo(attacker, "ranged-damage");
+    const totalTraitBonus = traitInfo.bonusDice + specificTraitInfo.bonusDice;
+    if (traitInfo.defaultColor !== "white" && defaultColor === "white") defaultColor = traitInfo.defaultColor;
+    if (specificTraitInfo.defaultColor !== "white" && defaultColor === "white") defaultColor = specificTraitInfo.defaultColor;
+    const allReminders = (traitInfo.remindersHtml || "") + (specificTraitInfo.remindersHtml || "");
+    const allInfo = (traitInfo.infoHtml || "") + (specificTraitInfo.infoHtml || "");
+
     const mods = await this._modifierDialog(
       `Damage: ${weaponName}`,
       defaultColor,
-      `<div class="form-group">
+      `${allReminders ? `<div class="pd6-trait-reminders">${allReminders}</div>` : ""}
+      ${allInfo ? `<div class="pd6-trait-info-line">${allInfo}</div>` : ""}
+      <div class="form-group">
         <label>Base Damage Pool: <strong>${baseDamage}</strong> — ${formula}</label>
       </div>`
     );
     if (!mods) return;
 
-    const finalPool = baseDamage + mods.modifier;
+    const finalPool = baseDamage + totalTraitBonus + mods.modifier;
     const rollData = await this.rollPool(finalPool, mods.diceColor);
     const colorLabel = this.COLORS[mods.diceColor]?.label || "White";
 
@@ -1042,10 +1056,18 @@ export class PD6Dice {
 
     const armorAfterAP = Math.max(baseArmor - ap, 0);
 
+    // Gather trait effects for armor rolls
+    const traitInfo = this._getTraitInfo(defender, "armor");
+    if (traitInfo.defaultColor !== "white" && defaultColor === "white") {
+      defaultColor = traitInfo.defaultColor;
+    }
+
     const mods = await this._modifierDialog(
       `Armor: ${defender.name}`,
       defaultColor,
-      `<div class="form-group">
+      `${traitInfo.remindersHtml ? `<div class="pd6-trait-reminders">${traitInfo.remindersHtml}</div>` : ""}
+      ${traitInfo.infoHtml ? `<div class="pd6-trait-info-line">${traitInfo.infoHtml}</div>` : ""}
+      <div class="form-group">
         <label>Armor: <strong>${armorSource}</strong></label>
       </div>
       <div class="form-group">
@@ -1057,7 +1079,7 @@ export class PD6Dice {
     );
     if (!mods) return;
 
-    const finalPool = armorAfterAP + mods.modifier;
+    const finalPool = armorAfterAP + traitInfo.bonusDice + mods.modifier;
 
     let rollData = null;
     let armorSuccesses = 0;
@@ -1143,6 +1165,19 @@ export class PD6Dice {
     const isBrutal = item?.system?.traitBrutal || false;
     let defaultColor = isBrutal ? "red" : "white";
 
+    // Gather trait effects for damage rolls
+    const traitInfo = this._getTraitInfo(actor, "damage");
+    // Also check melee/ranged-specific damage traits
+    const specificTraitInfo = isMelee
+      ? this._getTraitInfo(actor, "melee-damage")
+      : (isNatural ? this._getTraitInfo(actor, "melee-damage") : this._getTraitInfo(actor, "ranged-damage"));
+
+    const totalTraitBonus = traitInfo.bonusDice + specificTraitInfo.bonusDice;
+    if (traitInfo.defaultColor !== "white" && defaultColor === "white") defaultColor = traitInfo.defaultColor;
+    if (specificTraitInfo.defaultColor !== "white" && defaultColor === "white") defaultColor = specificTraitInfo.defaultColor;
+    const allReminders = (traitInfo.remindersHtml || "") + (specificTraitInfo.remindersHtml || "");
+    const allInfo = (traitInfo.infoHtml || "") + (specificTraitInfo.infoHtml || "");
+
     // Build info text
     let formulaInfo = "";
     if (isNatural) {
@@ -1156,6 +1191,8 @@ export class PD6Dice {
     }
 
     const mods = await this._modifierDialog(`Damage: ${name}`, defaultColor, `
+      ${allReminders ? `<div class="pd6-trait-reminders">${allReminders}</div>` : ""}
+      ${allInfo ? `<div class="pd6-trait-info-line">${allInfo}</div>` : ""}
       <div class="form-group">
         ${formulaInfo}
       </div>
@@ -1184,7 +1221,7 @@ export class PD6Dice {
       formula = `Base(${fixedDmg}) + SV(${sv})`;
     }
 
-    const finalPool = Math.max(baseDamage + mods.modifier, 1);
+    const finalPool = Math.max(baseDamage + totalTraitBonus + mods.modifier, 1);
     const rollData = await this.rollPool(finalPool, mods.diceColor);
     const colorLabel = this.COLORS[mods.diceColor]?.label || "White";
 
@@ -1227,7 +1264,15 @@ export class PD6Dice {
       }
     }
 
+    // Gather trait effects for armor rolls
+    const traitInfo = this._getTraitInfo(actor, "armor");
+    if (traitInfo.defaultColor !== "white" && defaultColor === "white") {
+      defaultColor = traitInfo.defaultColor;
+    }
+
     const mods = await this._modifierDialog(`Armor: ${actor.name}`, defaultColor, `
+      ${traitInfo.remindersHtml ? `<div class="pd6-trait-reminders">${traitInfo.remindersHtml}</div>` : ""}
+      ${traitInfo.infoHtml ? `<div class="pd6-trait-info-line">${traitInfo.infoHtml}</div>` : ""}
       <div class="form-group">
         <label>Base Armor Value: <strong>${baseArmor}</strong></label>
       </div>
@@ -1237,7 +1282,7 @@ export class PD6Dice {
       </div>`);
     if (!mods) return;
 
-    const finalPool = Math.max(baseArmor + (mods.apReduction || 0) + mods.modifier, 0);
+    const finalPool = Math.max(baseArmor + traitInfo.bonusDice + (mods.apReduction || 0) + mods.modifier, 0);
     if (finalPool <= 0) {
       return ChatMessage.create({
         user: game.user.id, speaker: ChatMessage.getSpeaker({ actor }),
