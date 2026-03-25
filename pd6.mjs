@@ -49,6 +49,33 @@ Hooks.once("ready", async function () {
   console.log("PD6 | System Ready");
 });
 
+// Set default token bars for new actors
+Hooks.on("preCreateActor", (actor, data, options, userId) => {
+  const prototypeToken = {};
+
+  // Bar 1: Grit Points
+  if (!data?.prototypeToken?.bar1?.attribute) {
+    foundry.utils.mergeObject(prototypeToken, {
+      bar1: { attribute: "gritPoints" },
+    });
+  }
+
+  // Bar 2: Luck Points (characters only)
+  if (data.type === "character" && !data?.prototypeToken?.bar2?.attribute) {
+    foundry.utils.mergeObject(prototypeToken, {
+      bar2: { attribute: "luckPoints" },
+    });
+  }
+
+  // Show name on hover, show bars always for the owner
+  foundry.utils.mergeObject(prototypeToken, {
+    displayName: CONST.TOKEN_DISPLAY_MODES.HOVER,
+    displayBars: CONST.TOKEN_DISPLAY_MODES.OWNER,
+  });
+
+  actor.updateSource({ prototypeToken });
+});
+
 // Register chat message listeners for combat chain buttons
 Hooks.on("renderChatMessage", (message, html, data) => {
   const element = html instanceof HTMLElement ? html : html[0];
