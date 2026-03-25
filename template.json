@@ -128,8 +128,7 @@
       "penalty": 0,
       "armorTraits": "",
       "traitReinforced": false,
-      "traitClanging": false,
-      "traitCumbersome": false
+      "traitClanging": false
     },
     "equipment": {
       "templates": ["physicalItem"]

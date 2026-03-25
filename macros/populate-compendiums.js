@@ -272,7 +272,6 @@
       armorTraits: "",
       traitReinforced: reinforced || false,
       traitClanging: clanging || false,
-      traitCumbersome: false,
     },
   });
 
