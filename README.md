@@ -3,7 +3,7 @@
 A Foundry VTT system implementation for **Perilous D6 (PD6)**, a setting-agnostic fantasy tabletop RPG built around dice pools of d6s with white, red, and black dice mechanics.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
-![Version](https://img.shields.io/badge/Version-0.1.0-blue)
+![Version](https://img.shields.io/badge/Version-0.2.1-blue)
 
 ## Installation
 
@@ -21,6 +21,10 @@ https://raw.githubusercontent.com/gmsshadow/PD6/refs/heads/main/system.json
 2. Place the `pd6` folder inside your Foundry `Data/systems/` directory.
 3. Restart Foundry VTT.
 
+### Compendium Setup
+
+After installing, create a **Script Macro** in Foundry and paste the contents of `macros/populate-compendiums.js`. Run it once as GM to populate all compendium packs with rulebook content. The macro skips existing items, so it's safe to re-run.
+
 ## Core Dice Mechanics
 
 PD6 uses pools of d6s with three dice colours, each with a different success threshold:
@@ -28,8 +32,8 @@ PD6 uses pools of d6s with three dice colours, each with a different success thr
 | Colour | Succeeds On | Typical Use |
 |--------|------------|-------------|
 | **White** | 4+ | Standard rolls |
-| **Red** | 3+ | Advantaged rolls, Brutal weapons |
-| **Black** | 2+ | Heavily advantaged rolls |
+| **Red** | 3+ | Advantaged rolls, traits, brutal weapons |
+| **Black** | 2+ | Heavily advantaged rolls, Divine Intervention |
 
 All dice **explode on 6** — when a 6 is rolled, an additional die is rolled and added to the results. Exploding dice can chain indefinitely.
 
@@ -42,7 +46,8 @@ Rolls are either made against a **Difficulty Value (DV)** where you need to meet
 - **Six Attributes**: Might, Toughness, Agility, Willpower, Intelligence, Fate — with clickable pip controls for quick editing.
 - **17 Skills**: Each linked to a governing attribute. Dice pools are auto-calculated (Skill ranks + Attribute ranks). Click the dice icon to roll with a modifier dialog.
 - **Grit Points**: Health resource. Maximum auto-calculated from Resiliency + Toughness. Clamped so it never drops below 0 or exceeds the maximum.
-- **Luck Points**: Spend for +2 bonus dice on any skill check. Clicking the Luck button opens a full roll dialog where you choose the skill, DV, dice colour, and any additional modifiers. The Luck Point is only deducted on confirmation. Maximum derived from Fate.
+- **Luck Points**: Maximum derived from Fate. Pre-roll spending opens a full dialog (skill picker, DV, colour, modifiers) with +2 bonus baked in. Post-roll spending via chat card buttons works on all roll types (skill, attack, defense, damage, armor) and is chainable.
+- **Class System**: Drag a class item from the compendium onto the sheet. The class badge displays in the header with edit/remove buttons. Class application auto-applies skill bonuses, equipment proficiencies, and creates trait items.
 - **Encumbrance**: Auto-totalled from equipped items. Limit derived from Might × 4. Visual bar on the Inventory tab.
 - **Conditions**: 15 toggleable conditions (Blinded, Confused, Dazed, Stunned, etc.) on the Combat tab.
 - **Equipment Proficiencies**: Checkboxes for armour and weapon categories on the Traits tab.
@@ -52,54 +57,94 @@ Rolls are either made against a **Difficulty Value (DV)** where you need to meet
 
 ### NPC Sheets
 
-Streamlined sheet with flat skill pools (no attribute splitting), editable Grit Points maximum, Armor Dice, Natural Weapon Damage, and a rich text Special Abilities field.
+Streamlined sheet with flat skill pools (no attribute splitting), editable Grit Points maximum, Armor Dice, Natural Weapon Damage with a roll button, and rich text Special Abilities and Description fields. NPC weapons also have standalone damage roll buttons.
 
 ### Item Types
 
-- **Weapons**: Type (Common, Heavy, Bow, Throwing), damage formula (melee `M+X` or ranged fixed), Armour Penetration, range/reach, weapon traits, and dice colour.
-- **Armour**: Type (Light, Medium, Heavy), Armour Value, penalty, and armour traits (e.g. Reinforced upgrades to red dice).
+- **Weapons**: Type (Common, Heavy, Bow, Throwing), damage formula (melee `M+X` or ranged fixed), Armour Penetration, range/reach, dice colour. Checkbox traits (Brutal, Two-Handed, Versatile, Reach, Thrown) with mechanical effects, plus a custom text field. Attack and standalone damage roll buttons on the sheet.
+- **Armour**: Type (Light, Medium, Heavy), Armour Value, penalty. Checkbox traits (Reinforced, Clanging) with mechanical effects, plus a custom text field.
 - **Equipment**: General gear with cost, encumbrance, rarity, and quantity.
 - **Spells**: DV, duration, range, spell save, element, and a "Failed Today" tracker for Magister mechanics.
 - **Miracles**: Range, duration, and spell save for Cultist divine abilities.
-- **Traits**: Special traits and abilities with source and description fields.
+- **Traits**: Special traits with up to 3 independent effect slots per trait item. Each slot can be a different effect type (dice colour override, bonus/penalty dice, attribute modifier, skill rank modifier, critical injury). Supports passive traits (always active, auto-applied to rolls) and conditional traits (reminder banners shown in roll dialogs). Target Skills field accepts skill names plus special keywords: `armor`, `damage`, `melee-damage`, `ranged-damage`, `defense`, and `all`.
+- **Classes**: Drag-and-drop class items containing skill bonuses, equipment proficiencies, and trait definitions (JSON). Dropping a class onto a character auto-applies everything.
 
 ### Automated Combat Chain
 
-The system features a fully automated attack sequence that chains through chat card buttons. Each step includes a modifier dialog for manual overrides (bonus/penalty dice, dice colour).
+Fully automated attack sequence chaining through chat card buttons. Each step includes a modifier dialog for manual overrides (bonus/penalty dice, dice colour) with trait effects automatically applied.
 
-1. **Attack Roll** — Select a weapon on your sheet, target an enemy token, and click the attack dice icon. Posts a chat card with the attack results and a "Roll Defense" button.
-2. **Defense Roll** — The defender (or GM) clicks the button. Their Defense pool is rolled in an opposed check against the attacker's successes. On a hit, the Success Value is calculated and a "Roll Damage" button appears.
-3. **Damage Roll** — The damage pool is auto-calculated from the weapon formula plus the SV. Melee weapons use `SV + Might + weapon modifier`; ranged weapons use `base damage + SV`. A "Roll Armor" button appears.
-4. **Armor Roll** — The defender's equipped armour (or NPC Armor Dice) is rolled, reduced by the weapon's Armour Penetration. Characters use equipped armour items; NPCs always use their sheet's Armor Dice field.
-5. **Final Result** — Net damage is calculated and **automatically applied to the defender's Grit Points**. Damage is applied to the token (respecting Foundry's linked/unlinked actor data), and a status message shows the Grit change. If Grit reaches 0, a "DOWN! Roll Critical Injury!" warning is displayed.
+1. **Attack Roll** — Select a weapon on your sheet, target an enemy token, click the attack dice icon. Posts a chat card with results and a "Roll Defense" button.
+2. **Defense Roll** — The defender (or GM) clicks the button. Their Defense pool is rolled in an opposed check. On a hit, a "Roll Damage" button appears with the SV.
+3. **Damage Roll** — Damage pool auto-calculated from weapon formula plus SV. Melee: `SV + Might + weapon modifier`; Ranged: `base damage + SV`. Brutal weapons default to red dice. A "Roll Armor" button appears.
+4. **Armor Roll** — Defender's equipped armour (or NPC Armor Dice) rolled, reduced by Armour Penetration. Reinforced armour defaults to red dice.
+5. **Final Result** — Net damage auto-applied to the defender's Grit Points (respecting linked/unlinked token data). If Grit reaches 0, a "DOWN! Roll Critical Injury!" warning appears.
+
+### Standalone Rolls
+
+- **Standalone Damage**: Burst icon on each weapon row — prompts for SV and modifiers, rolls damage outside the combat chain.
+- **Standalone Armor**: Roll armor from the sheet without being in the combat chain.
+- **NPC Natural Weapon Damage**: Burst icon next to the Natural Weapon DD field in the NPC header.
+
+### Luck System
+
+- **Pre-roll**: Sheet button opens a full dialog (skill picker, DV, colour, modifiers) with the +2 Luck bonus included. Luck Point deducted on confirmation.
+- **Post-roll**: "Spend Luck (+2 dice)" button appears on ALL roll chat cards (skill, attack, defense, damage, armor) for PCs with remaining Luck Points. Each luck result card includes another luck button for chaining multiple spends.
+- **Defense Luck**: Recalculates the opposed result with the new total.
+- **Armor Luck**: Heals back the Grit Point difference from the improved armor roll.
+
+### Trait System
+
+Traits support up to **3 independent effect slots**, each with its own type, targets, modifier, and colour override. Effect types:
+
+| Type | Effect |
+|------|--------|
+| **Dice Colour Override** | Changes roll dice to red or black for targeted skills |
+| **Bonus / Penalty Dice** | Adds or removes dice from the pool |
+| **Attribute Modifier** | Modifies attribute values (also accepts `grit` and `luck` for max values) |
+| **Skill Rank Modifier** | Modifies skill rank values |
+| **Critical Injury** | Rolls twice on the critical injury chart (Resilient trait) |
+
+**Passive traits** auto-apply during data preparation — attribute mods flow into derived stats, skill mods flow into pools, dice colour and bonus dice are stored for roll-time lookup.
+
+**Conditional traits** show reminder banners in roll dialogs (e.g. "Web of Steel: Only when defending against melee attacks").
+
+**Special target keywords** allow traits to affect non-skill rolls: `armor`, `damage`, `melee-damage`, `ranged-damage`, `defense`.
 
 ### Group Initiative
 
-PD6 uses **side-based group initiative** rather than individual initiative:
+Side-based group initiative matching PD6's company-based combat:
 
-- Combatants are grouped into sides based on **token disposition** (Friendly, Hostile, Neutral).
-- The combatant with the **highest Leadership pool** on each side is automatically selected as leader.
-- Leaders make **opposed Leadership rolls** (white dice, exploding 6s).
-- The **winning side acts first**. All members of a side share the same initiative value, so they can act in any order within their turn.
-- A chat card displays both sides' rolls, leaders, and results.
-
-**Turn Management:**
-- **Next Turn** (Foundry's built-in button) cycles through individual combatants as normal.
-- **Next Side** (custom button with people-arrows icon in the combat tracker) skips all remaining members of the current side and jumps to the first combatant of the opposing side. A chat announcement marks the side change.
+- Combatants grouped by **token disposition** (Friendly, Hostile, Neutral).
+- **Highest Leadership pool** on each side auto-selected as leader.
+- Leaders make **opposed Leadership rolls**.
+- **Winning side acts first**. All members share the same initiative value.
+- **Next Side** button (people-arrows icon in combat tracker) skips to the opposing side with a chat announcement.
 
 ### Critical Injury Table
 
-A d66 roll (two d6s read as tens and units) on the Critical Injury chart, ranging from Bumps and Bruises to Death. Accessible from the Combat tab on the character sheet.
+A d66 roll (two d6s: tens + units) on the Critical Injury chart from the Combat tab. The Resilient trait triggers two rolls for player choice.
 
 ### Dice So Nice Integration
 
-All rolls use Foundry's native Roll API with exploding dice (`Xd6x=6`), enabling full **Dice So Nice** compatibility. The 3D dice are colour-coded to match PD6's dice types:
+All rolls use Foundry's native Roll API with exploding dice (`Xd6x=6`), enabling full **Dice So Nice** compatibility with colour-coded 3D dice:
 
 - **White dice**: Light parchment with dark pips
 - **Red dice**: Dark crimson with light pips
 - **Black dice**: Near-black with silver pips
 
-When Dice So Nice is installed, 3D dice animate before the chat card appears. When it's not installed, the standard Foundry dice sound plays normally.
+3D dice animate before the chat card appears. DSN animation is suppressed for the chat post to prevent double sounds.
+
+## Compendium Packs
+
+Five compendium packs populated via the setup macro (`macros/populate-compendiums.js`):
+
+| Pack | Type | Contents |
+|------|------|----------|
+| **PD6 Classes** | Item | 4 classes — Cultist, Magister, Soldier, Scoundrel (exact skill bonuses, proficiencies, and class traits from pp.3-4) |
+| **PD6 Traits** | Item | 16 special traits from p.5 + 13 creature traits from pp.30-31 (29 total) |
+| **PD6 Weapons** | Item | 24 weapons — 10 Common, 7 Heavy, 4 Bows, 3 Throwing (exact stats from pp.21-22) |
+| **PD6 Armour** | Item | 9 armour sets — 3 Light, 3 Medium, 3 Heavy (exact stats from p.23) |
+| **PD6 Bestiary** | Actor | 10 creatures — Bandit, Brown Bear, Forest Spirit, Goblin, Goblin Shaman, Lesser Demon, Ogre, Orc, Wolf, Zombie (exact stats from pp.30-31 with embedded weapons and traits) |
 
 ## Compatibility
 
@@ -107,40 +152,49 @@ When Dice So Nice is installed, 3D dice animate before the chat card appears. Wh
 - **Verified**: Foundry VTT v13
 - **Maximum**: Foundry VTT v13
 
-The system uses V13-compatible APIs throughout: `grid.distance`/`grid.units` (not the deprecated `gridDistance`/`gridUnits`), `CONST.CHAT_MESSAGE_STYLES` (not `CHAT_MESSAGE_TYPES`), and native DOM methods instead of jQuery.
+The system uses V13-compatible APIs: `grid.distance`/`grid.units`, `CONST.CHAT_MESSAGE_STYLES`, native DOM methods, and HTMLElement/jQuery dual handling in listeners.
 
 ## Project Structure
 
 ```
 pd6/
-├── system.json              # System manifest
+├── system.json              # System manifest (v0.2.1)
 ├── template.json            # Actor & Item data models
 ├── pd6.mjs                  # Main entry point, hooks, Handlebars helpers
 ├── css/
 │   └── pd6.css              # Dark fantasy themed stylesheet
 ├── lang/
 │   └── en.json              # English localisation
+├── macros/
+│   └── populate-compendiums.js  # GM macro to populate all compendium packs
+├── packs/                   # Empty LevelDB directories (Foundry populates on load)
+│   ├── classes/
+│   ├── traits/
+│   ├── weapons/
+│   ├── armor/
+│   └── bestiary/
 ├── module/
 │   ├── documents/
-│   │   ├── actor.mjs        # Actor document with derived data
+│   │   ├── actor.mjs        # Actor document: derived data, passive traits, multi-slot effects
 │   │   ├── item.mjs         # Item document with chat cards
 │   │   └── combat.mjs       # Group initiative & Next Side
 │   ├── helpers/
-│   │   └── dice.mjs         # Dice roller, combat chain, DSN integration
+│   │   └── dice.mjs         # Dice roller, combat chain, standalone rolls, luck, DSN integration
 │   └── sheets/
-│       ├── actor-sheet.mjs  # Character & NPC sheet logic
-│       └── item-sheet.mjs   # Item sheet logic
+│       ├── actor-sheet.mjs  # Character & NPC sheets, class drag-drop, trait-aware dialogs
+│       └── item-sheet.mjs   # Item sheets with class/trait data preparation
 └── templates/
     ├── actor/
-    │   ├── character-sheet.hbs
-    │   └── npc-sheet.hbs
+    │   ├── character-sheet.hbs  # 6-tab character sheet with class badge
+    │   └── npc-sheet.hbs        # NPC sheet with natural weapon damage button
     ├── item/
-    │   ├── weapon-sheet.hbs
-    │   ├── armor-sheet.hbs
+    │   ├── weapon-sheet.hbs     # Weapon sheet with checkbox traits
+    │   ├── armor-sheet.hbs      # Armour sheet with checkbox traits
     │   ├── equipment-sheet.hbs
     │   ├── spell-sheet.hbs
     │   ├── miracle-sheet.hbs
-    │   └── trait-sheet.hbs
+    │   ├── trait-sheet.hbs      # Trait sheet with 3 effect slots
+    │   └── class-sheet.hbs      # Class sheet with skill bonuses, proficiencies, traits JSON
     └── chat/
         ├── skill-check.hbs
         ├── attack-roll.hbs
@@ -149,28 +203,23 @@ pd6/
 
 ## To Do
 
-- [ ] Character class automation (Cultist, Magister, Soldier, Scoundrel) — auto-apply starting skills, proficiencies, and class features on selection
-- [ ] Trait implementation — mechanical effects that modify rolls, pools, and derived stats automatically
-- [ ] Compendium packs for equipment — pre-built weapons, armour, and gear from the core rules
-- [ ] Compendium packs for spells and miracles
-- [ ] Compendium pack for monsters/NPCs
-- [ ] Spell casting automation — Magic skill checks against spell DV with failure tracking
-- [ ] Miracle usage automation — daily use tracking and reset on rest
-- [ ] Active Effects integration — conditions that mechanically modify dice pools and attributes
-- [ ] Encumbrance penalties — auto-apply movement and skill penalties when over limit
-- [ ] Rest mechanics — short/long rest recovery for Grit Points, Luck Points, and spell failures
-- [ ] Drag-and-drop from compendium to character sheet
-- [ ] Token resource bars — configure Grit and Luck bars on tokens by default
-- [ ] Initiative tie-breaking — prompt for re-roll when sides tie on Leadership
-- [ ] Chat whisper support — GM-only rolls for NPC actions
-- [ ] Localisation — full i18n support for non-English translations
-- [ ] ApplicationV2 migration — convert sheets to Foundry V13's native AppV2 framework
+- [ ] Spell casting automation — Magic skill checks against spell DV with failure tracking and daily lockout
+- [ ] Miracle usage automation — escalating DV per day, failure locks out for the day
+- [ ] Spells and miracles compendium packs
+- [ ] Active Effects integration — conditions that mechanically modify dice pools
+- [ ] Encumbrance penalties — auto-apply Enfeebled when over Might × 4 limit
+- [ ] Rest mechanics — Grit/Luck recovery, spell failure reset
+- [ ] Token resource bars — configure Grit/Luck bars by default
+- [ ] Initiative tie-breaking — re-roll prompt when sides tie
+- [ ] Chat whisper support for GM-only NPC rolls
+- [ ] Full i18n localisation
+- [ ] ApplicationV2 migration for sheets
 - [ ] Rarity-based availability rolls for purchasing equipment
-- [ ] Character advancement automation — spend EXP to improve attributes and skills with validation
+- [ ] Character advancement automation (EXP spending with validation)
 
 ## Contributing
 
-This is an early-stage community project. Bug reports, feature requests, and pull requests are welcome via the [GitHub repository](https://github.com/gmsshadow/PD6).
+Bug reports, feature requests, and pull requests are welcome via the [GitHub repository](https://github.com/gmsshadow/PD6).
 
 ## Licence
 
