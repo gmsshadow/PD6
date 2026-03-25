@@ -2,7 +2,7 @@
   "id": "pd6",
   "title": "Perilous D6",
   "description": "A setting-agnostic fantasy tabletop roleplaying system using dice pools of d6s with white, red, and black dice mechanics.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "compatibility": {
     "minimum": "12",
     "verified": "13",
@@ -57,6 +57,13 @@
       "label": "PD6 Armour",
       "path": "packs/armor",
       "type": "Item",
+      "system": "pd6"
+    },
+    {
+      "name": "bestiary",
+      "label": "PD6 Bestiary",
+      "path": "packs/bestiary",
+      "type": "Actor",
       "system": "pd6"
     }
   ],

@@ -207,6 +207,66 @@
       effectType: "diceColor", targetSkills: "defense", diceColorOverride: "red",
       conditionNote: "Only when defending against melee attacks",
     }},
+
+    // --- CREATURE TRAITS (Bestiary pp.30-31) ---
+    { name: "Strong", type: "trait", img: "icons/svg/anchor.svg", system: {
+      description: "This creature rolls red dice for Athletics checks and melee damage.",
+      source: "Creature Trait", passive: true,
+      effectType: "diceColor", targetSkills: "athletics, melee-damage", diceColorOverride: "red",
+    }},
+    { name: "Vicious", type: "trait", img: "icons/svg/skull.svg", system: {
+      description: "This creature rolls red dice for attack rolls.",
+      source: "Creature Trait", passive: true,
+      effectType: "diceColor", targetSkills: "fighting, shooting", diceColorOverride: "red",
+    }},
+    { name: "Slippery", type: "trait", img: "icons/svg/wing.svg", system: {
+      description: "This creature rolls red dice for Acrobatics checks.",
+      source: "Creature Trait", passive: true,
+      effectType: "diceColor", targetSkills: "acrobatics", diceColorOverride: "red",
+    }},
+    { name: "Sneaky", type: "trait", img: "icons/svg/mystery-man.svg", system: {
+      description: "This creature rolls red dice for Stealth checks.",
+      source: "Creature Trait", passive: true,
+      effectType: "diceColor", targetSkills: "stealth", diceColorOverride: "red",
+    }},
+    { name: "Swift", type: "trait", img: "icons/svg/wing.svg", system: {
+      description: "This creature can move up to 40 ft per turn instead of the standard 25 ft.",
+      source: "Creature Trait", passive: true, effectType: "none",
+    }},
+    { name: "Large", type: "trait", img: "icons/svg/tower.svg", system: {
+      description: "This creature occupies a 10 ft × 10 ft area (2×2 tiles). Set the token size to 2 in the prototype token settings.",
+      source: "Creature Trait", passive: true, effectType: "none",
+    }},
+    { name: "Fey", type: "trait", img: "icons/svg/sun.svg", system: {
+      description: "Fey roll black armor dice unless attacked by magic weapons or spells.",
+      source: "Creature Trait", passive: true,
+      effectType: "diceColor", targetSkills: "armor", diceColorOverride: "black",
+      conditionNote: "Only against non-magical attacks. Normal armor dice vs magic weapons/spells.",
+    }},
+    { name: "Demon", type: "trait", img: "icons/svg/fire.svg", system: {
+      description: "Only magic attacks can modify a demon's armor rolls. Non-magical attacks cannot reduce armor dice.",
+      source: "Creature Trait", passive: true, effectType: "none",
+    }},
+    { name: "Undead", type: "trait", img: "icons/svg/skull.svg", system: {
+      description: "This creature cannot be Demoralized, Diseased, Exhausted, Fatigued, Frightened, Poisoned, or Stunned.",
+      source: "Creature Trait", passive: true, effectType: "none",
+    }},
+    { name: "Tainted Bite", type: "trait", img: "icons/svg/acid.svg", system: {
+      description: "Combatants injured by this creature must make a DV3 Resiliency check. On a failure, the target becomes Diseased and Poisoned.",
+      source: "Creature Trait", passive: true, effectType: "none",
+    }},
+    { name: "Damage Vulnerability (Fire)", type: "trait", img: "icons/svg/fire.svg", system: {
+      description: "Flaming attacks deal black damage dice to this creature and cause it to become Ignited.",
+      source: "Creature Trait", passive: true, effectType: "none",
+    }},
+    { name: "Restraining Vines", type: "trait", img: "icons/svg/net.svg", system: {
+      description: "As an auxiliary action, this creature can force a target within 5 ft to make a DV3 Athletics check. On a failure, the target is Restrained for 1 turn.",
+      source: "Creature Trait", passive: true, effectType: "none",
+    }},
+    { name: "Insect Hive", type: "trait", img: "icons/svg/hazard.svg", system: {
+      description: "Enemy combatants within 10 ft of this creature incur a -1 penalty to attack rolls.",
+      source: "Creature Trait", passive: true, effectType: "none",
+    }},
   ];
 
   // ============================================================
@@ -295,14 +355,241 @@
   ];
 
   // ============================================================
+  //  BESTIARY — All creatures from PD6 2.0 pp.30-31
+  // ============================================================
+  async function populateActorPack(packName, actors) {
+    const pack = game.packs.get(`pd6.${packName}`);
+    if (!pack) { ui.notifications.warn(`Pack "pd6.${packName}" not found.`); return 0; }
+    await pack.configure({ locked: false });
+    let created = 0;
+    for (const actorData of actors) {
+      if (pack.index.find(e => e.name === actorData.name)) continue;
+      await Actor.create(actorData, { pack: pack.collection });
+      created++;
+    }
+    await pack.configure({ locked: true });
+    return created;
+  }
+
+  // Helper: build an NPC actor with embedded items
+  function npc(name, gp, ad, skills, naturalDD, description, specialAbilities, embeddedItems = []) {
+    return {
+      name, type: "npc", img: "icons/svg/mystery-man.svg",
+      system: {
+        gritPoints: { value: gp, max: gp },
+        armorDice: ad,
+        naturalWeaponDamage: naturalDD,
+        description: `<p>${description}</p>`,
+        specialAbilities: specialAbilities ? `<p>${specialAbilities}</p>` : "",
+        skills: {
+          academics:   { value: skills.academics   || 0 },
+          acrobatics:  { value: skills.acrobatics  || 0 },
+          athletics:   { value: skills.athletics   || 0 },
+          defense:     { value: skills.defense     || 0 },
+          dexterity:   { value: skills.dexterity   || 0 },
+          diplomacy:   { value: skills.diplomacy   || 0 },
+          discipline:  { value: skills.discipline  || 0 },
+          fighting:    { value: skills.fighting    || 0 },
+          fortune:     { value: skills.fortune     || 0 },
+          heal:        { value: skills.heal        || 0 },
+          investigate: { value: skills.investigate || 0 },
+          leadership:  { value: skills.leadership  || 0 },
+          magic:       { value: skills.magic       || 0 },
+          perception:  { value: skills.perception  || 0 },
+          resiliency:  { value: skills.resiliency  || 0 },
+          shooting:    { value: skills.shooting    || 0 },
+          stealth:     { value: skills.stealth     || 0 },
+        },
+      },
+      items: embeddedItems,
+    };
+  }
+
+  // Helper: build an embedded trait item
+  function npcTrait(name, desc, opts = {}) {
+    return {
+      name, type: "trait", img: "icons/svg/hazard.svg",
+      system: {
+        description: desc, source: "Creature Trait", passive: opts.passive ?? true,
+        effectType: opts.effectType || "none",
+        targetSkills: opts.targetSkills || "", targetAttributes: opts.targetAttributes || "",
+        modifierValue: opts.modifierValue || 0, diceColorOverride: opts.diceColorOverride || "",
+        conditionNote: opts.conditionNote || "",
+        effect2Type: opts.effect2Type || "none",
+        effect2TargetSkills: opts.effect2TargetSkills || "", effect2TargetAttributes: opts.effect2TargetAttributes || "",
+        effect2ModifierValue: opts.effect2ModifierValue || 0, effect2DiceColorOverride: opts.effect2DiceColorOverride || "",
+        effect3Type: "none", effect3TargetSkills: "", effect3TargetAttributes: "",
+        effect3ModifierValue: 0, effect3DiceColorOverride: "",
+      },
+    };
+  }
+
+  // Helper: build an embedded weapon item
+  function npcWeapon(name, wType, dmg, ap, reach, traits, checkboxes = {}) {
+    return {
+      name, type: "weapon", img: "icons/svg/sword.svg",
+      system: {
+        weaponType: wType, damage: dmg, armorPenetration: ap,
+        rangeReach: reach, rangeLong: "", diceColor: "white",
+        cost: "", encumbrance: 0, rarity: 0, equipped: true,
+        traits: traits || "",
+        traitBrutal: checkboxes.brutal || false,
+        traitTwoHanded: checkboxes.twoHanded || false,
+        traitVersatile: false, traitReach: checkboxes.reach || false,
+        traitThrown: false,
+      },
+    };
+  }
+
+  // Reusable embedded traits
+  const tStrong = npcTrait("Strong", "This creature rolls red dice for Athletics checks and melee damage.", {
+    effectType: "diceColor", targetSkills: "athletics, melee-damage", diceColorOverride: "red",
+  });
+  const tVicious = npcTrait("Vicious", "This creature rolls red dice for attack rolls.", {
+    effectType: "diceColor", targetSkills: "fighting, shooting", diceColorOverride: "red",
+  });
+  const tSlippery = npcTrait("Slippery", "This creature rolls red dice for Acrobatics checks.", {
+    effectType: "diceColor", targetSkills: "acrobatics", diceColorOverride: "red",
+  });
+  const tSneaky = npcTrait("Sneaky", "This creature rolls red dice for Stealth checks.", {
+    effectType: "diceColor", targetSkills: "stealth", diceColorOverride: "red",
+  });
+
+  const bestiary = [
+    // --- BANDIT (p.30) ---
+    npc("Bandit", 3, 2,
+      { defense: 3, fighting: 3, shooting: 3, acrobatics: 3, resiliency: 3, athletics: 3, discipline: 2, perception: 4, stealth: 4, diplomacy: 3, leadership: 2 },
+      0,
+      "Common brigands and highway robbers.",
+      "<strong>Sneaky.</strong> Bandits roll red dice for Stealth checks.",
+      [
+        npcWeapon("Club", "common", "M+0", 0, "5", "Stunning"),
+        { ...tSneaky },
+      ]
+    ),
+
+    // --- BROWN BEAR (p.30) ---
+    npc("Brown Bear", 14, 3,
+      { defense: 3, fighting: 6, acrobatics: 2, resiliency: 6, athletics: 6, discipline: 1, perception: 4, stealth: 3, diplomacy: 1, leadership: 1 },
+      6,
+      "A large and powerful predator.",
+      "<strong>Strong.</strong> Bears roll red dice for Athletics checks and melee damage.",
+      [ { ...tStrong } ]
+    ),
+
+    // --- FOREST SPIRIT (p.30) ---
+    npc("Forest Spirit", 8, 5,
+      { defense: 2, fighting: 5, acrobatics: 2, resiliency: 5, athletics: 4, discipline: 4, perception: 6, stealth: 6 },
+      3,
+      "An ancient guardian of the woodland realm.",
+      "<strong>Damage Vulnerability.</strong> Flaming attacks deal black damage dice to forest spirits and cause them to become Ignited.<br><strong>Fey.</strong> Fey roll black armor dice unless attacked by magic weapons or spells.<br><strong>Restraining Vines.</strong> As an auxiliary action, a forest spirit can force a target within 5 ft to make a DV3 Athletics check. On a failure, the target is Restrained for 1 turn.<br><strong>Insect Hive.</strong> Enemy combatants within 10 ft of a forest spirit incur a -1 penalty to attack rolls.",
+      [
+        npcTrait("Damage Vulnerability (Fire)", "Flaming attacks deal black damage dice to this creature and cause it to become Ignited."),
+        npcTrait("Fey", "Fey roll black armor dice unless attacked by magic weapons or spells.", {
+          effectType: "diceColor", targetSkills: "armor", diceColorOverride: "black",
+          conditionNote: "Only against non-magical attacks. Normal armor dice vs magic weapons/spells.",
+        }),
+        npcTrait("Restraining Vines", "As an auxiliary action, this creature can force a target within 5 ft to make a DV3 Athletics check. On a failure, the target is Restrained for 1 turn."),
+        npcTrait("Insect Hive", "Enemy combatants within 10 ft of this creature incur a -1 penalty to attack rolls."),
+      ]
+    ),
+
+    // --- GOBLIN (p.30) ---
+    npc("Goblin", 3, 2,
+      { defense: 2, fighting: 3, shooting: 3, acrobatics: 4, resiliency: 2, athletics: 2, discipline: 2, perception: 3, stealth: 4, diplomacy: 1, leadership: 1 },
+      0,
+      "Small, cunning, and cowardly when alone — dangerous in numbers.",
+      "<strong>Slippery.</strong> Goblins roll red dice for Acrobatics checks.",
+      [
+        npcWeapon("Spear", "common", "M+0", 0, "10", "Repel", { reach: true }),
+        { ...tSlippery },
+      ]
+    ),
+
+    // --- GOBLIN SHAMAN (p.31) ---
+    npc("Goblin Shaman", 4, 2,
+      { defense: 4, fighting: 2, shooting: 3, magic: 7, acrobatics: 4, resiliency: 2, athletics: 2, discipline: 5, perception: 3, stealth: 4, diplomacy: 3, leadership: 5 },
+      0,
+      "A goblin spellcaster wielding dangerous arcane power.",
+      "<strong>Spells:</strong> Counterspell, Direct Lightning, Flash of Light, Stagger.<br><strong>Slippery.</strong> Goblins roll red dice for Acrobatics checks.",
+      [
+        npcWeapon("Staff", "common", "M+0", 0, "10", "Stunning", { twoHanded: true, reach: true }),
+        { ...tSlippery },
+      ]
+    ),
+
+    // --- LESSER DEMON (p.31) ---
+    npc("Lesser Demon", 10, 4,
+      { defense: 5, fighting: 7, acrobatics: 4, resiliency: 5, athletics: 5, discipline: 5, perception: 5, stealth: 5, diplomacy: 5, leadership: 4 },
+      4,
+      "A fiend summoned from the abyss, radiating malice.",
+      "<strong>Demon.</strong> Only magic attacks can modify a demon's armor rolls.",
+      [
+        npcTrait("Demon", "Only magic attacks can modify a demon's armor rolls. Non-magical attacks cannot reduce armor dice."),
+      ]
+    ),
+
+    // --- OGRE (p.31) ---
+    npc("Ogre", 15, 2,
+      { defense: 2, fighting: 8, shooting: 1, acrobatics: 1, resiliency: 6, athletics: 6, discipline: 2, perception: 1, stealth: 1, diplomacy: 1, leadership: 1 },
+      0,
+      "A massive brute towering over most humanoids.",
+      "<strong>Large.</strong> Ogres occupy a 10 ft × 10 ft area.<br><strong>Strong.</strong> Ogres roll red dice for Athletics checks and melee damage.<br><strong>Vicious.</strong> Ogres roll red attack dice.",
+      [
+        npcWeapon("Battleaxe", "heavy", "M+2", 1, "5", "", { brutal: true, twoHanded: true }),
+        npcTrait("Large", "This creature occupies a 10 ft × 10 ft area (2×2 tiles). Set the token size to 2 in the prototype token settings."),
+        { ...tStrong },
+        { ...tVicious },
+      ]
+    ),
+
+    // --- ORC (p.31) ---
+    npc("Orc", 6, 3,
+      { defense: 3, fighting: 6, shooting: 3, acrobatics: 2, resiliency: 5, athletics: 5, discipline: 2, perception: 2, stealth: 2, diplomacy: 1, leadership: 2 },
+      0,
+      "Savage warriors who revel in battle.",
+      "<strong>Strong.</strong> Orcs roll red dice for Athletics checks and melee damage.<br><strong>Vicious.</strong> Orcs roll red attack dice.",
+      [
+        npcWeapon("Battleaxe", "heavy", "M+2", 1, "5", "", { brutal: true, twoHanded: true }),
+        { ...tStrong },
+        { ...tVicious },
+      ]
+    ),
+
+    // --- WOLF (p.31) ---
+    npc("Wolf", 4, 2,
+      { defense: 5, fighting: 4, acrobatics: 4, resiliency: 3, athletics: 4, discipline: 1, perception: 7, stealth: 6 },
+      2,
+      "A cunning pack hunter.",
+      "<strong>Swift.</strong> Wolves can move up to 40 ft per turn.",
+      [
+        npcTrait("Swift", "This creature can move up to 40 ft per turn instead of the standard 25 ft."),
+      ]
+    ),
+
+    // --- ZOMBIE (p.31) ---
+    npc("Zombie", 6, 1,
+      { defense: 1, fighting: 2, acrobatics: 1, resiliency: 3, athletics: 2, discipline: 1, perception: 1, stealth: 1 },
+      2,
+      "A shambling corpse animated by dark magic.",
+      "<strong>Tainted Bite.</strong> Combatants injured by a zombie must make a DV3 Resiliency check. On a failure, the target becomes Diseased and Poisoned.<br><strong>Undead.</strong> Zombies cannot be Demoralized, Diseased, Exhausted, Fatigued, Frightened, Poisoned, or Stunned.",
+      [
+        npcTrait("Tainted Bite", "Combatants injured by this creature must make a DV3 Resiliency check. On a failure, the target becomes Diseased and Poisoned."),
+        npcTrait("Undead", "This creature cannot be Demoralized, Diseased, Exhausted, Fatigued, Frightened, Poisoned, or Stunned."),
+      ]
+    ),
+  ];
+
+  // ============================================================
   //  POPULATE ALL PACKS
   // ============================================================
   let total = 0;
-  const cc = await populatePack("classes", classes);  total += cc;
-  const tc = await populatePack("traits", traits);    total += tc;
-  const wc = await populatePack("weapons", weapons);  total += wc;
-  const ac = await populatePack("armor", armor);       total += ac;
+  const cc = await populatePack("classes", classes);        total += cc;
+  const tc = await populatePack("traits", traits);          total += tc;
+  const wc = await populatePack("weapons", weapons);        total += wc;
+  const ac = await populatePack("armor", armor);             total += ac;
+  const bc = await populateActorPack("bestiary", bestiary);  total += bc;
 
-  console.log(`PD6 | Compendiums populated: ${cc} classes, ${tc} traits, ${wc} weapons, ${ac} armour`);
-  ui.notifications.info(`PD6 Compendiums populated! ${total} items total (${cc} classes, ${tc} traits, ${wc} weapons, ${ac} armour).`);
+  console.log(`PD6 | Compendiums populated: ${cc} classes, ${tc} traits, ${wc} weapons, ${ac} armour, ${bc} bestiary`);
+  ui.notifications.info(`PD6 Compendiums populated! ${total} items total (${cc} classes, ${tc} traits, ${wc} weapons, ${ac} armour, ${bc} creatures).`);
 })();
