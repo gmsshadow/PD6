@@ -57,6 +57,8 @@ export class PD6Actor extends Actor {
       }
     }
     systemData.encumbrance.value = totalEnc;
+    systemData.encumbrance.encumbered = totalEnc > systemData.encumbrance.max;
+    systemData.encumbrance.overMax = totalEnc > systemData.encumbrance.max * 2;
 
     // ---- 3. Apply passive SKILL RANK modifiers from traits ----
     this._applyPassiveTraits(systemData, "skillMod");

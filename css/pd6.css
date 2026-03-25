@@ -1391,3 +1391,28 @@
   border-color: var(--pd6-accent);
   outline: none;
 }
+
+/* ---------- Encumbrance Warnings ---------- */
+.pd6-enc-warning {
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: var(--pd6-radius);
+  font-size: 0.78rem;
+  background: rgba(204, 153, 0, 0.15);
+  border: 1px solid rgba(204, 153, 0, 0.4);
+  color: #cc9900;
+}
+
+.pd6-enc-warning i {
+  margin-right: 4px;
+}
+
+.pd6-enc-warning-critical {
+  background: rgba(204, 0, 0, 0.15);
+  border-color: rgba(204, 0, 0, 0.4);
+  color: #cc3333;
+}
+
+.pd6-enc-critical {
+  background: #cc3333 !important;
+}

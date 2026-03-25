@@ -3,7 +3,7 @@
 A Foundry VTT system implementation for **Perilous D6 (PD6)**, a setting-agnostic fantasy tabletop RPG built around dice pools of d6s with white, red, and black dice mechanics.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
-![Version](https://img.shields.io/badge/Version-0.2.2-blue)
+![Version](https://img.shields.io/badge/Version-0.2.4-blue)
 
 ## Installation
 
@@ -48,7 +48,7 @@ Rolls are either made against a **Difficulty Value (DV)** where you need to meet
 - **Grit Points**: Health resource. Maximum auto-calculated from Resiliency + Toughness. Clamped so it never drops below 0 or exceeds the maximum.
 - **Luck Points**: Maximum derived from Fate. Pre-roll spending opens a full dialog (skill picker, DV, colour, modifiers) with +2 bonus baked in. Post-roll spending via chat card buttons works on all roll types (skill, attack, defense, damage, armor) and is chainable.
 - **Class System**: Drag a class item from the compendium onto the sheet. The class badge displays in the header with edit/remove buttons. Class application auto-applies skill bonuses, equipment proficiencies, and creates trait items.
-- **Encumbrance**: Auto-totalled from equipped items. Limit derived from Might × 4. Visual bar on the Inventory tab.
+- **Encumbrance**: Auto-totalled from equipped items. Limit derived from Might × 4. Visual bar on the Inventory tab. When over the limit, a warning banner appears and the Enfeebled condition is automatically toggled on. Exceeding twice the limit shows a critical warning. Dropping items below the limit auto-clears Enfeebled.
 - **Conditions**: 15 toggleable conditions (Blinded, Confused, Dazed, Stunned, etc.) on the Combat tab.
 - **Equipment Proficiencies**: Checkboxes for armour and weapon categories on the Traits tab.
 - **Currency**: Gold, Silver, and Copper tracking.
@@ -158,7 +158,7 @@ The system uses V13-compatible APIs: `grid.distance`/`grid.units`, `CONST.CHAT_M
 
 ```
 pd6/
-├── system.json              # System manifest (v0.2.2)
+├── system.json              # System manifest (v0.2.4)
 ├── template.json            # Actor & Item data models
 ├── pd6.mjs                  # Main entry point, hooks, Handlebars helpers
 ├── css/
@@ -207,9 +207,7 @@ pd6/
 - [ ] Miracle usage automation — escalating DV per day, failure locks out for the day
 - [ ] Spells and miracles compendium packs
 - [ ] Active Effects integration — conditions that mechanically modify dice pools
-- [ ] Encumbrance penalties — auto-apply Enfeebled when over Might × 4 limit
 - [ ] Rest mechanics — Grit/Luck recovery, spell failure reset
-- [ ] Token resource bars — configure Grit/Luck bars by default
 - [ ] Initiative tie-breaking — re-roll prompt when sides tie
 - [ ] Chat whisper support for GM-only NPC rolls
 - [ ] Full i18n localisation

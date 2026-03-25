@@ -266,10 +266,19 @@
         <div class="pd6-encumbrance">
           <label>Encumbrance</label>
           <div class="pd6-enc-bar">
-            <div class="pd6-enc-fill {{#if isEncumbered}}pd6-enc-over{{/if}}" 
+            <div class="pd6-enc-fill {{#if system.encumbrance.encumbered}}pd6-enc-over{{/if}} {{#if system.encumbrance.overMax}}pd6-enc-critical{{/if}}" 
                  style="width: {{encPercent}}%"></div>
           </div>
           <span class="pd6-enc-text">{{system.encumbrance.value}} / {{system.encumbrance.max}}</span>
+          {{#if system.encumbrance.overMax}}
+          <div class="pd6-enc-warning pd6-enc-warning-critical">
+            <i class="fas fa-exclamation-circle"></i> Cannot carry more than twice Encumbrance Limit! Drop items immediately.
+          </div>
+          {{else if system.encumbrance.encumbered}}
+          <div class="pd6-enc-warning">
+            <i class="fas fa-exclamation-triangle"></i> Encumbered! Character is <strong>Enfeebled</strong> (−2 attack/defense, max 10 ft move, no Run).
+          </div>
+          {{/if}}
         </div>
       </div>
 

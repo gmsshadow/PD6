@@ -76,6 +76,31 @@ Hooks.on("preCreateActor", (actor, data, options, userId) => {
   actor.updateSource({ prototypeToken });
 });
 
+// Auto-toggle Enfeebled condition based on encumbrance
+Hooks.on("updateActor", (actor, changes, options, userId) => {
+  if (actor.type !== "character") return;
+  if (game.user.id !== userId) return; // Only the user who made the change
+
+  const enc = actor.system.encumbrance;
+  if (!enc) return;
+
+  const isEncumbered = enc.value > enc.max;
+  const isEnfeebled = actor.system.conditions?.enfeebled || false;
+
+  // Toggle enfeebled to match encumbrance state
+  if (isEncumbered && !isEnfeebled) {
+    actor.update({ "system.conditions.enfeebled": true });
+    ui.notifications.warn(`${actor.name} is encumbered and now Enfeebled!`);
+  } else if (!isEncumbered && isEnfeebled) {
+    // Only auto-clear if the actor was encumbered before this update
+    const prevEnc = foundry.utils.getProperty(changes, "system.encumbrance.value");
+    if (prevEnc !== undefined || foundry.utils.hasProperty(changes, "items")) {
+      actor.update({ "system.conditions.enfeebled": false });
+      ui.notifications.info(`${actor.name} is no longer encumbered. Enfeebled removed.`);
+    }
+  }
+});
+
 // Register chat message listeners for combat chain buttons
 Hooks.on("renderChatMessage", (message, html, data) => {
   const element = html instanceof HTMLElement ? html : html[0];
