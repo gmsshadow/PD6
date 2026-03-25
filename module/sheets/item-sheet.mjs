@@ -96,6 +96,29 @@ export class PD6ItemSheet extends ItemSheet {
       ];
     }
 
+    // Build data for class sheets
+    if (this.item.type === "class") {
+      const s = context.system;
+      const skillLabels = {
+        academics: "Academics", acrobatics: "Acrobatics", athletics: "Athletics",
+        defense: "Defense", dexterity: "Dexterity", diplomacy: "Diplomacy",
+        discipline: "Discipline", fighting: "Fighting", fortune: "Fortune",
+        heal: "Heal", investigate: "Investigate", leadership: "Leadership",
+        magic: "Magic", perception: "Perception", resiliency: "Resiliency",
+        shooting: "Shooting", stealth: "Stealth",
+      };
+      context.skillBonusList = Object.entries(s.skillBonuses || {})
+        .map(([key, value]) => ({ key, label: skillLabels[key] || key, value: value || 0 }))
+        .sort((a, b) => a.label.localeCompare(b.label));
+
+      // Parse traits JSON for preview
+      try {
+        context.parsedTraits = JSON.parse(s.traitsData || "[]");
+      } catch (e) {
+        context.parsedTraits = [];
+      }
+    }
+
     return context;
   }
 

@@ -1,0 +1,86 @@
+<form class="pd6 sheet item class" autocomplete="off">
+  <header class="pd6-item-header">
+    <img src="{{item.img}}" data-edit="img" width="48" height="48" />
+    <h1><input name="name" type="text" value="{{item.name}}" placeholder="Class Name" /></h1>
+  </header>
+
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="skills">Skill Bonuses</a>
+    <a class="item" data-tab="proficiencies">Proficiencies</a>
+    <a class="item" data-tab="traits">Class Traits</a>
+  </nav>
+
+  <section class="sheet-body">
+
+    {{!-- DESCRIPTION TAB --}}
+    <div class="tab" data-group="primary" data-tab="description">
+      <div class="pd6-editor-container">
+        {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+      </div>
+    </div>
+
+    {{!-- SKILL BONUSES TAB --}}
+    <div class="tab" data-group="primary" data-tab="skills">
+      <p class="pd6-class-help">Skill ranks granted when this class is applied to a character. Set to 0 for no bonus.</p>
+      <div class="pd6-class-skills-grid">
+        {{#each skillBonusList}}
+        <div class="pd6-class-skill-row">
+          <span class="pd6-class-skill-name">{{label}}</span>
+          <input type="number" name="system.skillBonuses.{{key}}" value="{{value}}" min="0" max="6" />
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- PROFICIENCIES TAB --}}
+    <div class="tab" data-group="primary" data-tab="proficiencies">
+      <p class="pd6-class-help">Equipment proficiencies granted by this class.</p>
+      <div class="pd6-prof-grid">
+        <label><input type="checkbox" name="system.proficiencies.armorLight" 
+               {{#if system.proficiencies.armorLight}}checked{{/if}} /> Light Armour</label>
+        <label><input type="checkbox" name="system.proficiencies.armorMedium" 
+               {{#if system.proficiencies.armorMedium}}checked{{/if}} /> Medium Armour</label>
+        <label><input type="checkbox" name="system.proficiencies.armorHeavy" 
+               {{#if system.proficiencies.armorHeavy}}checked{{/if}} /> Heavy Armour</label>
+        <label><input type="checkbox" name="system.proficiencies.meleeCommon" 
+               {{#if system.proficiencies.meleeCommon}}checked{{/if}} /> Common Melee</label>
+        <label><input type="checkbox" name="system.proficiencies.meleeHeavy" 
+               {{#if system.proficiencies.meleeHeavy}}checked{{/if}} /> Heavy Melee</label>
+        <label><input type="checkbox" name="system.proficiencies.rangedBows" 
+               {{#if system.proficiencies.rangedBows}}checked{{/if}} /> Bows</label>
+        <label><input type="checkbox" name="system.proficiencies.rangedThrowing" 
+               {{#if system.proficiencies.rangedThrowing}}checked{{/if}} /> Throwing</label>
+      </div>
+    </div>
+
+    {{!-- TRAITS TAB --}}
+    <div class="tab" data-group="primary" data-tab="traits">
+      <p class="pd6-class-help">Traits automatically created on the character when this class is applied. Edit as JSON — each entry creates a Trait item.</p>
+      <div class="pd6-class-traits-list">
+        {{#each parsedTraits}}
+        <div class="pd6-class-trait-entry">
+          <strong>{{name}}</strong>
+          {{#if description}}<span class="pd6-class-trait-desc">— {{description}}</span>{{/if}}
+        </div>
+        {{/each}}
+        {{#unless parsedTraits.length}}
+        <div class="pd6-class-trait-entry pd6-class-trait-empty">
+          <em>No traits defined yet.</em>
+        </div>
+        {{/unless}}
+      </div>
+      <div class="pd6-class-traits-editor">
+        <label>Traits JSON</label>
+        <textarea name="system.traitsData" rows="8" class="pd6-traits-json">{{system.traitsData}}</textarea>
+        <p class="pd6-class-help">
+          Format: <code>[{"name": "Trait Name", "description": "What it does", "passive": true, "effectType": "diceColor", "targetSkills": "fighting", "diceColorOverride": "red"}]</code>
+        </p>
+        <p class="pd6-class-help">
+          Effect types: <code>none</code>, <code>diceColor</code>, <code>bonusDice</code>, <code>attributeMod</code>, <code>skillMod</code>, <code>criticalInjury</code>
+        </p>
+      </div>
+    </div>
+
+  </section>
+</form>

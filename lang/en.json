@@ -42,7 +42,8 @@
       "equipment": "Equipment",
       "spell": "Spell",
       "miracle": "Miracle",
-      "trait": "Trait"
+      "trait": "Trait",
+      "class": "Class"
     }
   }
 }

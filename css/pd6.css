@@ -1260,3 +1260,134 @@
 .pd6-custom-traits input {
   width: 100%;
 }
+
+/* ---------- Class Item on Character Sheet ---------- */
+.pd6-class-display {
+  min-width: 120px;
+}
+
+.pd6-class-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--pd6-bg-light);
+  border: 1px solid var(--pd6-accent-dim);
+  border-radius: var(--pd6-radius);
+  padding: 2px 8px;
+}
+
+.pd6-class-name {
+  font-weight: bold;
+  color: var(--pd6-accent);
+  font-size: 0.9rem;
+}
+
+.pd6-class-badge a {
+  color: var(--pd6-text-dim);
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.pd6-class-badge a:hover {
+  color: var(--pd6-text-bright);
+}
+
+.pd6-class-empty {
+  font-size: 0.78rem;
+  color: var(--pd6-text-dim);
+  padding: 3px 6px;
+  border: 1px dashed var(--pd6-border);
+  border-radius: var(--pd6-radius);
+  text-align: center;
+}
+
+/* ---------- Class Item Sheet ---------- */
+.pd6-class-help {
+  font-size: 0.78rem;
+  color: var(--pd6-text-dim);
+  margin: 2px 0 6px;
+  font-style: italic;
+}
+
+.pd6-class-help code {
+  background: var(--pd6-bg-input);
+  padding: 0 3px;
+  border-radius: 2px;
+  font-size: 0.72rem;
+  color: var(--pd6-accent);
+}
+
+.pd6-class-skills-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+.pd6-class-skill-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px;
+  border-radius: var(--pd6-radius);
+}
+
+.pd6-class-skill-row:hover {
+  background: var(--pd6-bg-light);
+}
+
+.pd6-class-skill-name {
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--pd6-text);
+}
+
+.pd6-class-skill-row input {
+  width: 36px !important;
+  text-align: center;
+}
+
+.pd6-class-traits-list {
+  margin-bottom: 8px;
+}
+
+.pd6-class-trait-entry {
+  padding: 3px 6px;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--pd6-bg-light);
+}
+
+.pd6-class-trait-entry strong {
+  color: var(--pd6-accent);
+}
+
+.pd6-class-trait-desc {
+  color: var(--pd6-text-dim);
+  font-size: 0.78rem;
+}
+
+.pd6-class-trait-empty {
+  color: var(--pd6-text-dim);
+}
+
+.pd6-class-traits-editor {
+  padding-top: 6px;
+  border-top: 1px solid var(--pd6-border);
+}
+
+.pd6-traits-json {
+  width: 100%;
+  min-height: 120px;
+  font-family: "Courier New", monospace;
+  font-size: 0.78rem;
+  background: var(--pd6-bg-input);
+  color: var(--pd6-text-bright);
+  border: 1px solid var(--pd6-border);
+  border-radius: var(--pd6-radius);
+  padding: 6px;
+  resize: vertical;
+}
+
+.pd6-traits-json:focus {
+  border-color: var(--pd6-accent);
+  outline: none;
+}

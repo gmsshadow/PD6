@@ -30,6 +30,36 @@
   },
   "primaryTokenAttribute": "gritPoints",
   "secondaryTokenAttribute": "luckPoints",
+  "packs": [
+    {
+      "name": "classes",
+      "label": "PD6 Classes",
+      "path": "packs/classes",
+      "type": "Item",
+      "system": "pd6"
+    },
+    {
+      "name": "traits",
+      "label": "PD6 Traits",
+      "path": "packs/traits",
+      "type": "Item",
+      "system": "pd6"
+    },
+    {
+      "name": "weapons",
+      "label": "PD6 Weapons",
+      "path": "packs/weapons",
+      "type": "Item",
+      "system": "pd6"
+    },
+    {
+      "name": "armor",
+      "label": "PD6 Armour",
+      "path": "packs/armor",
+      "type": "Item",
+      "system": "pd6"
+    }
+  ],
   "url": "https://github.com/gmsshadow/PD6",
   "manifest": "https://raw.githubusercontent.com/gmsshadow/PD6/refs/heads/main/system.json",
   "download": "https://github.com/gmsshadow/PD6/archive/refs/heads/main.zip"

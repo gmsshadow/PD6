@@ -1127,6 +1127,89 @@ export class PD6Dice {
   }
 
   /* ==================================================================
+     STANDALONE DAMAGE ROLL (from sheet, outside combat chain)
+     ================================================================== */
+
+  /**
+   * Roll damage for a weapon or natural weapon outside the combat chain.
+   * Prompts for SV (Success Value) and modifiers.
+   * @param {object} opts  { actor, item?, naturalDamage?, weaponName? }
+   */
+  static async rollStandaloneDamage({ actor, item, naturalDamage, weaponName }) {
+    const isNatural = !item;
+    const name = weaponName || item?.name || "Damage";
+    const damageStr = item?.system?.damage || "";
+    const isMelee = damageStr.startsWith("M");
+    const isBrutal = item?.system?.traitBrutal || false;
+    let defaultColor = isBrutal ? "red" : "white";
+
+    // Build info text
+    let formulaInfo = "";
+    if (isNatural) {
+      formulaInfo = `<label>Base Natural Weapon Damage: <strong>${naturalDamage} DD</strong></label>`;
+    } else if (isMelee) {
+      const modifier = parseInt(damageStr.replace("M", "")) || 0;
+      const might = actor.system.attributes?.might?.value || 0;
+      formulaInfo = `<label>Formula: <strong>SV + Might(${might}) ${modifier >= 0 ? "+" : ""}${modifier}</strong></label>`;
+    } else {
+      formulaInfo = `<label>Base Ranged Damage: <strong>${damageStr} DD + SV</strong></label>`;
+    }
+
+    const mods = await this._modifierDialog(`Damage: ${name}`, defaultColor, `
+      <div class="form-group">
+        ${formulaInfo}
+      </div>
+      <div class="form-group">
+        <label>Success Value (SV) from attack:</label>
+        <input type="number" name="sv" value="0" min="0" />
+      </div>
+    `);
+    if (!mods) return;
+
+    const sv = parseInt(mods.sv) || 0;
+    let baseDamage = 0;
+    let formula = "";
+
+    if (isNatural) {
+      baseDamage = naturalDamage + sv;
+      formula = `Natural(${naturalDamage}) + SV(${sv})`;
+    } else if (isMelee) {
+      const modifier = parseInt(damageStr.replace("M", "")) || 0;
+      const might = actor.system.attributes?.might?.value || 0;
+      baseDamage = sv + might + modifier;
+      formula = `SV(${sv}) + Might(${might}) ${modifier >= 0 ? "+" : ""}${modifier}`;
+    } else {
+      const fixedDmg = parseInt(damageStr) || 0;
+      baseDamage = fixedDmg + sv;
+      formula = `Base(${fixedDmg}) + SV(${sv})`;
+    }
+
+    const finalPool = Math.max(baseDamage + mods.modifier, 1);
+    const rollData = await this.rollPool(finalPool, mods.diceColor);
+    const colorLabel = this.COLORS[mods.diceColor]?.label || "White";
+
+    const ap = item?.system?.armorPenetration || 0;
+    const apText = ap ? `<div class="pd6-ap-note">Armor Penetration: ${ap}</div>` : "";
+
+    const content = `
+      <div class="pd6-chat-roll pd6-damage-roll">
+        <h3 class="pd6-roll-header"><i class="fas fa-burst"></i> Damage: ${name}</h3>
+        <div class="pd6-roll-info">
+          <span class="pd6-pool-info">${finalPool} ${colorLabel} damage dice</span>
+          <span class="pd6-formula-info">${formula}</span>
+        </div>
+        ${this.renderDice(rollData)}
+        <div class="pd6-roll-summary">
+          <span class="pd6-successes">${rollData.successes} Damage</span>
+          ${rollData.explosions > 0 ? `<span class="pd6-explosions">(${rollData.explosions} exploded)</span>` : ""}
+        </div>
+        ${apText}
+      </div>`;
+
+    return this._postRollMessage(content, actor, rollData);
+  }
+
+  /* ==================================================================
      STANDALONE ARMOR ROLL (from sheet, outside combat chain)
      ================================================================== */
 

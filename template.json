@@ -59,7 +59,6 @@
     "character": {
       "templates": ["common"],
       "biography": "",
-      "class": "",
       "luckPoints": {
         "value": 2,
         "max": 2
@@ -96,7 +95,7 @@
     }
   },
   "Item": {
-    "types": ["weapon", "armor", "equipment", "spell", "miracle", "trait"],
+    "types": ["weapon", "armor", "equipment", "spell", "miracle", "trait", "class"],
     "templates": {
       "physicalItem": {
         "description": "",
@@ -171,6 +170,38 @@
       "effect3TargetAttributes": "",
       "effect3ModifierValue": 0,
       "effect3DiceColorOverride": ""
+    },
+    "class": {
+      "description": "",
+      "skillBonuses": {
+        "academics": 0,
+        "acrobatics": 0,
+        "athletics": 0,
+        "defense": 0,
+        "dexterity": 0,
+        "diplomacy": 0,
+        "discipline": 0,
+        "fighting": 0,
+        "fortune": 0,
+        "heal": 0,
+        "investigate": 0,
+        "leadership": 0,
+        "magic": 0,
+        "perception": 0,
+        "resiliency": 0,
+        "shooting": 0,
+        "stealth": 0
+      },
+      "proficiencies": {
+        "armorLight": false,
+        "armorMedium": false,
+        "armorHeavy": false,
+        "meleeCommon": false,
+        "meleeHeavy": false,
+        "rangedBows": false,
+        "rangedThrowing": false
+      },
+      "traitsData": "[]"
     }
   }
 }

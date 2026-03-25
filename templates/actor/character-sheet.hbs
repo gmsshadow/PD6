@@ -10,13 +10,19 @@
         <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name" />
       </h1>
       <div class="pd6-header-details">
-        <div class="pd6-field">
+        <div class="pd6-field pd6-class-display">
           <label>Class</label>
-          <select name="system.class">
-            {{#each classOptions}}
-              <option value="{{@key}}" {{#if (eq @key ../system.class)}}selected{{/if}}>{{this}}</option>
-            {{/each}}
-          </select>
+          {{#if classItem}}
+          <div class="pd6-class-badge">
+            <span class="pd6-class-name">{{classItem.name}}</span>
+            <a class="pd6-class-edit" title="Edit Class"><i class="fas fa-edit"></i></a>
+            <a class="pd6-class-remove" title="Remove Class"><i class="fas fa-times"></i></a>
+          </div>
+          {{else}}
+          <div class="pd6-class-empty">
+            <em>Drag a class item here</em>
+          </div>
+          {{/if}}
         </div>
         <div class="pd6-field pd6-grit-display">
           <label>Grit Points</label>
@@ -115,6 +121,7 @@
             <span class="pd6-item-detail">{{this.system.rangeReach}}</span>
             <div class="pd6-item-controls">
               <a class="pd6-attack-roll" title="Attack Roll"><i class="fas fa-dice-d6"></i></a>
+              <a class="pd6-damage-roll-standalone" title="Roll Damage"><i class="fas fa-burst"></i></a>
               <a class="pd6-item-equip {{#if this.system.equipped}}pd6-equipped{{/if}}" 
                  title="Toggle Equip"><i class="fas fa-shield-alt"></i></a>
               <a class="pd6-item-edit" title="Edit"><i class="fas fa-edit"></i></a>

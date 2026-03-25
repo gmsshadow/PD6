@@ -23,7 +23,10 @@
         </div>
         <div class="pd6-field">
           <label>Natural Weapon DD</label>
-          <input type="number" name="system.naturalWeaponDamage" value="{{system.naturalWeaponDamage}}" min="0" />
+          <div class="pd6-resource-bar">
+            <input type="number" name="system.naturalWeaponDamage" value="{{system.naturalWeaponDamage}}" min="0" />
+            <a class="pd6-natural-damage-roll" title="Roll Natural Weapon Damage"><i class="fas fa-burst"></i></a>
+          </div>
         </div>
       </div>
     </div>
@@ -81,6 +84,7 @@
           <span class="pd6-item-detail">{{this.system.damage}}</span>
           <div class="pd6-item-controls">
             <a class="pd6-attack-roll"><i class="fas fa-dice-d6"></i></a>
+            <a class="pd6-damage-roll-standalone" title="Roll Damage"><i class="fas fa-burst"></i></a>
             <a class="pd6-item-edit"><i class="fas fa-edit"></i></a>
             <a class="pd6-item-delete"><i class="fas fa-trash"></i></a>
           </div>

@@ -93,14 +93,8 @@ export class PD6ActorSheet extends ActorSheet {
       }
     }
 
-    // Class options for dropdown
-    context.classOptions = {
-      "": "— Select —",
-      "cultist": "Cultist",
-      "magister": "Magister",
-      "soldier": "Soldier",
-      "scoundrel": "Scoundrel",
-    };
+    // Find the active class item (only one allowed)
+    context.classItem = this.actor.items.find(i => i.type === "class") || null;
 
     // Encumbrance status
     if (context.system.encumbrance) {
@@ -136,6 +130,12 @@ export class PD6ActorSheet extends ActorSheet {
 
     // Attack roll clicks
     on(".pd6-attack-roll", this._onAttackRoll.bind(this));
+
+    // Standalone damage roll (outside combat chain)
+    on(".pd6-damage-roll-standalone", this._onStandaloneDamageRoll.bind(this));
+
+    // NPC natural weapon damage roll
+    on(".pd6-natural-damage-roll", this._onNaturalDamageRoll.bind(this));
 
     // Armor roll clicks
     on(".pd6-armor-roll", this._onArmorRoll.bind(this));
@@ -191,6 +191,22 @@ export class PD6ActorSheet extends ActorSheet {
 
     // Inline editing for attribute pips
     on(".pd6-attr-pip", this._onAttributePipClick.bind(this));
+
+    // Class item actions
+    on(".pd6-class-edit", (ev) => {
+      const classItem = this.actor.items.find(i => i.type === "class");
+      if (classItem) classItem.sheet.render(true);
+    });
+
+    on(".pd6-class-remove", async (ev) => {
+      const classItem = this.actor.items.find(i => i.type === "class");
+      if (!classItem) return;
+      const confirmed = await Dialog.confirm({
+        title: "Remove Class",
+        content: `<p>Remove <strong>${classItem.name}</strong> from this character? This will not remove traits or skill ranks already applied.</p>`,
+      });
+      if (confirmed) await classItem.delete();
+    });
   }
 
   /**
@@ -284,6 +300,34 @@ export class PD6ActorSheet extends ActorSheet {
   }
 
   /**
+   * Handle standalone damage roll from a weapon (outside combat chain).
+   */
+  async _onStandaloneDamageRoll(event) {
+    event.preventDefault();
+    const itemId = event.currentTarget.closest(".pd6-item").dataset.itemId;
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+    PD6Dice.rollStandaloneDamage({ actor: this.actor, item });
+  }
+
+  /**
+   * Handle NPC natural weapon damage roll.
+   */
+  async _onNaturalDamageRoll(event) {
+    event.preventDefault();
+    const baseDamage = Number(this.actor.system.naturalWeaponDamage) || 0;
+    if (baseDamage <= 0) {
+      ui.notifications.warn("No natural weapon damage dice set.");
+      return;
+    }
+    PD6Dice.rollStandaloneDamage({
+      actor: this.actor,
+      naturalDamage: baseDamage,
+      weaponName: "Natural Weapons",
+    });
+  }
+
+  /**
    * Handle armor roll (standalone, outside combat chain).
    */
   async _onArmorRoll(event) {
@@ -327,5 +371,134 @@ export class PD6ActorSheet extends ActorSheet {
     const attrKey = event.currentTarget.dataset.attr;
     const pipValue = parseInt(event.currentTarget.dataset.pip);
     await this.actor.update({ [`system.attributes.${attrKey}.value`]: pipValue });
+  }
+
+  /** @override */
+  async _onDropItemCreate(itemData) {
+    // Handle class items specially
+    const items = Array.isArray(itemData) ? itemData : [itemData];
+    const classItems = items.filter(i => i.type === "class");
+    const otherItems = items.filter(i => i.type !== "class");
+
+    // Process class items
+    for (const classData of classItems) {
+      await this._applyClass(classData);
+    }
+
+    // Let Foundry handle non-class items normally
+    if (otherItems.length) {
+      return super._onDropItemCreate(otherItems);
+    }
+  }
+
+  /**
+   * Apply a class item to the character.
+   * Creates the class item, applies skill bonuses, proficiencies, and creates trait items.
+   */
+  async _applyClass(classData) {
+    // Check if the character already has a class
+    const existingClass = this.actor.items.find(i => i.type === "class");
+    if (existingClass) {
+      const replace = await Dialog.confirm({
+        title: "Replace Class",
+        content: `<p>This character already has the <strong>${existingClass.name}</strong> class. Replace it with <strong>${classData.name}</strong>?</p>
+                  <p><em>Note: Previously applied skill ranks and traits will not be removed.</em></p>`,
+      });
+      if (!replace) return;
+      await existingClass.delete();
+    }
+
+    // Confirm application
+    const apply = await Dialog.confirm({
+      title: `Apply Class: ${classData.name}`,
+      content: `<p>Apply <strong>${classData.name}</strong> to ${this.actor.name}?</p>
+                <p>This will:</p>
+                <ul>
+                  <li>Add the class to the character sheet</li>
+                  <li>Add skill rank bonuses</li>
+                  <li>Set equipment proficiencies</li>
+                  <li>Create class trait items</li>
+                </ul>`,
+    });
+    if (!apply) return;
+
+    const systemData = classData.system || {};
+
+    // 1. Create the class item on the actor
+    await this.actor.createEmbeddedDocuments("Item", [classData]);
+
+    // 2. Apply skill bonuses
+    const skillUpdates = {};
+    const skillBonuses = systemData.skillBonuses || {};
+    for (const [skillKey, bonus] of Object.entries(skillBonuses)) {
+      if (bonus > 0 && this.actor.system.skills[skillKey]) {
+        const current = this.actor.system.skills[skillKey].value || 0;
+        skillUpdates[`system.skills.${skillKey}.value`] = current + bonus;
+      }
+    }
+    if (Object.keys(skillUpdates).length) {
+      await this.actor.update(skillUpdates);
+    }
+
+    // 3. Apply equipment proficiencies
+    const profUpdates = {};
+    const profs = systemData.proficiencies || {};
+    for (const [profKey, granted] of Object.entries(profs)) {
+      if (granted) {
+        profUpdates[`system.equipmentProficiencies.${profKey}`] = true;
+      }
+    }
+    if (Object.keys(profUpdates).length) {
+      await this.actor.update(profUpdates);
+    }
+
+    // 4. Create trait items from traitsData
+    let traitsToCreate = [];
+    try {
+      const traitDefs = JSON.parse(systemData.traitsData || "[]");
+      for (const def of traitDefs) {
+        traitsToCreate.push({
+          name: def.name || "Class Trait",
+          type: "trait",
+          img: classData.img || "icons/svg/item-bag.svg",
+          system: {
+            description: def.description || "",
+            source: classData.name,
+            passive: def.passive ?? true,
+            effectType: def.effectType || "none",
+            targetSkills: def.targetSkills || "",
+            targetAttributes: def.targetAttributes || "",
+            modifierValue: def.modifierValue || 0,
+            diceColorOverride: def.diceColorOverride || "",
+            conditionNote: def.conditionNote || "",
+            effect2Type: def.effect2Type || "none",
+            effect2TargetSkills: def.effect2TargetSkills || "",
+            effect2TargetAttributes: def.effect2TargetAttributes || "",
+            effect2ModifierValue: def.effect2ModifierValue || 0,
+            effect2DiceColorOverride: def.effect2DiceColorOverride || "",
+            effect3Type: def.effect3Type || "none",
+            effect3TargetSkills: def.effect3TargetSkills || "",
+            effect3TargetAttributes: def.effect3TargetAttributes || "",
+            effect3ModifierValue: def.effect3ModifierValue || 0,
+            effect3DiceColorOverride: def.effect3DiceColorOverride || "",
+          },
+        });
+      }
+    } catch (e) {
+      console.warn("PD6 | Failed to parse class traitsData:", e);
+    }
+
+    if (traitsToCreate.length) {
+      await this.actor.createEmbeddedDocuments("Item", traitsToCreate);
+    }
+
+    // Build summary of what was applied
+    const skillSummary = Object.entries(skillBonuses)
+      .filter(([k, v]) => v > 0)
+      .map(([k, v]) => `${PD6Dice.getSkillLabel(k)} +${v}`)
+      .join(", ");
+    const traitNames = traitsToCreate.map(t => t.name).join(", ");
+
+    ui.notifications.info(`Applied class "${classData.name}" — Skills: ${skillSummary || "none"} | Traits: ${traitNames || "none"}`);
   }
 }

@@ -226,6 +226,7 @@ async function preloadHandlebarsTemplates() {
     "systems/pd6/templates/item/spell-sheet.hbs",
     "systems/pd6/templates/item/miracle-sheet.hbs",
     "systems/pd6/templates/item/trait-sheet.hbs",
+    "systems/pd6/templates/item/class-sheet.hbs",
     "systems/pd6/templates/chat/skill-check.hbs",
     "systems/pd6/templates/chat/attack-roll.hbs",
     "systems/pd6/templates/chat/damage-roll.hbs",
