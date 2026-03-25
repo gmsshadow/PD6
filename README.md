@@ -3,7 +3,7 @@
 A Foundry VTT system implementation for **Perilous D6 (PD6)**, a setting-agnostic fantasy tabletop RPG built around dice pools of d6s with white, red, and black dice mechanics.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
-![Version](https://img.shields.io/badge/Version-0.2.1-blue)
+![Version](https://img.shields.io/badge/Version-0.2.2-blue)
 
 ## Installation
 
@@ -158,7 +158,7 @@ The system uses V13-compatible APIs: `grid.distance`/`grid.units`, `CONST.CHAT_M
 
 ```
 pd6/
-├── system.json              # System manifest (v0.2.1)
+├── system.json              # System manifest (v0.2.2)
 ├── template.json            # Actor & Item data models
 ├── pd6.mjs                  # Main entry point, hooks, Handlebars helpers
 ├── css/
