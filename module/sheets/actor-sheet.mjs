@@ -128,6 +128,9 @@ export class PD6ActorSheet extends ActorSheet {
     // Skill roll clicks
     on(".pd6-skill-roll", this._onSkillRoll.bind(this));
 
+    // Quick dice roll
+    on(".pd6-quick-roll", this._onQuickRoll.bind(this));
+
     // Attack roll clicks
     on(".pd6-attack-roll", this._onAttackRoll.bind(this));
 
@@ -294,6 +297,14 @@ export class PD6ActorSheet extends ActorSheet {
       bonus: result.modifier > 0 ? result.modifier : 0,
       penalty: result.modifier < 0 ? Math.abs(result.modifier) : 0,
     });
+  }
+
+  /**
+   * Handle quick/freeform dice roll.
+   */
+  async _onQuickRoll(event) {
+    event.preventDefault();
+    PD6Dice.rollQuick(this.actor);
   }
 
   /**

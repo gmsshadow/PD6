@@ -1465,3 +1465,16 @@
 .pd6-armor-penalty-note {
   color: #cc9900 !important;
 }
+
+/* ---------- Quick Roll Button ---------- */
+.pd6-quick-roll {
+  color: var(--pd6-text-dim);
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.pd6-quick-roll:hover {
+  color: var(--pd6-accent);
+}

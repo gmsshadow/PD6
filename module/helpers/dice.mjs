@@ -1258,6 +1258,87 @@ export class PD6Dice {
   }
 
   /* ==================================================================
+     QUICK / FREEFORM DICE ROLL
+     ================================================================== */
+
+  /**
+   * Open a dialog for a freeform dice roll — user picks pool size, colour,
+   * and optional label. Useful for house rules, ad-hoc rolls, etc.
+   * Can also be called from a macro: PD6Dice.rollQuick(actor)
+   * @param {Actor} [actor]  Optional actor for speaker attribution
+   */
+  static async rollQuick(actor) {
+    const result = await Dialog.prompt({
+      title: "Quick Dice Roll",
+      content: `
+        <form>
+          <div class="form-group">
+            <label>Label (optional):</label>
+            <input type="text" name="label" placeholder="e.g. Falling damage, House rule check" />
+          </div>
+          <div class="form-group">
+            <label>Number of Dice:</label>
+            <input type="number" name="pool" value="1" min="1" max="30" />
+          </div>
+          <div class="form-group">
+            <label>Dice Colour:</label>
+            <select name="diceColor">
+              <option value="white">White (4+)</option>
+              <option value="red">Red (3+)</option>
+              <option value="black">Black (2+)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Difficulty Value (optional):</label>
+            <input type="number" name="dv" min="1" max="10" placeholder="—" />
+          </div>
+        </form>`,
+      label: "Roll",
+      callback: (html) => {
+        const form = html[0]?.querySelector?.("form") ?? html.querySelector("form");
+        return {
+          label: form.label.value || "Quick Roll",
+          pool: parseInt(form.pool.value) || 1,
+          diceColor: form.diceColor.value || "white",
+          dv: form.dv.value ? parseInt(form.dv.value) : null,
+        };
+      },
+      rejectClose: false,
+    });
+
+    if (!result) return;
+
+    const pool = Math.max(result.pool, 1);
+    const rollData = await this.rollPool(pool, result.diceColor);
+    const colorLabel = this.COLORS[result.diceColor]?.label || "White";
+
+    let resultText = "";
+    if (result.dv !== null) {
+      const success = rollData.successes >= result.dv;
+      const sv = success ? rollData.successes - result.dv : 0;
+      resultText = success
+        ? `<div class="pd6-roll-result"><span class="pd6-success">SUCCESS vs DV ${result.dv} (SV ${sv})</span></div>`
+        : `<div class="pd6-roll-result"><span class="pd6-failure">FAILED vs DV ${result.dv}</span></div>`;
+    }
+
+    const content = `
+      <div class="pd6-chat-roll pd6-quick-roll">
+        <h3 class="pd6-roll-header"><i class="fas fa-dice"></i> ${result.label}</h3>
+        <div class="pd6-roll-info">
+          <span class="pd6-pool-info">${pool} ${colorLabel} dice</span>
+        </div>
+        ${this.renderDice(rollData)}
+        <div class="pd6-roll-summary">
+          <span class="pd6-successes">${rollData.successes} Successes</span>
+          ${rollData.explosions > 0 ? `<span class="pd6-explosions">(${rollData.explosions} exploded)</span>` : ""}
+        </div>
+        ${resultText}
+      </div>`;
+
+    return this._postRollMessage(content, actor || null, rollData);
+  }
+
+  /* ==================================================================
      STANDALONE DAMAGE ROLL (from sheet, outside combat chain)
      ================================================================== */
 

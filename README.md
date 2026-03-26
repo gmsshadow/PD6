@@ -3,7 +3,7 @@
 A Foundry VTT system implementation for **Perilous D6 (PD6)**, a setting-agnostic fantasy tabletop RPG built around dice pools of d6s with white, red, and black dice mechanics.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
-![Version](https://img.shields.io/badge/Version-0.2.5-blue)
+![Version](https://img.shields.io/badge/Version-0.2.6-blue)
 
 ## Installation
 
@@ -68,6 +68,10 @@ Streamlined sheet with flat skill pools (no attribute splitting), editable Grit 
 - **Miracles**: Range, duration, and spell save for Cultist divine abilities.
 - **Traits**: Special traits with up to 3 independent effect slots per trait item. Each slot can be a different effect type (dice colour override, bonus/penalty dice, attribute modifier, skill rank modifier, critical injury). Supports passive traits (always active, auto-applied to rolls) and conditional traits (reminder banners shown in roll dialogs). Target Skills field accepts skill names plus special keywords: `armor`, `damage`, `melee-damage`, `ranged-damage`, `defense`, and `all`.
 - **Classes**: Drag-and-drop class items containing skill bonuses, equipment proficiencies, and trait definitions (JSON). Dropping a class onto a character auto-applies everything.
+
+### Quick Dice Roll
+
+A freeform dice roller accessible from the dice icon next to any actor's name (both character and NPC sheets). Opens a dialog where you enter a label, number of dice, colour, and optional DV. Useful for house rules, ad-hoc checks, environmental effects, or anything not covered by the skill system. Also callable from macros via `PD6Dice.rollQuick(actor)`.
 
 ### Automated Combat Chain
 
@@ -169,7 +173,7 @@ The system uses V13-compatible APIs: `grid.distance`/`grid.units`, `CONST.CHAT_M
 
 ```
 pd6/
-├── system.json              # System manifest (v0.2.5)
+├── system.json              # System manifest (v0.2.6)
 ├── template.json            # Actor & Item data models
 ├── pd6.mjs                  # Main entry point, hooks, Handlebars helpers
 ├── css/
