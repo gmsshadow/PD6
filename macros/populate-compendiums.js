@@ -274,53 +274,62 @@
   //  Cost format: "Xgc", "Xsp", "Xcp"
   //  AP is stored as positive number (system applies as penalty)
   // ============================================================
-  const w = (name, wType, dmg, ap, reach, rangeLong, cost, enc, rarity, traits, checkboxes = {}) => ({
+  const w = (name, wType, dmg, ap, reach, rangeLong, cost, enc, rarity, customTraits, cb = {}) => ({
     name, type: "weapon", img: "icons/svg/sword.svg",
     system: {
       weaponType: wType, damage: dmg, armorPenetration: ap,
       rangeReach: reach, rangeLong: rangeLong || "", diceColor: "white",
       cost, encumbrance: enc, rarity, equipped: false,
-      traits: traits || "",
-      traitBrutal: checkboxes.brutal || false,
-      traitTwoHanded: checkboxes.twoHanded || false,
-      traitVersatile: checkboxes.versatile || false,
-      traitReach: checkboxes.reach || false,
-      traitThrown: checkboxes.thrown || false,
+      traits: customTraits || "",
+      traitBlock: cb.block || false,
+      traitBrutal: cb.brutal || false,
+      traitCouched: cb.couched || false,
+      traitFast: cb.fast || false,
+      traitFlaming: cb.flaming || false,
+      traitNimble: cb.nimble || false,
+      traitParry: cb.parry || false,
+      traitRepel: cb.repel || false,
+      traitStunning: cb.stunning || false,
+      traitSweep: cb.sweep || false,
+      traitTwoHanded: cb.twoHanded || false,
+      traitWindlass: cb.windlass || false,
     },
   });
 
   const weapons = [
     // --- COMMON MELEE (p.21) ---
-    w("Buckler",     "common", "M+0", 0, "5",  "",  "1 sp", 0, 0, "Nimble, Parry, Stunning"),
-    w("Club",        "common", "M+0", 0, "5",  "",  "1 cp", 1, 0, "Stunning"),
-    w("Dagger",      "common", "M-1", 2, "5",  "",  "1 sp", 0, 0, "Nimble"),
+    w("Buckler",     "common", "M+0", 0, "5",  "",  "1 sp", 0, 0, "", { nimble: true, parry: true, stunning: true }),
+    w("Club",        "common", "M+0", 0, "5",  "",  "1 cp", 1, 0, "", { stunning: true }),
+    w("Dagger",      "common", "M-1", 2, "5",  "",  "1 sp", 0, 0, "", { nimble: true }),
     w("Handaxe",     "common", "M+0", 1, "5",  "",  "1 sp", 2, 0, "", { brutal: true }),
-    w("Improvised",  "common", "M-2", 0, "5",  "",  "—",    0, 0, "Stunning"),
-    w("Shield",      "common", "M-2", 0, "5",  "",  "3 sp", 3, 0, "Block, Stunning"),
-    w("Shortsword",  "common", "M+0", 1, "5",  "",  "10 sp",1, 1, "Nimble"),
-    w("Spear",       "common", "M+0", 0, "10", "",  "2 sp", 3, 0, "Repel", { reach: true }),
-    w("Staff",       "common", "M+0", 0, "10", "",  "2 cp", 3, 0, "Stunning", { twoHanded: true, reach: true }),
-    w("Torch",       "common", "M-2", 0, "5",  "",  "1 cp", 1, 0, "Flaming, Stunning"),
+    w("Improvised",  "common", "M-2", 0, "5",  "",  "—",    0, 0, "", { stunning: true }),
+    w("Natural",     "common", "M+0", 0, "5",  "",  "—",    0, 0, "", { nimble: true, stunning: true }),
+    w("Shield",      "common", "M-2", 0, "5",  "",  "3 sp", 3, 0, "", { block: true, stunning: true }),
+    w("Shortsword",  "common", "M+0", 1, "5",  "",  "10 sp",1, 1, "", { nimble: true }),
+    w("Spear",       "common", "M+0", 0, "10", "",  "2 sp", 3, 0, "", { repel: true }),
+    w("Staff",       "common", "M+0", 0, "10", "",  "2 cp", 3, 0, "", { stunning: true, twoHanded: true }),
+    w("Torch",       "common", "M-2", 0, "5",  "",  "1 cp", 1, 0, "", { flaming: true, stunning: true }),
+    w("Unarmed",     "common", "M-3", 0, "5",  "",  "—",    0, 0, "", { stunning: true }),
 
     // --- HEAVY MELEE (p.22) ---
     w("Battleaxe",   "heavy", "M+2", 1, "5",  "",  "5 sp", 3, 0, "", { brutal: true, twoHanded: true }),
-    w("Broadsword",  "heavy", "M+1", 0, "5",  "",  "15 sp",2, 3, "Nimble, Parry"),
-    w("Flail",       "heavy", "M+1", 0, "5",  "",  "3 sp", 3, 0, "Sweep", { twoHanded: true }),
-    w("Halberd",     "heavy", "M+2", 2, "10", "",  "10 sp",4, 2, "Repel", { brutal: true, twoHanded: true, reach: true }),
-    w("Mace",        "heavy", "M+1", 3, "5",  "",  "5 sp", 2, 1, "Stunning"),
+    w("Broadsword",  "heavy", "M+1", 0, "5",  "",  "15 sp",2, 3, "", { nimble: true, parry: true }),
+    w("Flail",       "heavy", "M+1", 0, "5",  "",  "3 sp", 3, 0, "", { sweep: true, twoHanded: true }),
+    w("Halberd",     "heavy", "M+2", 2, "10", "",  "10 sp",4, 2, "", { brutal: true, repel: true, twoHanded: true }),
+    w("Mace",        "heavy", "M+1", 3, "5",  "",  "5 sp", 2, 1, "", { stunning: true }),
     w("Warhammer",   "heavy", "M+1", 3, "5",  "",  "10 sp",2, 2, "", { brutal: true }),
-    w("War Sword",   "heavy", "M+2", 1, "10", "",  "1 gc", 3, 3, "Sweep", { brutal: true, twoHanded: true, reach: true }),
+    w("War Sword",   "heavy", "M+2", 1, "10", "",  "1 gc", 3, 3, "", { brutal: true, sweep: true, twoHanded: true }),
 
     // --- BOWS (p.21) ---
     w("Longbow",     "bow", "3", 1, "70",  "120", "5 sp",  2, 1, "", { twoHanded: true }),
     w("Warbow",      "bow", "3", 2, "80",  "160", "10 sp", 3, 2, "", { twoHanded: true }),
-    w("Crossbow",    "bow", "5", 3, "60",  "120", "15 sp", 3, 2, "Windlass", { twoHanded: true }),
-    w("Arbalest",    "bow", "6", 4, "90",  "180", "1 gc",  4, 3, "Windlass", { twoHanded: true }),
+    w("Crossbow",    "bow", "5", 3, "60",  "120", "15 sp", 3, 2, "", { twoHanded: true, windlass: true }),
+    w("Arbalest",    "bow", "6", 4, "90",  "180", "1 gc",  4, 3, "", { twoHanded: true, windlass: true }),
 
     // --- THROWING (p.22) ---
-    w("Throwing Axe",  "throwing", "M+2", 1, "20", "40", "2 sp", 1, 0, "", { brutal: true, thrown: true }),
-    w("Javelin",       "throwing", "M+1", 2, "40", "80", "2 sp", 1, 1, "", { thrown: true }),
-    w("Throwing Knife","throwing", "M+0", 0, "20", "40", "1 sp", 0, 0, "", { thrown: true }),
+    w("Throwing Axe",  "throwing", "M+2", 1, "20", "40", "2 sp", 1, 0, "", { brutal: true }),
+    w("Javelin",       "throwing", "M+1", 2, "40", "80", "2 sp", 1, 1, ""),
+    w("Throwing Knife","throwing", "M+0", 0, "20", "40", "1 sp", 0, 0, ""),
   ];
 
   // ============================================================
@@ -506,18 +515,21 @@
   }
 
   // Helper: build an embedded weapon item
-  function npcWeapon(name, wType, dmg, ap, reach, traits, checkboxes = {}) {
+  function npcWeapon(name, wType, dmg, ap, reach, customTraits, cb = {}) {
     return {
       name, type: "weapon", img: "icons/svg/sword.svg",
       system: {
         weaponType: wType, damage: dmg, armorPenetration: ap,
         rangeReach: reach, rangeLong: "", diceColor: "white",
         cost: "", encumbrance: 0, rarity: 0, equipped: true,
-        traits: traits || "",
-        traitBrutal: checkboxes.brutal || false,
-        traitTwoHanded: checkboxes.twoHanded || false,
-        traitVersatile: false, traitReach: checkboxes.reach || false,
-        traitThrown: false,
+        traits: customTraits || "",
+        traitBlock: cb.block || false, traitBrutal: cb.brutal || false,
+        traitCouched: cb.couched || false, traitFast: cb.fast || false,
+        traitFlaming: cb.flaming || false, traitNimble: cb.nimble || false,
+        traitParry: cb.parry || false,
+        traitRepel: cb.repel || false, traitStunning: cb.stunning || false,
+        traitSweep: cb.sweep || false, traitTwoHanded: cb.twoHanded || false,
+        traitWindlass: cb.windlass || false,
       },
     };
   }
@@ -544,7 +556,7 @@
       "Common brigands and highway robbers.",
       "<strong>Sneaky.</strong> Bandits roll red dice for Stealth checks.",
       [
-        npcWeapon("Club", "common", "M+0", 0, "5", "Stunning"),
+        npcWeapon("Club", "common", "M+0", 0, "5", "", { stunning: true }),
         { ...tSneaky },
       ]
     ),
@@ -582,7 +594,7 @@
       "Small, cunning, and cowardly when alone — dangerous in numbers.",
       "<strong>Slippery.</strong> Goblins roll red dice for Acrobatics checks.",
       [
-        npcWeapon("Spear", "common", "M+0", 0, "10", "Repel", { reach: true }),
+        npcWeapon("Spear", "common", "M+0", 0, "10", "", { repel: true }),
         { ...tSlippery },
       ]
     ),
@@ -594,7 +606,7 @@
       "A goblin spellcaster wielding dangerous arcane power.",
       "<strong>Spells:</strong> Counterspell, Direct Lightning, Flash of Light, Stagger.<br><strong>Slippery.</strong> Goblins roll red dice for Acrobatics checks.",
       [
-        npcWeapon("Staff", "common", "M+0", 0, "10", "Stunning", { twoHanded: true, reach: true }),
+        npcWeapon("Staff", "common", "M+0", 0, "10", "", { stunning: true, twoHanded: true }),
         { ...tSlippery },
       ]
     ),

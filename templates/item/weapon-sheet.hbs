@@ -73,29 +73,64 @@
     <div class="tab" data-group="primary" data-tab="traits">
       <div class="pd6-weapon-traits-grid">
         <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitBlock" {{#if system.traitBlock}}checked{{/if}} />
+          <span class="pd6-trait-name">Block</span>
+          <span class="pd6-trait-effect">Red defense dice while wielding</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
           <input type="checkbox" name="system.traitBrutal" {{#if system.traitBrutal}}checked{{/if}} />
           <span class="pd6-trait-name">Brutal</span>
           <span class="pd6-trait-effect">Damage dice → Red (3+)</span>
         </label>
         <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitCouched" {{#if system.traitCouched}}checked{{/if}} />
+          <span class="pd6-trait-name">Couched</span>
+          <span class="pd6-trait-effect">Mounted charge only; lost after hit</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitFast" {{#if system.traitFast}}checked{{/if}} />
+          <span class="pd6-trait-name">Fast</span>
+          <span class="pd6-trait-effect">+1 bonus to attack rolls</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitFlaming" {{#if system.traitFlaming}}checked{{/if}} />
+          <span class="pd6-trait-name">Flaming</span>
+          <span class="pd6-trait-effect">Deals flaming damage</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitNimble" {{#if system.traitNimble}}checked{{/if}} />
+          <span class="pd6-trait-name">Nimble</span>
+          <span class="pd6-trait-effect">Use Agility for Fighting instead of Might</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitParry" {{#if system.traitParry}}checked{{/if}} />
+          <span class="pd6-trait-name">Parry</span>
+          <span class="pd6-trait-effect">Red defense dice vs melee attacks</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitRepel" {{#if system.traitRepel}}checked{{/if}} />
+          <span class="pd6-trait-name">Repel</span>
+          <span class="pd6-trait-effect">No charge bonus for enemies</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitStunning" {{#if system.traitStunning}}checked{{/if}} />
+          <span class="pd6-trait-name">Stunning</span>
+          <span class="pd6-trait-effect">No penalty for subdual damage</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
+          <input type="checkbox" name="system.traitSweep" {{#if system.traitSweep}}checked{{/if}} />
+          <span class="pd6-trait-name">Sweep</span>
+          <span class="pd6-trait-effect">Two attacks vs separate targets</span>
+        </label>
+        <label class="pd6-weapon-trait-checkbox">
           <input type="checkbox" name="system.traitTwoHanded" {{#if system.traitTwoHanded}}checked{{/if}} />
           <span class="pd6-trait-name">Two-Handed</span>
-          <span class="pd6-trait-effect">Requires both hands to wield</span>
+          <span class="pd6-trait-effect">Requires both hands to attack</span>
         </label>
         <label class="pd6-weapon-trait-checkbox">
-          <input type="checkbox" name="system.traitVersatile" {{#if system.traitVersatile}}checked{{/if}} />
-          <span class="pd6-trait-name">Versatile</span>
-          <span class="pd6-trait-effect">Can be used one or two-handed</span>
-        </label>
-        <label class="pd6-weapon-trait-checkbox">
-          <input type="checkbox" name="system.traitReach" {{#if system.traitReach}}checked{{/if}} />
-          <span class="pd6-trait-name">Reach</span>
-          <span class="pd6-trait-effect">+5 ft melee range (10 ft total)</span>
-        </label>
-        <label class="pd6-weapon-trait-checkbox">
-          <input type="checkbox" name="system.traitThrown" {{#if system.traitThrown}}checked{{/if}} />
-          <span class="pd6-trait-name">Thrown</span>
-          <span class="pd6-trait-effect">Uses Shooting skill instead of Fighting</span>
+          <input type="checkbox" name="system.traitWindlass" {{#if system.traitWindlass}}checked{{/if}} />
+          <span class="pd6-trait-name">Windlass</span>
+          <span class="pd6-trait-effect">Requires Reload action</span>
         </label>
       </div>
       <div class="pd6-field pd6-custom-traits">

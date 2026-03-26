@@ -3,7 +3,7 @@
 A Foundry VTT system implementation for **Perilous D6 (PD6)**, a setting-agnostic fantasy tabletop RPG built around dice pools of d6s with white, red, and black dice mechanics.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
-![Version](https://img.shields.io/badge/Version-0.2.8-blue)
+![Version](https://img.shields.io/badge/Version-0.2.9-blue)
 
 ## Installation
 
@@ -61,7 +61,7 @@ Streamlined sheet with flat skill pools (no attribute splitting), editable Grit 
 
 ### Item Types
 
-- **Weapons**: Type (Common, Heavy, Bow, Throwing), damage formula (melee `M+X` or ranged fixed), Armour Penetration, range/reach, dice colour. Checkbox traits (Brutal, Two-Handed, Versatile, Reach, Thrown) with mechanical effects, plus a custom text field. Attack and standalone damage roll buttons on the sheet.
+- **Weapons**: Type (Common, Heavy, Bow, Throwing), damage formula (melee `M+X` or ranged fixed), Armour Penetration, range/reach, dice colour. 12 checkbox traits matching the rulebook (Block, Brutal, Couched, Fast, Flaming, Nimble, Parry, Repel, Stunning, Sweep, Two-Handed, Windlass) — Block, Brutal, Fast, Nimble, and Parry have automated mechanical effects. Plus a custom text field. Attack and standalone damage roll buttons on the sheet.
 - **Armour**: Type (Light, Medium, Heavy), Armour Value, penalty. Checkbox traits (Reinforced, Clanging) with mechanical effects, plus a custom text field.
 - **Equipment**: General gear with cost, encumbrance, rarity, and quantity.
 - **Spells**: DV, duration, range, spell save, element, and a "Failed Today" tracker for Magister mechanics.
@@ -197,7 +197,7 @@ The system uses V13-compatible APIs: `grid.distance`/`grid.units`, `CONST.CHAT_M
 
 ```
 pd6/
-├── system.json              # System manifest (v0.2.8)
+├── system.json              # System manifest (v0.2.9)
 ├── template.json            # Actor & Item data models
 ├── pd6.mjs                  # Main entry point, hooks, Handlebars helpers
 ├── css/
@@ -244,7 +244,6 @@ pd6/
 
 ## To Do
 
-- [ ] Miracle usage automation — escalating DV per day, failure locks out for the day
 - [ ] Active Effects integration — conditions that mechanically modify dice pools
 - [ ] Initiative tie-breaking — re-roll prompt when sides tie
 - [ ] Chat whisper support for GM-only NPC rolls

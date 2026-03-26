@@ -119,9 +119,16 @@
       "diceColor": "white",
       "traitBrutal": false,
       "traitTwoHanded": false,
-      "traitVersatile": false,
-      "traitReach": false,
-      "traitThrown": false
+      "traitBlock": false,
+      "traitCouched": false,
+      "traitFast": false,
+      "traitFlaming": false,
+      "traitNimble": false,
+      "traitParry": false,
+      "traitRepel": false,
+      "traitStunning": false,
+      "traitSweep": false,
+      "traitWindlass": false
     },
     "armor": {
       "templates": ["physicalItem"],

@@ -290,7 +290,7 @@ export class PD6Actor extends Actor {
     const weaponData = item.system;
     let skillKey, pool;
 
-    if (item.system.weaponType === "bow" || item.system.weaponType === "throwing" || item.system.traitThrown) {
+    if (item.system.weaponType === "bow" || item.system.weaponType === "throwing") {
       skillKey = "shooting";
     } else {
       skillKey = "fighting";
@@ -298,6 +298,21 @@ export class PD6Actor extends Actor {
 
     const skill = this.system.skills[skillKey];
     pool = skill.pool || 0;
+
+    // Nimble: use Agility instead of Might for Fighting if it gives a better pool
+    if (skillKey === "fighting" && item.system.traitNimble) {
+      const agility = this.system.attributes.agility?.value || 0;
+      const might = this.system.attributes.might?.value || 0;
+      if (agility > might) {
+        // Recalculate pool: skill ranks + agility instead of skill ranks + might
+        pool = (skill.value || 0) + agility;
+      }
+    }
+
+    // Fast: +1 bonus to attack rolls
+    if (item.system.traitFast) {
+      pool += 1;
+    }
 
     // Apply modifiers
     if (options.bonus) pool += options.bonus;

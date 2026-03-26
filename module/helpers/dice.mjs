@@ -944,10 +944,37 @@ export class PD6Dice {
     // Gather trait effects for the defense skill
     const traitInfo = this._getTraitInfo(defender, "defense");
 
+    // Check equipped weapons for Block/Parry traits
+    let weaponDefenseNote = "";
+    if (defender.items) {
+      const weaponType = btn.dataset.weaponType || "common";
+      const isMeleeAttack = (weaponType === "common" || weaponType === "heavy");
+      const equippedWeapons = defender.items.filter(i => i.type === "weapon" && i.system.equipped);
+
+      for (const wep of equippedWeapons) {
+        if (wep.system.traitBlock && traitInfo.defaultColor === "white") {
+          traitInfo.defaultColor = "red";
+          weaponDefenseNote += `<div class="pd6-trait-reminder"><i class="fas fa-shield-alt"></i> <strong>Block (${wep.name}):</strong> Red defense dice</div>`;
+        }
+        if (wep.system.traitParry && isMeleeAttack && traitInfo.defaultColor === "white") {
+          traitInfo.defaultColor = "red";
+          weaponDefenseNote += `<div class="pd6-trait-reminder"><i class="fas fa-shield-alt"></i> <strong>Parry (${wep.name}):</strong> Red defense dice vs melee</div>`;
+        }
+      }
+
+      // Parry dual-wield bonus: +1 defense when wielding two Parry weapons
+      const parryWeapons = equippedWeapons.filter(w => w.system.traitParry);
+      if (parryWeapons.length >= 2 && isMeleeAttack) {
+        traitInfo.bonusDice += 1;
+        weaponDefenseNote += `<div class="pd6-trait-reminder"><i class="fas fa-shield-alt"></i> <strong>Dual Parry:</strong> +1 defense die (two Parry weapons)</div>`;
+      }
+    }
+
     const mods = await this._modifierDialog(
       `Defense: ${defender.name}`,
       traitInfo.defaultColor,
-      `${traitInfo.remindersHtml ? `<div class="pd6-trait-reminders">${traitInfo.remindersHtml}</div>` : ""}
+      `${weaponDefenseNote}
+      ${traitInfo.remindersHtml ? `<div class="pd6-trait-reminders">${traitInfo.remindersHtml}</div>` : ""}
       ${traitInfo.infoHtml ? `<div class="pd6-trait-info-line">${traitInfo.infoHtml}</div>` : ""}
       <div class="form-group">
         <label>Base Defense Pool: <strong>${defensePool}</strong></label>
