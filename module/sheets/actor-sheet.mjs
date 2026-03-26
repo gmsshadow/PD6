@@ -149,6 +149,9 @@ export class PD6ActorSheet extends ActorSheet {
     // Spell casting
     on(".pd6-cast-spell", this._onCastSpell.bind(this));
 
+    // Availability check
+    on(".pd6-check-availability", this._onCheckAvailability.bind(this));
+
     // Miracle casting
     on(".pd6-cast-miracle", this._onCastMiracle.bind(this));
 
@@ -685,6 +688,65 @@ export class PD6ActorSheet extends ActorSheet {
     });
 
     ui.notifications.info(`${this.actor.name} has rested and recovered.`);
+  }
+
+  /**
+   * Handle rarity availability check — Fortune vs item's Rarity DV (p.19).
+   */
+  async _onCheckAvailability(event) {
+    event.preventDefault();
+    const itemId = event.currentTarget.closest(".pd6-item").dataset.itemId;
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    const rarity = Number(item.system.rarity) || 0;
+    if (rarity <= 0) {
+      ui.notifications.info(`${item.name} is commonly available — no check needed.`);
+      return;
+    }
+
+    const fortunePool = this.actor.system.skills?.fortune?.pool || 1;
+    const traitInfo = PD6Dice._getTraitInfo(this.actor, "fortune");
+
+    const mods = await PD6Dice._modifierDialog(
+      `Availability: ${item.name}`,
+      traitInfo.defaultColor || "white",
+      `${traitInfo.remindersHtml || ""}
+      ${traitInfo.infoHtml || ""}
+      <div class="form-group">
+        <label>Fortune Pool: <strong>${fortunePool}</strong> dice</label>
+      </div>
+      <div class="form-group">
+        <label>Rarity DV: <strong>${rarity}</strong></label>
+      </div>`
+    );
+    if (!mods) return;
+
+    const finalPool = Math.max(fortunePool + traitInfo.bonusDice + mods.modifier, 1);
+    const rollData = await PD6Dice.rollPool(finalPool, mods.diceColor);
+    const colorLabel = PD6Dice.COLORS[mods.diceColor]?.label || "White";
+
+    const success = rollData.successes >= rarity;
+    const resultText = success
+      ? `<span class="pd6-success">AVAILABLE — ${item.name} can be purchased</span>`
+      : `<span class="pd6-failure">UNAVAILABLE — ${item.name} is not available here</span>`;
+
+    const content = `
+      <div class="pd6-chat-roll pd6-availability-roll">
+        <h3 class="pd6-roll-header"><i class="fas fa-store"></i> Availability: ${item.name}</h3>
+        <div class="pd6-roll-info">
+          <span class="pd6-pool-info">${finalPool} ${colorLabel} Fortune dice vs Rarity ${rarity}</span>
+          ${item.system.cost ? `<span class="pd6-formula-info">Cost: ${item.system.cost}</span>` : ""}
+        </div>
+        ${PD6Dice.renderDice(rollData)}
+        <div class="pd6-roll-summary">
+          <span class="pd6-successes">${rollData.successes} Successes</span>
+          ${rollData.explosions > 0 ? `<span class="pd6-explosions">(${rollData.explosions} exploded)</span>` : ""}
+        </div>
+        <div class="pd6-roll-result">${resultText}</div>
+      </div>`;
+
+    await PD6Dice._postRollMessage(content, this.actor, rollData);
   }
 
   /**

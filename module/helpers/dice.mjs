@@ -114,6 +114,11 @@ export class PD6Dice {
       style: CONST.CHAT_MESSAGE_STYLES.ROLL,
     };
 
+    // Whisper NPC rolls to GM only
+    if (actor?.type === "npc" && game.user.isGM) {
+      chatData.whisper = game.users.filter(u => u.isGM).map(u => u.id);
+    }
+
     // If DSN is present, show the 3D dice first, then post silently.
     // If not, play the normal dice sound.
     if (hasDSN && rollData?.roll) {

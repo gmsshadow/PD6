@@ -3,7 +3,7 @@
 A Foundry VTT system implementation for **Perilous D6 (PD6)**, a setting-agnostic fantasy tabletop RPG built around dice pools of d6s with white, red, and black dice mechanics.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
-![Version](https://img.shields.io/badge/Version-0.2.11-blue)
+![Version](https://img.shields.io/badge/Version-0.2.13-blue)
 
 ## Installation
 
@@ -63,7 +63,7 @@ Streamlined sheet with flat skill pools (no attribute splitting), editable Grit 
 
 - **Weapons**: Type (Common, Heavy, Bow, Throwing), damage formula (melee `M+X` or ranged fixed), Armour Penetration, range/reach, dice colour. 12 checkbox traits matching the rulebook (Block, Brutal, Couched, Fast, Flaming, Nimble, Parry, Repel, Stunning, Sweep, Two-Handed, Windlass) — Block, Brutal, Fast, Nimble, and Parry have automated mechanical effects. Plus a custom text field. Attack and standalone damage roll buttons on the sheet.
 - **Armour**: Type (Light, Medium, Heavy), Armour Value, penalty. Checkbox traits (Reinforced, Clanging) with mechanical effects, plus a custom text field.
-- **Equipment**: General gear with cost, encumbrance, rarity, and quantity.
+- **Equipment**: General gear with cost, encumbrance, rarity, and quantity. Items with rarity show a store icon — click to roll a Fortune check vs the Rarity DV to determine if the item is available for purchase (p.19).
 - **Spells**: DV, duration, range, spell save, element, and a "Failed Today" tracker for Magister mechanics.
 - **Miracles**: Range, duration, and spell save for Cultist divine abilities.
 - **Traits**: Special traits with up to 3 independent effect slots per trait item. Each slot can be a different effect type (dice colour override, bonus/penalty dice, attribute modifier, skill rank modifier, critical injury). Supports passive traits (always active, auto-applied to rolls) and conditional traits (reminder banners shown in roll dialogs). Target Skills field accepts skill names plus special keywords: `armor`, `damage`, `melee-damage`, `ranged-damage`, `defense`, and `all`.
@@ -199,7 +199,7 @@ The system uses V13-compatible APIs: `grid.distance`/`grid.units`, `CONST.CHAT_M
 
 ```
 pd6/
-├── system.json              # System manifest (v0.2.11)
+├── system.json              # System manifest (v0.2.13)
 ├── template.json            # Actor & Item data models
 ├── pd6.mjs                  # Main entry point, hooks, Handlebars helpers
 ├── css/
@@ -248,10 +248,8 @@ pd6/
 ## To Do
 
 - [ ] Active Effects integration — conditions that mechanically modify dice pools
-- [ ] Chat whisper support for GM-only NPC rolls
 - [ ] Full i18n localisation
 - [ ] ApplicationV2 migration for sheets
-- [ ] Rarity-based availability rolls for purchasing equipment
 - [ ] Character advancement automation (EXP spending with validation)
 
 ## Contributing

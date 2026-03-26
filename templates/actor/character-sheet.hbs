@@ -317,6 +317,7 @@
           <span class="pd6-item-detail">Enc {{this.system.encumbrance}}</span>
           <span class="pd6-item-detail">x{{this.system.quantity}}</span>
           <div class="pd6-item-controls">
+            {{#if this.system.rarity}}<a class="pd6-check-availability" title="Check Availability (Fortune vs Rarity {{this.system.rarity}})"><i class="fas fa-store"></i></a>{{/if}}
             <a class="pd6-item-equip {{#if this.system.equipped}}pd6-equipped{{/if}}" 
                title="Toggle Equip"><i class="fas fa-check"></i></a>
             <a class="pd6-item-edit" title="Edit"><i class="fas fa-edit"></i></a>
