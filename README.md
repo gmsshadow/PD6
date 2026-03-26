@@ -3,7 +3,7 @@
 A Foundry VTT system implementation for **Perilous D6 (PD6)**, a setting-agnostic fantasy tabletop RPG built around dice pools of d6s with white, red, and black dice mechanics.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
-![Version](https://img.shields.io/badge/Version-0.2.10-blue)
+![Version](https://img.shields.io/badge/Version-0.2.11-blue)
 
 ## Installation
 
@@ -174,14 +174,15 @@ All rolls use Foundry's native Roll API with exploding dice (`Xd6x=6`), enabling
 
 ## Compendium Packs
 
-Seven compendium packs populated via the setup macro (`macros/populate-compendiums.js`):
+Eight compendium packs populated via the setup macro (`macros/populate-compendiums.js`):
 
 | Pack | Type | Contents |
 |------|------|----------|
 | **PD6 Classes** | Item | 4 classes — Cultist, Magister, Soldier, Scoundrel (exact skill bonuses, proficiencies, and class traits from pp.3-4) |
 | **PD6 Traits** | Item | 16 special traits from p.5 + 13 creature traits from pp.30-31 (29 total) |
-| **PD6 Weapons** | Item | 24 weapons — 10 Common, 7 Heavy, 4 Bows, 3 Throwing (exact stats from pp.21-22) |
+| **PD6 Weapons** | Item | 26 weapons — 12 Common, 7 Heavy, 4 Bows, 3 Throwing (exact stats from pp.21-22) |
 | **PD6 Armour** | Item | 9 armour sets — 3 Light, 3 Medium, 3 Heavy (exact stats from p.23) |
+| **PD6 Equipment** | Item | 48 items — Containers, Light Sources, Healing Supplies, Miscellanea, Food and Drink (exact stats from pp.23-24) |
 | **PD6 Spells** | Item | 17 spells — all arcane spells from pp.26-28 with DV, duration, range, spell save, element |
 | **PD6 Miracles** | Item | 9 miracles — all divine miracles from p.29 with range, duration, spell save |
 | **PD6 Bestiary** | Actor | 10 creatures — Bandit, Brown Bear, Forest Spirit, Goblin, Goblin Shaman, Lesser Demon, Ogre, Orc, Wolf, Zombie (exact stats from pp.30-31 with embedded weapons and traits) |
@@ -198,7 +199,7 @@ The system uses V13-compatible APIs: `grid.distance`/`grid.units`, `CONST.CHAT_M
 
 ```
 pd6/
-├── system.json              # System manifest (v0.2.10)
+├── system.json              # System manifest (v0.2.11)
 ├── template.json            # Actor & Item data models
 ├── pd6.mjs                  # Main entry point, hooks, Handlebars helpers
 ├── css/
@@ -213,6 +214,7 @@ pd6/
 │   ├── weapons/
 │   ├── armor/
 │   ├── bestiary/
+│   ├── equipment/
 │   ├── spells/
 │   └── miracles/
 ├── module/

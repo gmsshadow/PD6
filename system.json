@@ -2,7 +2,7 @@
   "id": "pd6",
   "title": "Perilous D6",
   "description": "A setting-agnostic fantasy tabletop roleplaying system using dice pools of d6s with white, red, and black dice mechanics.",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "compatibility": {
     "minimum": "12",
     "verified": "13",
@@ -77,6 +77,13 @@
       "name": "miracles",
       "label": "PD6 Miracles",
       "path": "packs/miracles",
+      "type": "Item",
+      "system": "pd6"
+    },
+    {
+      "name": "equipment",
+      "label": "PD6 Equipment",
+      "path": "packs/equipment",
       "type": "Item",
       "system": "pd6"
     }

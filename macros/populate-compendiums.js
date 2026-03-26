@@ -445,6 +445,79 @@
   ];
 
   // ============================================================
+  //  EQUIPMENT — All items from PD6 2.0 pp.23-24
+  // ============================================================
+  const eq = (name, cost, enc, rarity, desc) => ({
+    name, type: "equipment", img: "icons/svg/item-bag.svg",
+    system: {
+      description: desc ? `<p>${desc}</p>` : "",
+      cost: cost || "", encumbrance: enc || 0, rarity: rarity || 0,
+      quantity: 1, equipped: false,
+    },
+  });
+
+  const equipment = [
+    // --- CONTAINERS (p.23) ---
+    eq("Cask",          "4 sp",  4, 0, "A large barrel for storing liquids or goods."),
+    eq("Large Chest",   "8 sp",  3, 0, "A sturdy chest for storing equipment."),
+    eq("Satchel",       "1 sp",  1, 0, "A small shoulder bag for carrying personal items."),
+    eq("Small Chest",   "4 sp",  2, 0, "A compact chest for valuables."),
+    eq("Travel Pack",   "3 sp",  1, 0, "A backpack suitable for long journeys."),
+
+    // --- LIGHT SOURCES (p.23) ---
+    eq("Candle",        "2 cp",  0, 0, "A simple wax candle. Produces light within 15 ft."),
+    eq("Lantern",       "7 sp",  2, 0, "An oil lantern. Produces light within 40 ft."),
+    eq("Torch",         "1 cp",  1, 0, "A wooden torch. Produces light within 25 ft."),
+
+    // --- HEALING SUPPLIES (p.24) ---
+    eq("Medical Kit",   "10 sp", 1, 0, "Required for performing Heal checks. Consumed upon use."),
+
+    // --- MISCELLANEA (p.24) ---
+    eq("Bedroll",       "2 cp",  1, 0, "A simple bedroll for sleeping outdoors."),
+    eq("Book",          "1 gc",  0, 2, "A bound book of knowledge or literature."),
+    eq("Boots",         "1 sp",  0, 1, "A pair of sturdy leather boots."),
+    eq("Cauldron",      "2 sp",  3, 0, "A large iron pot for cooking."),
+    eq("Chain (per ft)","5 sp",  1, 0, "A length of iron chain."),
+    eq("Chalk",         "2 cp",  0, 0, "A stick of chalk for marking surfaces."),
+    eq("Cloak",         "4 cp",  0, 0, "A travelling cloak for warmth and weather protection."),
+    eq("Clothing",      "3 cp",  0, 0, "A set of common clothing."),
+    eq("Crowbar",       "3 cp",  1, 0, "An iron crowbar for prying open doors and crates."),
+    eq("Cutlery",       "1 cp",  0, 1, "A basic set of eating utensils."),
+    eq("Dice",          "2 cp",  0, 0, "A set of gaming dice."),
+    eq("Grappling Hook","4 cp",  1, 0, "An iron hook on a length of rope for climbing."),
+    eq("Hammer",        "1 cp",  1, 0, "A simple hammer for nails and construction."),
+    eq("Healing Kit",   "10 sp", 2, 1, "A leather case containing bandages, salves, and surgical tools."),
+    eq("Lock",          "1 sp",  0, 1, "A simple padlock with key."),
+    eq("Map (City)",    "4 sp",  0, 1, "A map of a city and its surroundings."),
+    eq("Map (Region)",  "1 gc",  0, 2, "A map of a wider region or province."),
+    eq("Map (World)",   "30 gc", 0, 4, "A rare map depicting the known world."),
+    eq("Mirror",        "8 sp",  0, 1, "A small polished metal mirror."),
+    eq("Nails (5)",     "1 cp",  0, 0, "A handful of iron nails."),
+    eq("Oil Flask",     "1 sp",  0, 0, "A flask of oil for lanterns or other uses."),
+    eq("Parchment",     "4 cp",  0, 0, "A sheet of parchment for writing."),
+    eq("Playing Cards", "1 sp",  0, 0, "A deck of playing cards."),
+    eq("Rope (50 ft)",  "8 cp",  1, 0, "A 50-foot length of hemp rope."),
+    eq("Saddle",        "10 sp", 3, 1, "A riding saddle for a horse or similar mount."),
+    eq("Shoes",         "5 cp",  0, 0, "A pair of simple shoes."),
+    eq("Spyglass",      "2 gc",  1, 3, "A collapsible brass spyglass for viewing distant objects."),
+    eq("Tent",          "2 sp",  4, 0, "A canvas tent large enough for two people."),
+    eq("Tinderbox",     "1 sp",  0, 0, "Flint and steel for starting fires."),
+    eq("Waterskin",     "4 cp",  0, 0, "A leather waterskin holding about a litre of liquid."),
+    eq("Whetstone",     "1 cp",  0, 0, "A stone for sharpening bladed weapons."),
+    eq("Writing Kit",   "12 sp", 1, 1, "Ink, quills, and a small case for writing on the go."),
+
+    // --- FOOD AND DRINK (p.24) ---
+    eq("Ale",           "2 cp",  0, 1, "Enough ale for a party of four."),
+    eq("Meal (Poor)",   "1 cp",  0, 0, "A meagre meal for a party of four."),
+    eq("Meal (Common)", "2 cp",  0, 1, "A decent meal for a party of four."),
+    eq("Meal (Fine)",   "2 sp",  0, 3, "A fine meal for a party of four."),
+    eq("Rations (1 day)","3 cp", 0, 0, "Dried food sufficient for one day of travel."),
+    eq("Wine",          "2 cp",  0, 1, "A quantity of common wine for a party of four."),
+    eq("Wine (Fine)",   "6 sp",  0, 3, "A quantity of fine wine for a party of four."),
+    eq("Spirits",       "2 cp",  0, 1, "A quantity of spirits for a party of four."),
+  ];
+
+  // ============================================================
   //  BESTIARY — All creatures from PD6 2.0 pp.30-31
   // ============================================================
   async function populateActorPack(packName, actors) {
@@ -683,8 +756,9 @@
   const ac = await populatePack("armor", armor);             total += ac;
   const sc = await populatePack("spells", spells);           total += sc;
   const mc = await populatePack("miracles", miracles);       total += mc;
+  const ec = await populatePack("equipment", equipment);     total += ec;
   const bc = await populateActorPack("bestiary", bestiary);  total += bc;
 
-  console.log(`PD6 | Compendiums populated: ${cc} classes, ${tc} traits, ${wc} weapons, ${ac} armour, ${sc} spells, ${mc} miracles, ${bc} bestiary`);
-  ui.notifications.info(`PD6 Compendiums populated! ${total} items total (${cc} classes, ${tc} traits, ${wc} weapons, ${ac} armour, ${sc} spells, ${mc} miracles, ${bc} creatures).`);
+  console.log(`PD6 | Compendiums populated: ${cc} classes, ${tc} traits, ${wc} weapons, ${ac} armour, ${sc} spells, ${mc} miracles, ${ec} equipment, ${bc} bestiary`);
+  ui.notifications.info(`PD6 Compendiums populated! ${total} items total (${cc} classes, ${tc} traits, ${wc} weapons, ${ac} armour, ${sc} spells, ${mc} miracles, ${ec} equipment, ${bc} creatures).`);
 })();
