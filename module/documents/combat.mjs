@@ -35,13 +35,43 @@ export class PD6Combat extends Combat {
       });
     }
 
-    // ---- 3. Rank sides by successes (descending) ----
-    sideResults.sort((a, b) => {
-      if (b.successes !== a.successes) return b.successes - a.successes;
-      // Tiebreaker: re-roll would be RAW, but for convenience we use
-      // total dice rolled (more explosions = slight edge)
-      return b.rollData.results.length - a.rollData.results.length;
-    });
+    // ---- 3. Resolve ties with re-rolls ----
+    let rerollRound = 0;
+    const maxRerolls = 5; // safety limit
+
+    while (rerollRound < maxRerolls) {
+      // Check for ties among sides
+      const successCounts = sideResults.map(s => s.successes);
+      const hasTie = successCounts.some((val, i) =>
+        successCounts.some((other, j) => i !== j && val === other)
+      );
+
+      if (!hasTie) break;
+
+      rerollRound++;
+
+      // Find tied groups and re-roll them
+      const seen = {};
+      for (const side of sideResults) {
+        const key = side.successes;
+        if (!seen[key]) seen[key] = [];
+        seen[key].push(side);
+      }
+
+      for (const [, group] of Object.entries(seen)) {
+        if (group.length < 2) continue; // not a tie
+        for (const side of group) {
+          const pool = this._getLeadershipPool(side.leader);
+          const rollData = await PD6Dice.rollPool(pool, "white");
+          side.rollData = rollData;
+          side.successes = rollData.successes;
+          side.rerolled = rerollRound;
+        }
+      }
+    }
+
+    // ---- 4. Rank sides by successes (descending) ----
+    sideResults.sort((a, b) => b.successes - a.successes);
 
     // ---- 4. Assign initiative values ----
     // Winning side gets the highest base value; all members of a side share
@@ -147,6 +177,7 @@ export class PD6Combat extends Combat {
       const diceHtml = PD6Dice.renderDice(side.rollData);
       const rankLabel = i === 0 ? "ACTS FIRST" : `Acts ${this._ordinal(i + 1)}`;
       const rankClass = i === 0 ? "pd6-init-winner" : "pd6-init-loser";
+      const rerollNote = side.rerolled ? `<div class="pd6-init-reroll"><em>Re-rolled (tie-break round ${side.rerolled})</em></div>` : "";
 
       rows += `
         <div class="pd6-init-side ${rankClass}">
@@ -157,6 +188,7 @@ export class PD6Combat extends Combat {
           <div class="pd6-init-leader">
             Leader: <strong>${side.leader.name}</strong> (${side.pool} dice)
           </div>
+          ${rerollNote}
           ${diceHtml}
           <div class="pd6-init-successes">
             ${side.successes} Success${side.successes !== 1 ? "es" : ""}

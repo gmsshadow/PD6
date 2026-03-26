@@ -3,7 +3,7 @@
 A Foundry VTT system implementation for **Perilous D6 (PD6)**, a setting-agnostic fantasy tabletop RPG built around dice pools of d6s with white, red, and black dice mechanics.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
-![Version](https://img.shields.io/badge/Version-0.2.9-blue)
+![Version](https://img.shields.io/badge/Version-0.2.10-blue)
 
 ## Installation
 
@@ -156,6 +156,7 @@ Side-based group initiative matching PD6's company-based combat:
 - Leaders make **opposed Leadership rolls**.
 - **Winning side acts first**. All members share the same initiative value.
 - **Next Side** button (people-arrows icon in combat tracker) skips to the opposing side with a chat announcement.
+- **Tie-breaking**: If sides tie on successes, leaders automatically re-roll until the tie is broken (up to 5 rounds). The chat card shows which sides were re-rolled.
 
 ### Critical Injury Table
 
@@ -197,7 +198,7 @@ The system uses V13-compatible APIs: `grid.distance`/`grid.units`, `CONST.CHAT_M
 
 ```
 pd6/
-├── system.json              # System manifest (v0.2.9)
+├── system.json              # System manifest (v0.2.10)
 ├── template.json            # Actor & Item data models
 ├── pd6.mjs                  # Main entry point, hooks, Handlebars helpers
 ├── css/
@@ -245,7 +246,6 @@ pd6/
 ## To Do
 
 - [ ] Active Effects integration — conditions that mechanically modify dice pools
-- [ ] Initiative tie-breaking — re-roll prompt when sides tie
 - [ ] Chat whisper support for GM-only NPC rolls
 - [ ] Full i18n localisation
 - [ ] ApplicationV2 migration for sheets

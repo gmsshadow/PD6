@@ -1528,3 +1528,10 @@
 .pd6-rest-summary li {
   margin-bottom: 2px;
 }
+
+/* ---------- Initiative Tie-Break ---------- */
+.pd6-init-reroll {
+  font-size: 0.75rem;
+  color: #cc9900;
+  margin: 2px 0;
+}
