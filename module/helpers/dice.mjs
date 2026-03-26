@@ -143,6 +143,115 @@ export class PD6Dice {
     return game.actors.get(actorId) || null;
   }
 
+  /* ==================================================================
+     GENERIC DICE ROLLER (independent of sheets)
+     ================================================================== */
+
+  /**
+   * Open a dialog for a general-purpose dice roll.
+   * Accessible from scene controls or chat command.
+   * @param {object} opts  Optional defaults { pool, color, label }
+   */
+  static async rollGeneric(opts = {}) {
+    const defaultPool = opts.pool || 1;
+    const defaultColor = opts.color || "white";
+    const defaultLabel = opts.label || "";
+
+    const content = `
+      <form class="pd6-generic-roll-form">
+        <div class="form-group">
+          <label>Label (optional)</label>
+          <input type="text" name="label" value="${defaultLabel}" placeholder="e.g. Strength test, house rule roll" />
+        </div>
+        <div class="form-group">
+          <label>Number of Dice</label>
+          <input type="number" name="pool" value="${defaultPool}" min="1" max="50" autofocus />
+        </div>
+        <div class="form-group">
+          <label>Dice Colour</label>
+          <select name="diceColor">
+            <option value="white" ${defaultColor === "white" ? "selected" : ""}>White (4+)</option>
+            <option value="red" ${defaultColor === "red" ? "selected" : ""}>Red (3+)</option>
+            <option value="black" ${defaultColor === "black" ? "selected" : ""}>Black (2+)</option>
+          </select>
+        </div>
+      </form>`;
+
+    const result = await new Promise((resolve) => {
+      new Dialog({
+        title: "PD6 Dice Roller",
+        content,
+        buttons: {
+          roll: {
+            icon: '<i class="fas fa-dice-d6"></i>',
+            label: "Roll",
+            callback: (html) => {
+              const el = html instanceof HTMLElement ? html : html[0];
+              resolve({
+                label: el.querySelector('[name="label"]').value || "",
+                pool: parseInt(el.querySelector('[name="pool"]').value) || 1,
+                diceColor: el.querySelector('[name="diceColor"]').value || "white",
+              });
+            },
+          },
+          cancel: { label: "Cancel", callback: () => resolve(null) },
+        },
+        default: "roll",
+        close: () => resolve(null),
+      }).render(true);
+    });
+
+    if (!result) return;
+
+    const pool = Math.max(result.pool, 1);
+    const rollData = await this.rollPool(pool, result.diceColor);
+    const colorLabel = this.COLORS[result.diceColor]?.label || "White";
+    const header = result.label || "Dice Roll";
+
+    const chatContent = `
+      <div class="pd6-chat-roll pd6-generic-roll">
+        <h3 class="pd6-roll-header"><i class="fas fa-dice-d6"></i> ${header}</h3>
+        <div class="pd6-roll-info">
+          <span class="pd6-pool-info">${pool} ${colorLabel} dice</span>
+        </div>
+        ${this.renderDice(rollData)}
+        <div class="pd6-roll-summary">
+          <span class="pd6-successes">${rollData.successes} Successes</span>
+          ${rollData.explosions > 0 ? `<span class="pd6-explosions">(${rollData.explosions} exploded)</span>` : ""}
+        </div>
+      </div>`;
+
+    return this._postRollMessage(chatContent, game.user.character || null, rollData);
+  }
+
+  /**
+   * Parse a chat command string and execute a generic roll.
+   * Formats: "/pd6 5", "/pd6 3 red", "/pd6 4 black My Custom Roll"
+   */
+  static async handleChatCommand(messageText) {
+    const parts = messageText.trim().split(/\s+/);
+    const pool = parseInt(parts[0]);
+    if (isNaN(pool) || pool < 1) {
+      ui.notifications.warn('Usage: /pd6 [dice] [white|red|black] [optional label]. Example: /pd6 5 red Attack roll');
+      return false;
+    }
+
+    let color = "white";
+    let labelParts = [];
+    for (let i = 1; i < parts.length; i++) {
+      const lower = parts[i].toLowerCase();
+      if (i === 1 && (lower === "white" || lower === "red" || lower === "black" || lower === "w" || lower === "r" || lower === "b")) {
+        if (lower === "r" || lower === "red") color = "red";
+        else if (lower === "b" || lower === "black") color = "black";
+      } else {
+        labelParts.push(parts[i]);
+      }
+    }
+
+    const label = labelParts.join(" ");
+    return this.rollGeneric({ pool, color, label });
+  }
+
   /**
    * Gather trait effects for a given skill on any actor.
    * Returns { defaultColor, bonusDice, remindersHtml, infoHtml }

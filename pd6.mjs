@@ -161,6 +161,28 @@ Hooks.on("renderCombatTracker", (app, html, data) => {
   controls.appendChild(btn);
 });
 
+// Add generic dice roller to scene controls
+Hooks.on("getSceneControlButtons", (controls) => {
+  const tokenControls = controls.find(c => c.name === "token");
+  if (tokenControls) {
+    tokenControls.tools.push({
+      name: "pd6-dice-roller",
+      title: "PD6 Dice Roller",
+      icon: "fas fa-dice-d6",
+      button: true,
+      onClick: () => PD6Dice.rollGeneric(),
+    });
+  }
+});
+
+// Chat command: /pd6 [dice] [color] [label]
+Hooks.on("chatMessage", (chatLog, message, chatData) => {
+  if (message.startsWith("/pd6 ")) {
+    PD6Dice.handleChatCommand(message.slice(5));
+    return false; // Prevent default chat message
+  }
+});
+
 /* -------------------------------------------- */
 /*  Handlebars Helpers                          */
 /* -------------------------------------------- */

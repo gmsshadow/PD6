@@ -1416,3 +1416,52 @@
 .pd6-enc-critical {
   background: #cc3333 !important;
 }
+
+/* ---------- Spell Casting ---------- */
+.pd6-spell-failed-row {
+  opacity: 0.5;
+}
+
+.pd6-spell-failed {
+  color: #cc3333;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.pd6-spell-cast .pd6-roll-result {
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: var(--pd6-radius);
+  font-weight: bold;
+  text-align: center;
+}
+
+.pd6-spell-cast .pd6-success {
+  color: #33cc33;
+}
+
+.pd6-spell-cast .pd6-failure {
+  color: #cc3333;
+}
+
+.pd6-spell-info {
+  font-size: 0.78rem;
+  color: var(--pd6-text-dim);
+  margin-top: 4px;
+  padding: 2px 6px;
+  border-top: 1px solid var(--pd6-border);
+}
+
+.pd6-spell-description {
+  font-size: 0.78rem;
+  margin-top: 4px;
+  padding: 4px 6px;
+  border-top: 1px solid var(--pd6-border);
+  font-style: italic;
+  color: var(--pd6-text-dim);
+}
+
+.pd6-armor-penalty-note {
+  color: #cc9900 !important;
+}

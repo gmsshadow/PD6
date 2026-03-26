@@ -140,6 +140,12 @@ export class PD6ActorSheet extends ActorSheet {
     // Armor roll clicks
     on(".pd6-armor-roll", this._onArmorRoll.bind(this));
 
+    // Spell casting
+    on(".pd6-cast-spell", this._onCastSpell.bind(this));
+
+    // Reset failed spells
+    on(".pd6-reset-failed-spells", this._onResetFailedSpells.bind(this));
+
     // Critical injury roll
     on(".pd6-roll-critical", this._onCriticalInjury.bind(this));
 
@@ -333,6 +339,157 @@ export class PD6ActorSheet extends ActorSheet {
   async _onArmorRoll(event) {
     event.preventDefault();
     PD6Dice.rollArmorStandalone({ actor: this.actor });
+  }
+
+  /**
+   * Handle casting a spell.
+   */
+  async _onCastSpell(event) {
+    event.preventDefault();
+    const itemId = event.currentTarget.closest(".pd6-item").dataset.itemId;
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    // Check if spell has already failed today
+    if (item.system.failed) {
+      ui.notifications.warn(`${item.name} has already failed today and cannot be cast again until the next day.`);
+      return;
+    }
+
+    // Trained Magician: DV1 spells auto-cast with no check (Magister class trait, p.3)
+    const dv = Number(item.system.difficultyValue) || 1;
+    const hasTrainedMagician = this.actor.items.some(i => i.type === "trait" && i.name === "Trained Magician");
+    if (hasTrainedMagician && dv <= 1) {
+      const spellInfo = [];
+      if (item.system.range) spellInfo.push(`Range: ${item.system.range}`);
+      if (item.system.duration) spellInfo.push(`Duration: ${item.system.duration}`);
+      if (item.system.spellSave) spellInfo.push(`Spell Save: ${item.system.spellSave}`);
+      if (item.system.element) spellInfo.push(`Element: ${item.system.element}`);
+      const infoLine = spellInfo.length ? `<div class="pd6-spell-info">${spellInfo.join(" | ")}</div>` : "";
+
+      const content = `
+        <div class="pd6-chat-roll pd6-spell-cast">
+          <h3 class="pd6-roll-header"><i class="fas fa-hand-sparkles"></i> Cast: ${item.name}</h3>
+          <div class="pd6-roll-info">
+            <span class="pd6-pool-info">Trained Magician — automatic success</span>
+          </div>
+          <div class="pd6-roll-result"><span class="pd6-success">AUTO-CAST (DV1, no check needed)</span></div>
+          ${infoLine}
+          ${item.system.description ? `<div class="pd6-spell-description">${item.system.description}</div>` : ""}
+        </div>`;
+
+      const chatData = {
+        speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+        content,
+        style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+      };
+      await ChatMessage.create(chatData);
+      return;
+    }
+
+    // Check if the actor has Magic skill
+    const magicSkill = this.actor.system.skills.magic;
+    if (!magicSkill || magicSkill.pool <= 0) {
+      ui.notifications.warn(`${this.actor.name} has no Magic skill pool.`);
+      return;
+    }
+
+    // Calculate armor penalty (p.25: medium/heavy armor penalty = AV)
+    let armorPenalty = 0;
+    let armorNote = "";
+    const equippedArmor = this.actor.items.find(i => i.type === "armor" && i.system.equipped);
+    if (equippedArmor) {
+      const aType = equippedArmor.system.armorType;
+      if (aType === "medium" || aType === "heavy") {
+        armorPenalty = Number(equippedArmor.system.armorValue) || 0;
+        armorNote = `Armor penalty (${equippedArmor.name} AV ${armorPenalty}): −${armorPenalty} dice`;
+      }
+    }
+
+    const basePool = magicSkill.pool;
+
+    // Gather trait effects for magic skill
+    const traitInfo = PD6Dice._getTraitInfo(this.actor, "magic");
+
+    const mods = await PD6Dice._modifierDialog(
+      `Cast: ${item.name}`,
+      traitInfo.defaultColor || "white",
+      `${traitInfo.remindersHtml ? `<div class="pd6-trait-reminders">${traitInfo.remindersHtml}</div>` : ""}
+      ${traitInfo.infoHtml ? `<div class="pd6-trait-info-line">${traitInfo.infoHtml}</div>` : ""}
+      <div class="form-group">
+        <label>Magic Pool: <strong>${basePool}</strong> dice</label>
+      </div>
+      ${armorNote ? `<div class="form-group"><label class="pd6-armor-penalty-note"><i class="fas fa-exclamation-triangle"></i> ${armorNote}</label></div>` : ""}
+      <div class="form-group">
+        <label>Difficulty Value: <strong>${dv}</strong></label>
+      </div>`
+    );
+    if (!mods) return;
+
+    const finalPool = Math.max(basePool + traitInfo.bonusDice + mods.modifier - armorPenalty, 1);
+    const rollData = await PD6Dice.rollPool(finalPool, mods.diceColor);
+    const colorLabel = PD6Dice.COLORS[mods.diceColor]?.label || "White";
+
+    const success = rollData.successes >= dv;
+    const sv = success ? rollData.successes - dv : 0;
+
+    let resultText;
+    if (success) {
+      resultText = `<span class="pd6-success">SUCCESS (SV ${sv})</span>`;
+    } else {
+      resultText = `<span class="pd6-failure">FAILED — ${item.name} cannot be cast again today</span>`;
+      // Mark the spell as failed
+      await item.update({ "system.failed": true });
+    }
+
+    // Build spell info
+    const spellInfo = [];
+    if (item.system.range) spellInfo.push(`Range: ${item.system.range}`);
+    if (item.system.duration) spellInfo.push(`Duration: ${item.system.duration}`);
+    if (item.system.spellSave) spellInfo.push(`Spell Save: ${item.system.spellSave}`);
+    if (item.system.element) spellInfo.push(`Element: ${item.system.element}`);
+    const infoLine = spellInfo.length ? `<div class="pd6-spell-info">${spellInfo.join(" | ")}</div>` : "";
+
+    const content = `
+      <div class="pd6-chat-roll pd6-spell-cast">
+        <h3 class="pd6-roll-header"><i class="fas fa-hand-sparkles"></i> Cast: ${item.name}</h3>
+        <div class="pd6-roll-info">
+          <span class="pd6-pool-info">${finalPool} ${colorLabel} dice vs DV ${dv}</span>
+          ${armorPenalty ? `<span class="pd6-formula-info">Armor penalty: −${armorPenalty}</span>` : ""}
+        </div>
+        ${PD6Dice.renderDice(rollData)}
+        <div class="pd6-roll-summary">
+          <span class="pd6-successes">${rollData.successes} Successes</span>
+          ${rollData.explosions > 0 ? `<span class="pd6-explosions">(${rollData.explosions} exploded)</span>` : ""}
+        </div>
+        <div class="pd6-roll-result">${resultText}</div>
+        ${infoLine}
+        ${item.system.description ? `<div class="pd6-spell-description">${item.system.description}</div>` : ""}
+      </div>`;
+
+    await PD6Dice._postRollMessage(content, this.actor, rollData);
+  }
+
+  /**
+   * Reset all failed spells (new day).
+   */
+  async _onResetFailedSpells(event) {
+    event.preventDefault();
+    const failedSpells = this.actor.items.filter(i => i.type === "spell" && i.system.failed);
+    if (failedSpells.length === 0) {
+      ui.notifications.info("No failed spells to reset.");
+      return;
+    }
+
+    const confirmed = await Dialog.confirm({
+      title: "Reset Failed Spells",
+      content: `<p>Reset ${failedSpells.length} failed spell(s)? This represents a new day of adventuring.</p>`,
+    });
+    if (!confirmed) return;
+
+    const updates = failedSpells.map(s => ({ _id: s.id, "system.failed": false }));
+    await this.actor.updateEmbeddedDocuments("Item", updates);
+    ui.notifications.info(`Reset ${failedSpells.length} failed spell(s) for ${this.actor.name}.`);
   }
 
   /**

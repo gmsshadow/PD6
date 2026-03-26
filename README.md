@@ -3,7 +3,7 @@
 A Foundry VTT system implementation for **Perilous D6 (PD6)**, a setting-agnostic fantasy tabletop RPG built around dice pools of d6s with white, red, and black dice mechanics.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
-![Version](https://img.shields.io/badge/Version-0.2.4-blue)
+![Version](https://img.shields.io/badge/Version-0.2.5-blue)
 
 ## Installation
 
@@ -85,6 +85,17 @@ Fully automated attack sequence chaining through chat card buttons. Each step in
 - **Standalone Armor**: Roll armor from the sheet without being in the combat chain.
 - **NPC Natural Weapon Damage**: Burst icon next to the Natural Weapon DD field in the NPC header.
 
+### Spell Casting Automation
+
+Click the sparkle icon on any spell in the Magic tab to cast it:
+
+1. Checks if the spell has already failed today — blocks casting with a notification if so.
+2. Calculates the Magic pool (skill ranks + governing attribute) and applies armour penalty (medium/heavy armour AV deducted from pool, per p.25).
+3. Opens a modifier dialog showing the pool, DV, armour penalty, and any trait effects (e.g. Academic giving red Magic dice for Magisters).
+4. Rolls Magic vs the spell's DV — posts a chat card with the full result, spell details (range, duration, spell save, element), and description.
+5. On **failure**, the spell is marked as "Failed" and dimmed on the sheet — it cannot be cast again for the rest of the day (per p.25).
+6. The **reset button** (undo icon next to the Spells header) clears all failed spells, representing a new day of adventuring.
+
 ### Luck System
 
 - **Pre-roll**: Sheet button opens a full dialog (skill picker, DV, colour, modifiers) with the +2 Luck bonus included. Luck Point deducted on confirmation.
@@ -158,7 +169,7 @@ The system uses V13-compatible APIs: `grid.distance`/`grid.units`, `CONST.CHAT_M
 
 ```
 pd6/
-├── system.json              # System manifest (v0.2.4)
+├── system.json              # System manifest (v0.2.5)
 ├── template.json            # Actor & Item data models
 ├── pd6.mjs                  # Main entry point, hooks, Handlebars helpers
 ├── css/
@@ -203,7 +214,6 @@ pd6/
 
 ## To Do
 
-- [ ] Spell casting automation — Magic skill checks against spell DV with failure tracking and daily lockout
 - [ ] Miracle usage automation — escalating DV per day, failure locks out for the day
 - [ ] Spells and miracles compendium packs
 - [ ] Active Effects integration — conditions that mechanically modify dice pools

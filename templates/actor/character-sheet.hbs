@@ -196,12 +196,15 @@
       <div class="pd6-item-list">
         <div class="pd6-item-header">
           <h3>Spells</h3>
+          <a class="pd6-reset-failed-spells" title="Reset all failed spells (new day)">
+            <i class="fas fa-undo"></i>
+          </a>
           <a class="pd6-item-create" data-type="spell" title="Add Spell">
             <i class="fas fa-plus"></i>
           </a>
         </div>
         {{#each spells}}
-        <div class="pd6-item" data-item-id="{{this.id}}">
+        <div class="pd6-item {{#if this.system.failed}}pd6-spell-failed-row{{/if}}" data-item-id="{{this.id}}">
           <div class="pd6-item-name">
             <a class="pd6-item-chat" title="Post to Chat">
               <img src="{{this.img}}" width="24" height="24" />
@@ -212,6 +215,7 @@
           <span class="pd6-item-detail">DV {{this.system.difficultyValue}}</span>
           <span class="pd6-item-detail">{{this.system.range}}</span>
           <div class="pd6-item-controls">
+            <a class="pd6-cast-spell" title="Cast Spell"><i class="fas fa-hand-sparkles"></i></a>
             <a class="pd6-item-edit" title="Edit"><i class="fas fa-edit"></i></a>
             <a class="pd6-item-delete" title="Delete"><i class="fas fa-trash"></i></a>
           </div>
