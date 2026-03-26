@@ -105,6 +105,9 @@ export class PD6ActorSheet extends ActorSheet {
       );
     }
 
+    // Miracle escalating DV (p.28: first = DV1, +1 per additional cast)
+    context.miracleNextDV = (context.system.miraclesCastToday || 0) + 1;
+
     return context;
   }
 
@@ -146,8 +149,14 @@ export class PD6ActorSheet extends ActorSheet {
     // Spell casting
     on(".pd6-cast-spell", this._onCastSpell.bind(this));
 
+    // Miracle casting
+    on(".pd6-cast-miracle", this._onCastMiracle.bind(this));
+
     // Reset failed spells
     on(".pd6-reset-failed-spells", this._onResetFailedSpells.bind(this));
+
+    // Rest (restore resources)
+    on(".pd6-rest", this._onRest.bind(this));
 
     // Critical injury roll
     on(".pd6-roll-critical", this._onCriticalInjury.bind(this));
@@ -482,6 +491,99 @@ export class PD6ActorSheet extends ActorSheet {
   }
 
   /**
+   * Handle performing a miracle.
+   * Cultist miracles use escalating DV (p.28): first = DV1, +1 per additional.
+   * Failure locks out all miracles for the rest of the day.
+   * Cultists use Willpower for Magic, no armor penalty.
+   */
+  async _onCastMiracle(event) {
+    event.preventDefault();
+    const itemId = event.currentTarget.closest(".pd6-item").dataset.itemId;
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    // Check if miracles are locked out
+    if (this.actor.system.miraclesLockedOut) {
+      ui.notifications.warn("Miracles are locked out for the day — a previous miracle failed. Rest to restore.");
+      return;
+    }
+
+    // Check Magic skill
+    const magicSkill = this.actor.system.skills.magic;
+    if (!magicSkill || magicSkill.pool <= 0) {
+      ui.notifications.warn(`${this.actor.name} has no Magic skill pool.`);
+      return;
+    }
+
+    const basePool = magicSkill.pool;
+    const miraclesCast = this.actor.system.miraclesCastToday || 0;
+    const dv = miraclesCast + 1;
+
+    // Gather trait effects for magic
+    const traitInfo = PD6Dice._getTraitInfo(this.actor, "magic");
+
+    const mods = await PD6Dice._modifierDialog(
+      `Miracle: ${item.name}`,
+      traitInfo.defaultColor || "white",
+      `${traitInfo.remindersHtml ? `<div class="pd6-trait-reminders">${traitInfo.remindersHtml}</div>` : ""}
+      ${traitInfo.infoHtml ? `<div class="pd6-trait-info-line">${traitInfo.infoHtml}</div>` : ""}
+      <div class="form-group">
+        <label>Magic Pool: <strong>${basePool}</strong> dice (Cultist — no armor penalty)</label>
+      </div>
+      <div class="form-group">
+        <label>Escalating DV: <strong>${dv}</strong> (miracle #${miraclesCast + 1} today)</label>
+      </div>`
+    );
+    if (!mods) return;
+
+    const finalPool = Math.max(basePool + traitInfo.bonusDice + mods.modifier, 1);
+    const rollData = await PD6Dice.rollPool(finalPool, mods.diceColor);
+    const colorLabel = PD6Dice.COLORS[mods.diceColor]?.label || "White";
+
+    const success = rollData.successes >= dv;
+    const sv = success ? rollData.successes - dv : 0;
+
+    let resultText;
+    if (success) {
+      resultText = `<span class="pd6-success">SUCCESS (SV ${sv})</span>`;
+      // Increment miracles cast counter
+      await this.actor.update({ "system.miraclesCastToday": miraclesCast + 1 });
+    } else {
+      resultText = `<span class="pd6-failure">FAILED — all miracles locked out for the rest of the day</span>`;
+      // Lock out miracles
+      await this.actor.update({
+        "system.miraclesCastToday": miraclesCast + 1,
+        "system.miraclesLockedOut": true,
+      });
+    }
+
+    // Build miracle info
+    const miracleInfo = [];
+    if (item.system.range) miracleInfo.push(`Range: ${item.system.range}`);
+    if (item.system.duration) miracleInfo.push(`Duration: ${item.system.duration}`);
+    if (item.system.spellSave) miracleInfo.push(`Spell Save: ${item.system.spellSave}`);
+    const infoLine = miracleInfo.length ? `<div class="pd6-spell-info">${miracleInfo.join(" | ")}</div>` : "";
+
+    const content = `
+      <div class="pd6-chat-roll pd6-spell-cast">
+        <h3 class="pd6-roll-header"><i class="fas fa-sun"></i> Miracle: ${item.name}</h3>
+        <div class="pd6-roll-info">
+          <span class="pd6-pool-info">${finalPool} ${colorLabel} dice vs DV ${dv} (miracle #${miraclesCast + 1})</span>
+        </div>
+        ${PD6Dice.renderDice(rollData)}
+        <div class="pd6-roll-summary">
+          <span class="pd6-successes">${rollData.successes} Successes</span>
+          ${rollData.explosions > 0 ? `<span class="pd6-explosions">(${rollData.explosions} exploded)</span>` : ""}
+        </div>
+        <div class="pd6-roll-result">${resultText}</div>
+        ${infoLine}
+        ${item.system.description ? `<div class="pd6-spell-description">${item.system.description}</div>` : ""}
+      </div>`;
+
+    await PD6Dice._postRollMessage(content, this.actor, rollData);
+  }
+
+  /**
    * Reset all failed spells (new day).
    */
   async _onResetFailedSpells(event) {
@@ -501,6 +603,88 @@ export class PD6ActorSheet extends ActorSheet {
     const updates = failedSpells.map(s => ({ _id: s.id, "system.failed": false }));
     await this.actor.updateEmbeddedDocuments("Item", updates);
     ui.notifications.info(`Reset ${failedSpells.length} failed spell(s) for ${this.actor.name}.`);
+  }
+
+  /**
+   * Handle resting — restore Grit, Luck, reset spells and miracles.
+   * Natural healing (p.17): 8 hours rest = recover 1 GP.
+   * Luck Points fully restored (p.6).
+   * Spell failures and miracle lockout cleared.
+   */
+  async _onRest(event) {
+    event.preventDefault();
+
+    const gp = this.actor.system.gritPoints;
+    const lp = this.actor.system.luckPoints;
+    const failedSpells = this.actor.items.filter(i => i.type === "spell" && i.system.failed);
+    const miraclesCast = this.actor.system.miraclesCastToday || 0;
+    const miraclesLocked = this.actor.system.miraclesLockedOut || false;
+
+    // Build summary of what will be restored
+    let summaryItems = [];
+    const gritToRestore = Math.min(1, gp.max - gp.value);
+    if (gritToRestore > 0) summaryItems.push(`Restore ${gritToRestore} Grit Point (natural healing)`);
+    const luckToRestore = lp.max - lp.value;
+    if (luckToRestore > 0) summaryItems.push(`Restore ${luckToRestore} Luck Point(s) (${lp.value} → ${lp.max})`);
+    if (failedSpells.length > 0) summaryItems.push(`Reset ${failedSpells.length} failed spell(s)`);
+    if (miraclesCast > 0 || miraclesLocked) summaryItems.push("Reset miracle counter and lockout");
+
+    if (summaryItems.length === 0) {
+      ui.notifications.info(`${this.actor.name} is already fully rested.`);
+      return;
+    }
+
+    const confirmed = await Dialog.confirm({
+      title: `Rest: ${this.actor.name}`,
+      content: `<p>Rest for 8 hours? This will:</p><ul>${summaryItems.map(s => `<li>${s}</li>`).join("")}</ul>`,
+    });
+    if (!confirmed) return;
+
+    // Apply updates
+    const actorUpdates = {};
+
+    // Natural healing: +1 Grit Point
+    if (gritToRestore > 0) {
+      actorUpdates["system.gritPoints.value"] = gp.value + gritToRestore;
+    }
+
+    // Full Luck restoration
+    if (luckToRestore > 0) {
+      actorUpdates["system.luckPoints.value"] = lp.max;
+    }
+
+    // Reset miracle tracking
+    if (miraclesCast > 0 || miraclesLocked) {
+      actorUpdates["system.miraclesCastToday"] = 0;
+      actorUpdates["system.miraclesLockedOut"] = false;
+    }
+
+    if (Object.keys(actorUpdates).length) {
+      await this.actor.update(actorUpdates);
+    }
+
+    // Reset failed spells
+    if (failedSpells.length > 0) {
+      const spellUpdates = failedSpells.map(s => ({ _id: s.id, "system.failed": false }));
+      await this.actor.updateEmbeddedDocuments("Item", spellUpdates);
+    }
+
+    // Post rest summary to chat
+    const content = `
+      <div class="pd6-chat-roll">
+        <h3 class="pd6-roll-header"><i class="fas fa-campground"></i> ${this.actor.name} Rests</h3>
+        <ul class="pd6-rest-summary">
+          ${summaryItems.map(s => `<li>${s}</li>`).join("")}
+        </ul>
+      </div>`;
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content,
+      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+    });
+
+    ui.notifications.info(`${this.actor.name} has rested and recovered.`);
   }
 
   /**

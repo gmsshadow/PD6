@@ -46,6 +46,11 @@
             </button>
           </div>
         </div>
+        <div class="pd6-field pd6-rest-display">
+          <button type="button" class="pd6-rest" title="Rest (restore Grit, Luck, reset spells/miracles)">
+            <i class="fas fa-campground"></i> Rest
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -228,10 +233,18 @@
       <div class="pd6-item-list">
         <div class="pd6-item-header">
           <h3>Miracles</h3>
+          <span class="pd6-miracle-dv-tracker" title="Next miracle DV">
+            Next DV: {{miracleNextDV}}
+          </span>
           <a class="pd6-item-create" data-type="miracle" title="Add Miracle">
             <i class="fas fa-plus"></i>
           </a>
         </div>
+        {{#if system.miraclesLockedOut}}
+        <div class="pd6-miracle-lockout-warning">
+          <i class="fas fa-ban"></i> Miracles locked out for the day — a miracle failed. Rest to restore.
+        </div>
+        {{/if}}
         {{#each miracles}}
         <div class="pd6-item" data-item-id="{{this.id}}">
           <div class="pd6-item-name">
@@ -243,6 +256,7 @@
           <span class="pd6-item-detail">{{this.system.range}}</span>
           <span class="pd6-item-detail">{{this.system.duration}}</span>
           <div class="pd6-item-controls">
+            <a class="pd6-cast-miracle" title="Perform Miracle"><i class="fas fa-sun"></i></a>
             <a class="pd6-item-edit" title="Edit"><i class="fas fa-edit"></i></a>
             <a class="pd6-item-delete" title="Delete"><i class="fas fa-trash"></i></a>
           </div>

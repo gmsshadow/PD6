@@ -63,6 +63,8 @@
         "value": 2,
         "max": 2
       },
+      "miraclesCastToday": 0,
+      "miraclesLockedOut": false,
       "experience": {
         "value": 0,
         "spent": 0

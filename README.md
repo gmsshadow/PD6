@@ -3,7 +3,7 @@
 A Foundry VTT system implementation for **Perilous D6 (PD6)**, a setting-agnostic fantasy tabletop RPG built around dice pools of d6s with white, red, and black dice mechanics.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
-![Version](https://img.shields.io/badge/Version-0.2.6-blue)
+![Version](https://img.shields.io/badge/Version-0.2.8-blue)
 
 ## Installation
 
@@ -89,6 +89,28 @@ Fully automated attack sequence chaining through chat card buttons. Each step in
 - **Standalone Armor**: Roll armor from the sheet without being in the combat chain.
 - **NPC Natural Weapon Damage**: Burst icon next to the Natural Weapon DD field in the NPC header.
 
+### Miracle Automation
+
+Click the sun icon on any miracle in the Magic tab to perform it:
+
+1. Checks if miracles are locked out for the day — blocks with a notification if so.
+2. Calculates the **escalating DV** (p.28): first miracle = DV 1, second = DV 2, etc. The current DV is displayed next to the Miracles header.
+3. Opens a modifier dialog showing pool, DV, and trait effects. Cultists have **no armour penalty** for miracles (p.28).
+4. Rolls Magic vs the escalating DV — posts a chat card showing the miracle number, result, and spell details.
+5. On **failure**, all miracles are **locked out** for the rest of the day. A red warning banner appears on the Magic tab.
+6. On **success**, the miracle counter increments, raising the DV for the next miracle.
+7. Everything resets on rest.
+
+### Rest Mechanics
+
+The campground button in the character header performs an 8-hour rest:
+
+- **Natural Healing** (p.17): Restores 1 Grit Point.
+- **Luck Points** (p.6): Fully restored to maximum.
+- **Failed Spells**: All "Failed Today" flags cleared.
+- **Miracles**: Cast counter reset to 0, lockout cleared.
+- Shows a confirmation dialog listing everything that will be restored, then posts a summary to chat.
+
 ### Spell Casting Automation
 
 Click the sparkle icon on any spell in the Magic tab to cast it:
@@ -151,7 +173,7 @@ All rolls use Foundry's native Roll API with exploding dice (`Xd6x=6`), enabling
 
 ## Compendium Packs
 
-Five compendium packs populated via the setup macro (`macros/populate-compendiums.js`):
+Seven compendium packs populated via the setup macro (`macros/populate-compendiums.js`):
 
 | Pack | Type | Contents |
 |------|------|----------|
@@ -159,6 +181,8 @@ Five compendium packs populated via the setup macro (`macros/populate-compendium
 | **PD6 Traits** | Item | 16 special traits from p.5 + 13 creature traits from pp.30-31 (29 total) |
 | **PD6 Weapons** | Item | 24 weapons — 10 Common, 7 Heavy, 4 Bows, 3 Throwing (exact stats from pp.21-22) |
 | **PD6 Armour** | Item | 9 armour sets — 3 Light, 3 Medium, 3 Heavy (exact stats from p.23) |
+| **PD6 Spells** | Item | 17 spells — all arcane spells from pp.26-28 with DV, duration, range, spell save, element |
+| **PD6 Miracles** | Item | 9 miracles — all divine miracles from p.29 with range, duration, spell save |
 | **PD6 Bestiary** | Actor | 10 creatures — Bandit, Brown Bear, Forest Spirit, Goblin, Goblin Shaman, Lesser Demon, Ogre, Orc, Wolf, Zombie (exact stats from pp.30-31 with embedded weapons and traits) |
 
 ## Compatibility
@@ -173,7 +197,7 @@ The system uses V13-compatible APIs: `grid.distance`/`grid.units`, `CONST.CHAT_M
 
 ```
 pd6/
-├── system.json              # System manifest (v0.2.6)
+├── system.json              # System manifest (v0.2.8)
 ├── template.json            # Actor & Item data models
 ├── pd6.mjs                  # Main entry point, hooks, Handlebars helpers
 ├── css/
@@ -187,7 +211,9 @@ pd6/
 │   ├── traits/
 │   ├── weapons/
 │   ├── armor/
-│   └── bestiary/
+│   ├── bestiary/
+│   ├── spells/
+│   └── miracles/
 ├── module/
 │   ├── documents/
 │   │   ├── actor.mjs        # Actor document: derived data, passive traits, multi-slot effects
@@ -219,9 +245,7 @@ pd6/
 ## To Do
 
 - [ ] Miracle usage automation — escalating DV per day, failure locks out for the day
-- [ ] Spells and miracles compendium packs
 - [ ] Active Effects integration — conditions that mechanically modify dice pools
-- [ ] Rest mechanics — Grit/Luck recovery, spell failure reset
 - [ ] Initiative tie-breaking — re-roll prompt when sides tie
 - [ ] Chat whisper support for GM-only NPC rolls
 - [ ] Full i18n localisation

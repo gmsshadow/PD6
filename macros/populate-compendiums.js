@@ -355,6 +355,87 @@
   ];
 
   // ============================================================
+  //  SPELLS — All spells from PD6 2.0 pp.26-28
+  // ============================================================
+  const sp = (name, dv, duration, range, spellSave, element, desc) => ({
+    name, type: "spell", img: "icons/svg/book.svg",
+    system: {
+      description: `<p>${desc}</p>`,
+      difficultyValue: dv, duration: duration || "", range: range || "",
+      spellSave: spellSave || "", element: element || "", failed: false,
+    },
+  });
+
+  const spells = [
+    sp("Amphibious Transformation", 2, "1 hour", "Touch", "", "Water",
+      "You target one creature you can touch. Your target can breathe under water and rolls black dice for swimming-related Athletics checks."),
+    sp("Arcane Detection", 1, "1 hour", "Self", "", "",
+      "You detect the presence of magical items and active spells within 200 ft. This spell can affect your senses in a variety of ways. You may hear buzzing which increases in volume the closer you are to magic or observe strange colored auras which linger around magical energy."),
+    sp("Arrow Attraction", 1, "Encounter", "200 ft", "", "",
+      "You target one combatant within range and place a hex upon them. Ranged attacks directed at the target of this spell gain a +1 bonus to the attack roll."),
+    sp("Barricade", 3, "1 day", "Touch", "", "",
+      "You magically lock a door or gate, preventing it from being opened with a key or lockpick. The target of this spell can still be destroyed, forcefully opened, and breached with the Open spell."),
+    sp("Counterspell", 0, "", "100 ft", "", "",
+      "Once per round, you may attempt to thwart the spellcasting of another. When a combatant within range attempts to cast a spell, you may force them to make an opposed Magic check. On a success, the opponent's spell fails. If your target fails the opposed Magic check while attempting a hostile spell and rolls a 1, the spell is redirected at them. You may also attempt to dispel an active spell — you end the spell if you successfully meet or exceed its DV. Counterspell cannot affect spells with a permanent duration."),
+    sp("Defy Rain", 1, "1 hour", "Touch", "", "Water",
+      "One target that you touch repels rain for the spell's duration. Any items carried by your target also remain dry for the spell's duration."),
+    sp("Direct Lightning", 4, "", "200 ft", "DV5 Acrobatics", "",
+      "You can target up to 3 combatants within range and strike them with lightning. Targets that fail their Spell Save suffer 6DD which ignores armor. This spell can only target combatants who are outside and in the open."),
+    sp("Fiery Maelstrom", 5, "1d3 turns", "100 ft", "DV3 Acrobatics", "",
+      "The maelstrom occupies a 10 ft × 10 ft area within range. The maelstrom can move up to 10 ft on each of your turns in a direction of your choice. Combatants who begin their turn, or pass through the maelstrom, must make a Spell Save. Targets which fail this Spell Save suffer 8DD flaming damage which ignores armor and become Ignited."),
+    sp("Flash of Light", 1, "", "25 ft", "DV2 Discipline", "",
+      "The target of this spell becomes Blinded for 1 turn if they fail their Spell Save."),
+    sp("Freezing Touch", 3, "", "Touch", "DV3 Athletics", "",
+      "You touch one combatant and attempt to freeze them. If your target fails their Spell Save, they are Stunned until the beginning of your next turn."),
+    sp("Invisibility", 5, "1 hour", "Self", "", "",
+      "You become Invisible. This spell will end prematurely if you take a hostile action or cast another spell."),
+    sp("Magic Flame", 1, "1 minute", "Self", "", "",
+      "You produce a small flame in your open palm. This fire may assume an unnatural color and will burn for the spell's duration or until you close your hand. The flame is incapable of harming creatures, though can be used to ignite flammable objects and produces the same light as a candle."),
+    sp("Open", 4, "", "Touch", "", "",
+      "You open one lock or unlatch a door."),
+    sp("Repel Weapons", 1, "1 hour", "Self", "", "",
+      "When you are hit with a weapon attack, you may roll 2 black armor dice, rather than use your normal armor roll."),
+    sp("Stagger", 1, "1 turn", "50 ft", "", "",
+      "Your target incurs a -1 penalty to attack and defense rolls until the beginning of your next turn."),
+    sp("Summon Rain", 3, "", "Self", "", "",
+      "Ritual. You attempt to create a rain cloud directly above you. The rain can be collected and is safe to drink."),
+    sp("Thunderclap", 4, "1 turn", "100 ft", "DV4 Resiliency", "",
+      "You create a sudden explosion of light and sound within a 20 ft × 20 ft area in range. Targets which fail their Spell Save become Blinded and Deafened until the beginning of your next turn."),
+  ];
+
+  // ============================================================
+  //  MIRACLES — All miracles from PD6 2.0 p.29
+  // ============================================================
+  const mi = (name, duration, range, spellSave, desc) => ({
+    name, type: "miracle", img: "icons/svg/sun.svg",
+    system: {
+      description: `<p>${desc}</p>`,
+      range: range || "", duration: duration || "", spellSave: spellSave || "",
+    },
+  });
+
+  const miracles = [
+    mi("Courage", "1 hour", "25 ft", "",
+      "Allies within range of this miracle cannot become Frightened."),
+    mi("Cure Ailment", "", "Touch", "",
+      "You target one Blinded, Deafened, Diseased, or Poisoned ally and cure them of their debilitating condition."),
+    mi("Divine Aid", "Encounter", "50 ft", "",
+      "A combatant gains +2 Luck Points. These extra Luck Points are lost at the end of the encounter if not used."),
+    mi("Doom", "Encounter", "100 ft", "",
+      "You target a combatant within range and impose a -2 penalty to their armor and defense rolls."),
+    mi("Holy Wrath", "Encounter", "50 ft", "",
+      "You and allies within range gain a +1 bonus to attack and damage rolls. Your allies must remain within 50 ft of you to retain the benefits of this miracle."),
+    mi("Humble the Mighty", "Encounter", "50 ft", "",
+      "A combatant within range incurs a -2 penalty to attack and damage rolls."),
+    mi("Lay on Hands", "", "Touch", "",
+      "You touch an ally and miraculously heal their wounds. If your Magic check is a success, you restore 1 GP to your target for every success rolled."),
+    mi("Purifying Light", "", "25 ft", "",
+      "Demons, fey, and undead within range of this miracle suffer 5DD. This damage is rolled on black dice."),
+    mi("Turn Abomination", "Instantaneous", "50 ft", "DV3 Discipline",
+      "Demons, fey, and undead within range of this miracle must make a Spell Save. Targets failing this Spell Save must flee from your presence for 1d6 turns. Combatants which fail this Spell Save and roll a 1 are destroyed."),
+  ];
+
+  // ============================================================
   //  BESTIARY — All creatures from PD6 2.0 pp.30-31
   // ============================================================
   async function populateActorPack(packName, actors) {
@@ -588,8 +669,10 @@
   const tc = await populatePack("traits", traits);          total += tc;
   const wc = await populatePack("weapons", weapons);        total += wc;
   const ac = await populatePack("armor", armor);             total += ac;
+  const sc = await populatePack("spells", spells);           total += sc;
+  const mc = await populatePack("miracles", miracles);       total += mc;
   const bc = await populateActorPack("bestiary", bestiary);  total += bc;
 
-  console.log(`PD6 | Compendiums populated: ${cc} classes, ${tc} traits, ${wc} weapons, ${ac} armour, ${bc} bestiary`);
-  ui.notifications.info(`PD6 Compendiums populated! ${total} items total (${cc} classes, ${tc} traits, ${wc} weapons, ${ac} armour, ${bc} creatures).`);
+  console.log(`PD6 | Compendiums populated: ${cc} classes, ${tc} traits, ${wc} weapons, ${ac} armour, ${sc} spells, ${mc} miracles, ${bc} bestiary`);
+  ui.notifications.info(`PD6 Compendiums populated! ${total} items total (${cc} classes, ${tc} traits, ${wc} weapons, ${ac} armour, ${sc} spells, ${mc} miracles, ${bc} creatures).`);
 })();

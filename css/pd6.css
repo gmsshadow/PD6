@@ -1478,3 +1478,53 @@
 .pd6-quick-roll:hover {
   color: var(--pd6-accent);
 }
+
+/* ---------- Miracle & Rest ---------- */
+.pd6-miracle-dv-tracker {
+  font-size: 0.75rem;
+  color: var(--pd6-accent);
+  font-weight: bold;
+  margin-right: auto;
+  padding: 0 6px;
+}
+
+.pd6-miracle-lockout-warning {
+  padding: 4px 8px;
+  margin-bottom: 4px;
+  border-radius: var(--pd6-radius);
+  font-size: 0.78rem;
+  background: rgba(204, 0, 0, 0.15);
+  border: 1px solid rgba(204, 0, 0, 0.4);
+  color: #cc3333;
+}
+
+.pd6-rest {
+  background: var(--pd6-bg-light);
+  border: 1px solid var(--pd6-border);
+  border-radius: var(--pd6-radius);
+  color: var(--pd6-text);
+  cursor: pointer;
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.pd6-rest:hover {
+  border-color: var(--pd6-accent);
+  color: var(--pd6-accent);
+}
+
+.pd6-rest i {
+  margin-right: 3px;
+}
+
+.pd6-rest-summary {
+  font-size: 0.82rem;
+  margin: 4px 0 0 16px;
+  padding: 0;
+  color: var(--pd6-text);
+}
+
+.pd6-rest-summary li {
+  margin-bottom: 2px;
+}
