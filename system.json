@@ -2,11 +2,11 @@
   "id": "pd6",
   "title": "Perilous D6",
   "description": "A setting-agnostic fantasy tabletop roleplaying system using dice pools of d6s with white, red, and black dice mechanics.",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "compatibility": {
-    "minimum": "12",
-    "verified": "13",
-    "maximum": "13"
+    "minimum": "14",
+    "verified": "14",
+    "maximum": "14"
   },
   "authors": [
     {

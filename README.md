@@ -2,7 +2,7 @@
 
 A Foundry VTT system implementation for **Perilous D6 (PD6)**, a setting-agnostic fantasy tabletop RPG built around dice pools of d6s with white, red, and black dice mechanics.
 
-![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
+![Foundry v14](https://img.shields.io/badge/Foundry-v14-green)
 ![Version](https://img.shields.io/badge/Version-0.2.13-blue)
 
 ## Installation
@@ -189,11 +189,11 @@ Eight compendium packs populated via the setup macro (`macros/populate-compendiu
 
 ## Compatibility
 
-- **Minimum**: Foundry VTT v12
-- **Verified**: Foundry VTT v13
-- **Maximum**: Foundry VTT v13
+- **Minimum**: Foundry VTT v14
+- **Verified**: Foundry VTT v14
+- **Maximum**: Foundry VTT v14
 
-The system uses V13-compatible APIs: `grid.distance`/`grid.units`, `CONST.CHAT_MESSAGE_STYLES`, native DOM methods, and HTMLElement/jQuery dual handling in listeners.
+The system targets Foundry VTT v14 APIs (notably: async roll evaluation, chat roll rendering inferred from included `rolls`, and native DOM handling in listeners).
 
 ## Project Structure
 

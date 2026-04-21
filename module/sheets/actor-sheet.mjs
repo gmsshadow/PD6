@@ -404,7 +404,6 @@ export class PD6ActorSheet extends ActorSheet {
       const chatData = {
         speaker: ChatMessage.getSpeaker({ actor: this.actor }),
         content,
-        style: CONST.CHAT_MESSAGE_STYLES.OTHER,
       };
       await ChatMessage.create(chatData);
       return;
@@ -684,7 +683,6 @@ export class PD6ActorSheet extends ActorSheet {
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       content,
-      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
     });
 
     ui.notifications.info(`${this.actor.name} has rested and recovered.`);

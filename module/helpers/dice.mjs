@@ -51,7 +51,7 @@ export class PD6Dice {
 
     // Build and evaluate a Foundry Roll with exploding 6s
     const roll = new Roll(`${totalDice}d6x=6`);
-    await roll.evaluate();
+    await roll.evaluate({ async: true });
 
     // Apply DSN appearance to the dice term
     const dsnAppearance = this.COLORS[color]?.dsn;
@@ -111,7 +111,6 @@ export class PD6Dice {
       user: game.user.id,
       speaker: ChatMessage.getSpeaker({ actor }),
       content,
-      style: CONST.CHAT_MESSAGE_STYLES.ROLL,
     };
 
     // Whisper NPC rolls to GM only
@@ -127,6 +126,9 @@ export class PD6Dice {
     } else {
       chatData.sound = CONFIG.sounds.dice;
     }
+
+    // In v14, "roll" presentation is inferred from included rolls.
+    if (rollData?.roll) chatData.rolls = [rollData.roll];
 
     return ChatMessage.create(chatData);
   }
@@ -1569,8 +1571,8 @@ export class PD6Dice {
     const _rollD66 = async () => {
       const tensRoll = new Roll("1d6");
       const unitsRoll = new Roll("1d6");
-      await tensRoll.evaluate();
-      await unitsRoll.evaluate();
+      await tensRoll.evaluate({ async: true });
+      await unitsRoll.evaluate({ async: true });
       if (game.dice3d) {
         await game.dice3d.showForRoll(tensRoll, game.user, true);
         await game.dice3d.showForRoll(unitsRoll, game.user, true);
@@ -1619,7 +1621,6 @@ export class PD6Dice {
 
       return ChatMessage.create({
         user: game.user.id, speaker: ChatMessage.getSpeaker({ actor }), content,
-        style: CONST.CHAT_MESSAGE_STYLES.ROLL,
       });
     }
 
@@ -1642,7 +1643,6 @@ export class PD6Dice {
 
     return ChatMessage.create({
       user: game.user.id, speaker: ChatMessage.getSpeaker({ actor }), content,
-      style: CONST.CHAT_MESSAGE_STYLES.ROLL,
     });
   }
 

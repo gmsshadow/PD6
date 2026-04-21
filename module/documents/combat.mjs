@@ -209,7 +209,6 @@ export class PD6Combat extends Combat {
       user: game.user.id,
       speaker: { alias: "PD6 Initiative" },
       content,
-      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
       sound: CONFIG.sounds.dice,
     });
   }

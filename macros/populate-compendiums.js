@@ -16,11 +16,12 @@
   async function populatePack(packName, items) {
     const pack = game.packs.get(`pd6.${packName}`);
     if (!pack) { ui.notifications.warn(`Pack "pd6.${packName}" not found.`); return 0; }
+    await pack.getIndex();
     await pack.configure({ locked: false });
     let created = 0;
     for (const itemData of items) {
       if (pack.index.find(e => e.name === itemData.name)) continue;
-      await Item.create(itemData, { pack: pack.collection });
+      await pack.documentClass.createDocuments([itemData], { pack: pack.collection });
       created++;
     }
     await pack.configure({ locked: true });
@@ -523,11 +524,12 @@
   async function populateActorPack(packName, actors) {
     const pack = game.packs.get(`pd6.${packName}`);
     if (!pack) { ui.notifications.warn(`Pack "pd6.${packName}" not found.`); return 0; }
+    await pack.getIndex();
     await pack.configure({ locked: false });
     let created = 0;
     for (const actorData of actors) {
       if (pack.index.find(e => e.name === actorData.name)) continue;
-      await Actor.create(actorData, { pack: pack.collection });
+      await pack.documentClass.createDocuments([actorData], { pack: pack.collection });
       created++;
     }
     await pack.configure({ locked: true });
